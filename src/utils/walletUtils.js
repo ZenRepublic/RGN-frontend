@@ -1,32 +1,62 @@
 import { useMemo } from 'react';
 
+// ────────────────────────────────────────────────
+// Internal helper – not exported
+// ────────────────────────────────────────────────
+const isMobileDevice = () => {
+  const ua = navigator.userAgent.toLowerCase();
+
+  // Classic mobile UA patterns (still the most reliable quick check in 2026)
+  const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+
+  const fromUA = mobileRegex.test(ua);
+
+  // Optional extra hints (helps catch edge cases without hurting perf)
+  const hasTouch = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
+  const isCoarsePointer = window.matchMedia?.('(pointer:coarse)').matches ?? false;
+
+  return fromUA || (hasTouch && isCoarsePointer);
+};
+
+// ────────────────────────────────────────────────
+// Exported: simple mobile check (can be used anywhere)
+// ────────────────────────────────────────────────
+export const useIsMobile = () => {
+  return useMemo(() => isMobileDevice(), []);
+};
+
+// ────────────────────────────────────────────────
+// Exported: detects Phantom / Solflare mobile in-app browser
+// Only true if BOTH mobile + in-app/WebView signals
+// ────────────────────────────────────────────────
 export const useIsInAppWalletBrowser = () => {
   return useMemo(() => {
+    if (!isMobileDevice()) return false;
+
     const ua = navigator.userAgent.toLowerCase();
 
-    // 1. Must look like a mobile device
-    const isMobile = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-    
-    if (!isMobile) return false;
+    // WebView / in-app browser fingerprints
+    const isWebViewLike =
+      ua.includes('wv') ||                             // Android WebView
+      (ua.includes('version/') &&                      // iOS in-app browsers often have "Version/"
+        !ua.includes('safari') &&                      // real Safari usually has it
+        !ua.includes('chrome') &&
+        !ua.includes('crios')) ||
+      !('chrome' in window) ||                         // many in-app views lack window.chrome
+      ua.includes('phantom') ||                        // sometimes injected in UA
+      ua.includes('solflare');
 
-    // 2. WebView / in-app browser signals
-    const isWebView =
-      ua.includes('wv') ||                             // Android WebView marker
-      (ua.includes('version/') && !ua.includes('chrome') && !ua.includes('crios')) || // iOS in-app (missing Chrome/Safari full indicators)
-      !('chrome' in window) ||                         // Many in-app browsers miss window.chrome
-      ua.includes('phantom') ||                        // sometimes added by Phantom
-      ua.includes('solflare');                         // sometimes added by Solflare
+    if (!isWebViewLike) return false;
 
-    if (!isWebView) return false;
-
-    // 3. Phantom or Solflare provider is injected (most reliable signal when inside their in-app browser)
+    // Strongest signal: wallet provider injected early in their own in-app browser
     const hasPhantom = !!(window).phantom?.solana;
     const hasSolflare = !!(window).solflare;
 
-    // Optional: exclude Brave (Brave can mimic Phantom sometimes)
-    const isBrave = (navigator).brave?.isBrave?.() === true ||
-                    ua.includes('brave');
+    // Exclude Brave (it sometimes mimics Phantom injection)
+    const isBrave =
+      (navigator).brave?.isBrave?.() === true ||
+      ua.includes('brave');
 
     return (hasPhantom || hasSolflare) && !isBrave;
-  }, []); // empty deps = runs once + cheap
+  }, []);
 };

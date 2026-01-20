@@ -3,7 +3,7 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Transaction } from '@solana/web3.js';
 import { SpeedInsights } from "@vercel/speed-insights/react"
-import { useIsInAppWalletBrowser } from './utils/walletUtils'; // adjust path
+import { useIsInAppWalletBrowser, useIsMobile } from './utils/walletUtils'; // adjust path
 import Cropper from 'react-easy-crop';
 import './App.css';
 
@@ -71,9 +71,9 @@ async function createCroppedImage(imageSrc, pixelCrop) {
 function App() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction, connected, connecting, disconnect, wallet, connect, select } = useWallet();
-  const [showMobileWalletPrompt, setShowMobileWalletPrompt] = useState(false);
   const [videoError, setVideoError] = useState(false);
 
+  const mobileBrowser = useIsMobile();
   const inWalletBrowser = useIsInAppWalletBrowser();  // ← Now safe: called during render of a function component
   // Cropping state
   const [cropModalOpen, setCropModalOpen] = useState(false);
@@ -85,12 +85,6 @@ function App() {
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
-
-  // Check browser environment on mount
-  useEffect(() => {
-    // Show wallet prompt if on mobile but NOT in wallet browser
-    setShowMobileWalletPrompt(!inWalletBrowser);
   }, []);
 
   // Disconnect on initial page load to prevent auto-reconnect from previous session
@@ -442,7 +436,7 @@ const handleImageUpload = (index, file) => {
       {step === 'form' && (
         <div className="order-form">
           {/* Mobile wallet prompt overlay */}
-          {inWalletBrowser && (
+          {mobileBrowser && !inWalletBrowser && (
             <div className="mobile-wallet-overlay">
               <div className="mobile-wallet-prompt">
                 <h2>Open in Wallet</h2>
