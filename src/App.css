@@ -37,19 +37,11 @@ header {
   margin-bottom: 32px;
 }
 
-.header-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
 header .banner {
-  flex: 1;
-  max-width: calc(100% - 150px);
+  width: 100%;
   height: auto;
   border-radius: 12px;
+  margin-bottom: 16px;
 }
 
 header h1 {
