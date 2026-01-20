@@ -21,49 +21,12 @@ const isMobileNonWalletBrowser = () => {
 };
 
 const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
-const VIDEO_CACHE_KEY = 'rgn-demo-video';
 
 function App() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction, connected, connecting, disconnect, wallet, connect, select } = useWallet();
   const [showMobileWalletPrompt, setShowMobileWalletPrompt] = useState(false);
-  const [videoSrc, setVideoSrc] = useState(null);
-
-  // Load video from cache or fetch and cache it
-  useEffect(() => {
-    const loadVideo = async () => {
-      // Check localStorage first
-      const cached = localStorage.getItem(VIDEO_CACHE_KEY);
-      if (cached) {
-        setVideoSrc(cached);
-        return;
-      }
-
-      // Fetch and cache the video
-      try {
-        const response = await fetch(DEMO_VIDEO_URL);
-        const blob = await response.blob();
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64 = reader.result;
-          try {
-            localStorage.setItem(VIDEO_CACHE_KEY, base64);
-          } catch (e) {
-            // localStorage quota exceeded, just use the URL directly
-            console.log('Video too large for cache, streaming instead');
-          }
-          setVideoSrc(base64);
-        };
-        reader.readAsDataURL(blob);
-      } catch (err) {
-        // Fallback to direct URL if fetch fails
-        console.error('Failed to fetch video:', err);
-        setVideoSrc(DEMO_VIDEO_URL);
-      }
-    };
-
-    loadVideo();
-  }, []);
+  const [videoError, setVideoError] = useState(false);
 
   // Check if mobile user needs to connect wallet first
   useEffect(() => {
@@ -207,8 +170,8 @@ function App() {
 
   const handlePayAndOrder = async () => {
     // TEMP: Disabled for testing
-    console.log('Payment disabled for testing');
-    return;
+    // console.log('Payment disabled for testing');
+    // return;
 
     if (!connected || !publicKey) {
       setError('Please connect your wallet first');
@@ -336,14 +299,19 @@ function App() {
           1v1 Boxing Simulation of locally trained AI Agents. Set your fighters and send them off to the match of the ages, in which the victor will be forever inscribed on the blockchain!
         </p>
         <div className="video-container">
-          {videoSrc ? (
-            <video autoPlay loop muted playsInline>
-              <source src={videoSrc} type="video/mp4" />
+          {!videoError ? (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              onError={() => setVideoError(true)}
+            >
+              <source src={DEMO_VIDEO_URL} type="video/mp4" />
             </video>
           ) : (
             <div className="video-loading">
-              <div className="spinner"></div>
-              <span>Loading preview...</span>
+              <span>Video unavailable</span>
             </div>
           )}
         </div>
