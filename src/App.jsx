@@ -180,31 +180,74 @@ function App() {
     }
   };
 
-  const handleImageUpload = (index, file) => {
-    if (!file) return;
+const handleImageUpload = (index, file) => {
+  if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      setError('Please upload an image file');
-      return;
-    }
+  if (!file.type.startsWith('image/')) {
+    setError('Please upload an image file');
+    return;
+  }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be smaller than 5MB');
-      return;
-    }
+  if (file.size > 5 * 1024 * 1024) {
+    setError('Image must be smaller than 5MB');
+    return;
+  }
 
-    setError('');
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      // Open crop modal with the image
-      setCropImage(reader.result);
+  setError('');
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX_SIDE = 1400; // keep this or lower to 1200 if still issues
+
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_SIDE) {
+          height = Math.round(height * (MAX_SIDE / width));
+          width = MAX_SIDE;
+        }
+      } else {
+        if (height > MAX_SIDE) {
+          width = Math.round(width * (MAX_SIDE / height));
+          height = MAX_SIDE;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        // fallback
+        setCropImage(e.target?.result);
+        setCropFighterIndex(index);
+        setCrop({ x: 0, y: 0 });
+        setZoom(1);
+        setCropModalOpen(true);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Use PNG here (no quality param needed for PNG)
+      const resizedDataUrl = canvas.toDataURL('image/png');
+
+      setCropImage(resizedDataUrl);
       setCropFighterIndex(index);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
       setCropModalOpen(true);
     };
-    reader.readAsDataURL(file);
+
+    img.src = e.target?.result;
   };
+
+  reader.readAsDataURL(file);
+};
 
   const handleCropConfirm = async () => {
     if (!croppedAreaPixels || cropFighterIndex === null) return;
@@ -394,8 +437,8 @@ function App() {
 
       {step === 'form' && (
         <div className="order-form">
-          {/* Mobile wallet prompt overlay - TEMP DISABLED */}
-          {false && showMobileWalletPrompt && (
+          {/* Mobile wallet prompt overlay */}
+          {showMobileWalletPrompt && (
             <div className="mobile-wallet-overlay">
               <div className="mobile-wallet-prompt">
                 <h2>Open in Wallet</h2>
