@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Transaction } from '@solana/web3.js';
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import './App.css';
 
 const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
@@ -395,6 +396,7 @@ function App() {
           </button>
         </div>
       )}
+      <SpeedInsights />
     </div>
   );
 }
