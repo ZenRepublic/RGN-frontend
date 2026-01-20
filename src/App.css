@@ -37,10 +37,18 @@ header {
   margin-bottom: 32px;
 }
 
-header .banner {
-  width: 100%;
-  height: auto;
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
   margin-bottom: 16px;
+}
+
+header .banner {
+  flex: 1;
+  max-width: calc(100% - 150px);
+  height: auto;
   border-radius: 12px;
 }
 
@@ -826,6 +834,21 @@ button.secondary:hover {
 .btn-purchase:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Modal processing state */
+.modal-processing {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.modal-processing h2 {
+  color: var(--blue-main);
+  margin: 24px 0 12px;
+}
+
+.modal-processing p {
+  color: var(--gray);
 }
 
 /* Crop Modal */

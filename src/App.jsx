@@ -87,18 +87,6 @@ function App() {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
-  // Disconnect on initial page load to prevent auto-reconnect from previous session
-  useEffect(() => {
-    if (wallet) {
-      disconnect();
-      select(null);
-    }
-  }, []);
-
-  const handleCancelConnect = () => {
-    select(null);
-    disconnect();
-  };
 
   const [step, setStep] = useState('form'); // 'form', 'processing', 'confirming', 'success'
   const [loading, setLoading] = useState(false);
@@ -307,7 +295,6 @@ const handleImageUpload = (index, file) => {
 
     setLoading(true);
     setError('');
-    setShowCheckoutModal(false);
     setStep('processing');
 
     try {
@@ -373,6 +360,7 @@ const handleImageUpload = (index, file) => {
           ...data,
           warning: data.error || 'NFT minted but metadata update failed. Please contact @RGN_Forever on X for support.'
         });
+        setShowCheckoutModal(false);
         setStep('success');
         return;
       }
@@ -384,12 +372,13 @@ const handleImageUpload = (index, file) => {
       // Full success!
       localStorage.removeItem('rgn-fighters-v2');
       setOrderResult(data);
+      setShowCheckoutModal(false);
       setStep('success');
 
     } catch (err) {
       console.error('Payment error:', err);
       setError(err.message || 'Payment failed. Please try again.');
-      setStep('form');
+      setStep('form'); // Reset step but keep modal open to show error
     } finally {
       setLoading(false);
     }
@@ -398,14 +387,17 @@ const handleImageUpload = (index, file) => {
   return (
     <div className="app">
       <header>
-        <img src="/BannerWithLogo.png" alt="RGN Banner" className="banner" />
+        <div className="header-top">
+          <img src="/BannerWithLogo.png" alt="RGN Banner" className="banner" />
+          <WalletMultiButton />
+        </div>
         <h1 style={{ textAlign: 'left' }}>Onchain Brainrot Broadcast</h1>
-        <p style={{ textAlign: 'left' }}>Own the brainrot, don't just watch it. Select a simulation, customize it, and receive an organically recorded NFT with a short-form video you can share anywhere.</p>
+        <p style={{ textAlign: 'left' }}>Stop consuming brainrot - it's time to own it! <br></br> <br></br> Select a simulation, customize it, and receive an organically recorded NFT with a short-form video you can share anywhere.</p>
       </header>
 
       <div className="tab-group">
         <button className="tab-btn active">Dio Dudes</button>
-        <button className="tab-btn" disabled>More Coming Soon...</button>
+        <button className="tab-btn" disabled>More Soon...</button>
       </div>
 
       <section className="about-section">
@@ -433,15 +425,14 @@ const handleImageUpload = (index, file) => {
         )}
       </section>
 
-      {step === 'form' && (
+      {step !== 'success' && (
         <div className="order-form">
-          {/* Mobile wallet prompt overlay */}
-          {mobileBrowser && !inWalletBrowser && (
+          {/* Connect wallet overlay */}
+          {!connected && (
             <div className="mobile-wallet-overlay">
               <div className="mobile-wallet-prompt">
-                <h2>Open in Wallet</h2>
-                <p>To place an order, please open this site in your Phantom or Solflare wallet app.</p>
-                <WalletMultiButton />
+                <h2>Connect your wallet to order a match</h2>
+                <WalletMultiButton></WalletMultiButton>
               </div>
             </div>
           )}
@@ -501,63 +492,76 @@ const handleImageUpload = (index, file) => {
 
       {/* Checkout Modal */}
       {showCheckoutModal && (
-        <div className="modal-overlay" onClick={() => setShowCheckoutModal(false)}>
+        <div className="modal-overlay" onClick={() => !loading && setShowCheckoutModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Order Details</h2>
-              <div className="modal-header-right">
-                <WalletMultiButton />
-                <button
-                  className="modal-close"
-                  onClick={() => {
-                    setShowCheckoutModal(false);
-                    setError('');
-                  }}
-                >
-                  &times;
-                </button>
+            {/* Processing/Confirming state */}
+            {(step === 'processing' || step === 'confirming') ? (
+              <div className="modal-processing">
+                <div className="spinner large"></div>
+                <h2>{step === 'processing' ? 'Waiting for Transaction' : 'Transaction Confirmed'}</h2>
+                <p>{step === 'processing'
+                  ? 'Please approve the transaction in your wallet...'
+                  : 'Please wait while we finalize your order...'}</p>
               </div>
-            </div>
-
-            <div className="modal-content">
-              <div className="order-summary">
-                <div className="fighters-preview">
-                  <div className="fighter-preview-item">
-                    <img src={fighters[0].imagePreview} alt={fighters[0].name} />
-                    <span>{fighters[0].name}</span>
-                  </div>
-                  <span className="vs-text">VS</span>
-                  <div className="fighter-preview-item">
-                    <img src={fighters[1].imagePreview} alt={fighters[1].name} />
-                    <span>{fighters[1].name}</span>
+            ) : (
+              <>
+                <div className="modal-header">
+                  <h2>Order Details</h2>
+                  <div className="modal-header-right">
+                    <WalletMultiButton />
+                    <button
+                      className="modal-close"
+                      onClick={() => {
+                        setShowCheckoutModal(false);
+                        setError('');
+                      }}
+                    >
+                      &times;
+                    </button>
                   </div>
                 </div>
-              </div>
 
-              <div className="payment-includes">
-                <span>Includes:</span>
-                <ul>
-                  <li>Custom AI Battle Video</li>
-                  <li>NFT with your fighters</li>
-                  <li>Permanent on-chain storage</li>
-                </ul>
-              </div>
+                <div className="modal-content">
+                  <div className="order-summary">
+                    <div className="fighters-preview">
+                      <div className="fighter-preview-item">
+                        <img src={fighters[0].imagePreview} alt={fighters[0].name} />
+                        <span>{fighters[0].name}</span>
+                      </div>
+                      <span className="vs-text">VS</span>
+                      <div className="fighter-preview-item">
+                        <img src={fighters[1].imagePreview} alt={fighters[1].name} />
+                        <span>{fighters[1].name}</span>
+                      </div>
+                    </div>
+                  </div>
 
-              {error && <div className="error">{error}</div>}
-            </div>
+                  <div className="payment-includes">
+                    <span>Includes:</span>
+                    <ul>
+                      <li>Custom AI Battle Video</li>
+                      <li>NFT with your fighters</li>
+                      <li>Permanent on-chain storage</li>
+                    </ul>
+                  </div>
 
-            <button
-              type="button"
-              className="btn-purchase"
-              disabled={loading || !connected || !paymentInfo}
-              onClick={handlePayAndOrder}
-            >
-              {!connected
-                ? 'Connect Wallet To Order'
-                : loading
-                  ? 'Processing...'
-                  : `Purchase (${paymentInfo?.price || '...'} SOL)`}
-            </button>
+                  {error && <div className="error">{error}</div>}
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-purchase"
+                  disabled={loading || !connected || !paymentInfo}
+                  onClick={handlePayAndOrder}
+                >
+                  {!connected
+                    ? 'Connect Wallet To Order'
+                    : loading
+                      ? 'Processing...'
+                      : `Purchase (${paymentInfo?.price || '...'} SOL)`}
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -604,24 +608,6 @@ const handleImageUpload = (index, file) => {
               Confirm
             </button>
           </div>
-        </div>
-      )}
-
-      {step === 'processing' && (
-        <div className="processing-screen">
-          <div className="spinner large"></div>
-          <h2>Waiting for Transaction</h2>
-          <p>Please approve the transaction in your wallet...</p>
-          {error && <div className="error">{error}</div>}
-        </div>
-      )}
-
-      {step === 'confirming' && (
-        <div className="processing-screen">
-          <div className="spinner large"></div>
-          <h2>Transaction Confirmed</h2>
-          <p>Please wait while we finalize your order...</p>
-          {error && <div className="error">{error}</div>}
         </div>
       )}
 
