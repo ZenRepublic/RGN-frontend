@@ -7,9 +7,29 @@ import './App.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
+// Detect if user is on mobile but not in a wallet browser
+const isMobileNonWalletBrowser = () => {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (!isMobile) return false;
+
+  // Check if we're inside a wallet's in-app browser
+  const isPhantomBrowser = window.phantom?.solana?.isPhantom;
+  const isSolflareBrowser = window.solflare?.isSolflare;
+  const hasWalletExtension = isPhantomBrowser || isSolflareBrowser;
+
+  return !hasWalletExtension;
+};
+
 function App() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction, connected, connecting, disconnect, wallet, connect, select } = useWallet();
+  const [showMobileWalletPrompt, setShowMobileWalletPrompt] = useState(false);
+
+  // Check if mobile user needs to connect wallet first
+  useEffect(() => {
+    setShowMobileWalletPrompt(isMobileNonWalletBrowser());
+  }, []);
+
   // Disconnect on initial page load to prevent auto-reconnect from previous session
   useEffect(() => {
     if (wallet) {
@@ -264,6 +284,17 @@ function App() {
 
       {step === 'form' && (
         <div className="order-form">
+          {/* Mobile wallet prompt overlay */}
+          {showMobileWalletPrompt && (
+            <div className="mobile-wallet-overlay">
+              <div className="mobile-wallet-prompt">
+                <h2>Open in Wallet</h2>
+                <p>To place an order, please open this site in your Phantom or Solflare wallet app.</p>
+                <WalletMultiButton />
+              </div>
+            </div>
+          )}
+
           {/* Fighter Setup */}
           {fighters.map((fighter, index) => (
             <section key={index} className="section fighter-section">

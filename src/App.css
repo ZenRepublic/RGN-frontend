@@ -25,6 +25,7 @@ header p {
 
 /* Form sections */
 .order-form {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -458,6 +459,37 @@ button.secondary:hover {
   border-radius: 12px;
   border: 2px solid var(--blue-main);
   box-shadow: 0 4px 12px rgba(80, 65, 231, 0.3);
+}
+
+/* Mobile wallet overlay */
+.mobile-wallet-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(5, 5, 17, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: 12px;
+}
+
+.mobile-wallet-prompt {
+  text-align: center;
+  padding: 32px;
+}
+
+.mobile-wallet-prompt h2 {
+  color: var(--blue-main);
+  margin-bottom: 12px;
+}
+
+.mobile-wallet-prompt p {
+  color: var(--gray);
+  margin-bottom: 24px;
+  max-width: 280px;
 }
 
 /* Checkout button */
