@@ -790,6 +790,70 @@ button.secondary:hover {
   cursor: not-allowed;
 }
 
+/* Crop Modal */
+.crop-modal {
+  background: #1A1A1A;
+  border-radius: 16px;
+  border: 1px solid #333;
+  width: 100%;
+  max-width: 400px;
+  padding: 24px;
+}
+
+.crop-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  background: #0A0A0A;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.crop-controls {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.crop-controls label {
+  font-size: 14px;
+  color: var(--gray);
+  min-width: 50px;
+}
+
+.zoom-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: #333;
+  outline: none;
+}
+
+.zoom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--yellow);
+  cursor: pointer;
+}
+
+.zoom-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--yellow);
+  cursor: pointer;
+  border: none;
+}
+
+.crop-confirm-btn {
+  margin-top: 20px;
+  width: 100%;
+}
+
 /* Responsive - Tablet and up */
 @media (min-width: 768px) {
   header {

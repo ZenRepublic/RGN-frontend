@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Transaction } from '@solana/web3.js';
 import { SpeedInsights } from "@vercel/speed-insights/react"
+import Cropper from 'react-easy-crop';
 import './App.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
@@ -19,12 +20,50 @@ const isMobile = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera
 
 const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
 
+// Helper to create cropped image from canvas
+const createCroppedImage = async (imageSrc, pixelCrop) => {
+  const image = new Image();
+  image.src = imageSrc;
+  await new Promise((resolve) => { image.onload = resolve; });
+
+  const canvas = document.createElement('canvas');
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
+  const ctx = canvas.getContext('2d');
+
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height
+  );
+
+  return canvas.toDataURL('image/png');
+};
+
 function App() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction, connected, connecting, disconnect, wallet, connect, select } = useWallet();
   const [inWalletBrowser, setInWalletBrowser] = useState(false);
   const [showMobileWalletPrompt, setShowMobileWalletPrompt] = useState(false);
   const [videoError, setVideoError] = useState(false);
+
+  // Cropping state
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [cropImage, setCropImage] = useState(null);
+  const [cropFighterIndex, setCropFighterIndex] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
 
   // Check browser environment on mount
   useEffect(() => {
@@ -129,8 +168,8 @@ function App() {
   const handleImageUpload = (index, file) => {
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      setError('Please upload an image file');
+    if (file.type !== 'image/png') {
+      setError('Please upload a PNG image only');
       return;
     }
 
@@ -139,34 +178,44 @@ function App() {
       return;
     }
 
-    const img = new Image();
-    const objectUrl = URL.createObjectURL(file);
-
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-
-      if (img.width !== img.height) {
-        setError('Image must be square (same width and height)');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setError('');
-        setFighters(prev => {
-          const updated = [...prev];
-          updated[index] = {
-            ...updated[index],
-            image: reader.result,
-            imagePreview: reader.result
-          };
-          return updated;
-        });
-      };
-      reader.readAsDataURL(file);
+    setError('');
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // Open crop modal with the image
+      setCropImage(reader.result);
+      setCropFighterIndex(index);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCropModalOpen(true);
     };
+    reader.readAsDataURL(file);
+  };
 
-    img.src = objectUrl;
+  const handleCropConfirm = async () => {
+    if (!croppedAreaPixels || cropFighterIndex === null) return;
+
+    const croppedImage = await createCroppedImage(cropImage, croppedAreaPixels);
+
+    setFighters(prev => {
+      const updated = [...prev];
+      updated[cropFighterIndex] = {
+        ...updated[cropFighterIndex],
+        image: croppedImage,
+        imagePreview: croppedImage
+      };
+      return updated;
+    });
+
+    // Close modal and reset
+    setCropModalOpen(false);
+    setCropImage(null);
+    setCropFighterIndex(null);
+  };
+
+  const handleCropCancel = () => {
+    setCropModalOpen(false);
+    setCropImage(null);
+    setCropFighterIndex(null);
   };
 
   const handlePayAndOrder = async () => {
@@ -350,7 +399,7 @@ function App() {
                   <input
                     id={`f${index}-image`}
                     type="file"
-                    accept="image/*"
+                    accept="image/png"
                     onChange={(e) => handleImageUpload(index, e.target.files[0])}
                     style={{ display: 'none' }}
                   />
@@ -444,6 +493,51 @@ function App() {
                 : loading
                   ? 'Processing...'
                   : `Purchase (${paymentInfo?.price || '...'} SOL)`}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Crop Modal */}
+      {cropModalOpen && cropImage && (
+        <div className="modal-overlay">
+          <div className="crop-modal">
+            <div className="modal-header">
+              <h2>Crop Image</h2>
+              <button className="modal-close" onClick={handleCropCancel}>
+                &times;
+              </button>
+            </div>
+
+            <div className="crop-container">
+              <Cropper
+                image={cropImage}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                cropShape="round"
+                showGrid={false}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
+              />
+            </div>
+
+            <div className="crop-controls">
+              <label>Zoom</label>
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.1}
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className="zoom-slider"
+              />
+            </div>
+
+            <button className="primary crop-confirm-btn" onClick={handleCropConfirm}>
+              Confirm
             </button>
           </div>
         </div>
