@@ -5,7 +5,9 @@ export const useIsInAppWalletBrowser = () => {
     const ua = navigator.userAgent.toLowerCase();
 
     // 1. Must look like a mobile device
-    const isMobile = /iphone|ipad|ipod|android/.test(ua);
+    const isMobile = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    console.log(isMobile);
 
     if (!isMobile) return false;
 

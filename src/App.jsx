@@ -91,7 +91,7 @@ function App() {
   // Check browser environment on mount
   useEffect(() => {
     // Show wallet prompt if on mobile but NOT in wallet browser
-    setShowMobileWalletPrompt(isMobile() && !inWalletBrowser);
+    setShowMobileWalletPrompt(!inWalletBrowser);
   }, []);
 
   // Disconnect on initial page load to prevent auto-reconnect from previous session
