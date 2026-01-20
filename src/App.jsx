@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Transaction } from '@solana/web3.js';
@@ -10,15 +10,36 @@ const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replac
 function App() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction, connected, connecting, disconnect, wallet, connect, select } = useWallet();
+  const [userSelectedWallet, setUserSelectedWallet] = useState(false);
 
-  // Auto-connect when wallet is selected from modal
+  // Disconnect on initial page load to prevent auto-reconnect from previous session
   useEffect(() => {
-    if (wallet && !connected && !connecting) {
+    if (wallet && !userSelectedWallet) {
+      disconnect();
+      select(null);
+    }
+  }, []);
+
+  // Track when user explicitly selects a wallet (after initial mount)
+  const hasInitialized = useRef(false);
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      return;
+    }
+    if (wallet) {
+      setUserSelectedWallet(true);
+    }
+  }, [wallet]);
+
+  // Auto-connect when wallet is explicitly selected by user
+  useEffect(() => {
+    if (wallet && userSelectedWallet && !connected && !connecting) {
       connect().catch((err) => {
         console.log('Auto-connect failed:', err.message);
       });
     }
-  }, [wallet, connected, connecting, connect]);
+  }, [wallet, userSelectedWallet, connected, connecting, connect]);
 
   const handleCancelConnect = () => {
     select(null);
@@ -28,6 +49,7 @@ function App() {
   const [step, setStep] = useState('form'); // 'form', 'processing', 'confirming', 'success'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 
   // Payment info from backend
   const [paymentInfo, setPaymentInfo] = useState(null);
@@ -41,13 +63,11 @@ function App() {
   // Success state
   const [orderResult, setOrderResult] = useState(null);
 
-  // Fetch payment info only when wallet is connected
-  useEffect(() => {
-    if (!connected) {
-      setPaymentInfo(null);
-      return;
-    }
+  // Check if form is valid (both fighters have names and images)
+  const isFormValid = fighters.every(f => f.name.trim() !== '' && f.image !== null);
 
+  // Fetch payment info on mount
+  useEffect(() => {
     const fetchPaymentInfo = async () => {
       try {
         const response = await fetch(`${API_URL}/rgn/payment-info`);
@@ -60,7 +80,7 @@ function App() {
       }
     };
     fetchPaymentInfo();
-  }, [connected]);
+  }, []);
 
   const updateFighter = (index, field, value) => {
     if (field === 'name') {
@@ -151,6 +171,7 @@ function App() {
 
     setLoading(true);
     setError('');
+    setShowCheckoutModal(false);
     setStep('processing');
 
     try {
@@ -287,25 +308,54 @@ function App() {
             </section>
           ))}
 
-          {/* Payment Section */}
-          <section className="section payment-section">
-            <div className="order-header">
+          {error && <div className="error">{error}</div>}
+
+          <button
+            type="button"
+            className="primary checkout-btn"
+            disabled={!isFormValid}
+            onClick={() => setShowCheckoutModal(true)}
+          >
+            Go To Checkout
+          </button>
+        </div>
+      )}
+
+      {/* Checkout Modal */}
+      {showCheckoutModal && (
+        <div className="modal-overlay" onClick={() => setShowCheckoutModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
               <h2>Order Details</h2>
-              <div className="wallet-area">
+              <div className="modal-header-right">
                 <WalletMultiButton />
-                {connecting && (
-                  <button
-                    type="button"
-                    className="cancel-btn"
-                    onClick={handleCancelConnect}
-                  >
-                    Cancel
-                  </button>
-                )}
+                <button
+                  className="modal-close"
+                  onClick={() => {
+                    setShowCheckoutModal(false);
+                    setError('');
+                  }}
+                >
+                  &times;
+                </button>
               </div>
             </div>
 
-            <div className="payment-details">
+            <div className="modal-content">
+              <div className="order-summary">
+                <div className="fighters-preview">
+                  <div className="fighter-preview-item">
+                    <img src={fighters[0].imagePreview} alt={fighters[0].name} />
+                    <span>{fighters[0].name}</span>
+                  </div>
+                  <span className="vs-text">VS</span>
+                  <div className="fighter-preview-item">
+                    <img src={fighters[1].imagePreview} alt={fighters[1].name} />
+                    <span>{fighters[1].name}</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="payment-includes">
                 <span>Includes:</span>
                 <ul>
@@ -314,23 +364,23 @@ function App() {
                   <li>Permanent on-chain storage</li>
                 </ul>
               </div>
-            </div>
 
-            {error && <div className="error">{error}</div>}
+              {error && <div className="error">{error}</div>}
+            </div>
 
             <button
               type="button"
-              className="primary place-order-btn"
+              className="btn-purchase"
               disabled={loading || !connected || !paymentInfo}
               onClick={handlePayAndOrder}
             >
               {!connected
-                ? 'Connect Wallet to Order'
+                ? 'Connect Wallet To Order'
                 : loading
                   ? 'Processing...'
-                  : `Place Order   (${paymentInfo?.price || '...'} SOL)`}
+                  : `Purchase (${paymentInfo?.price || '...'} SOL)`}
             </button>
-          </section>
+          </div>
         </div>
       )}
 
