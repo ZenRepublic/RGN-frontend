@@ -5,7 +5,7 @@ import { Transaction } from '@solana/web3.js';
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import './App.css';
 
-const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 function App() {
   const { connection } = useConnection();
@@ -380,7 +380,7 @@ function App() {
               <div className="info-row">
                 <span>Asset Reference:</span>
                 <a
-                  href={`https://solscan.io/token/${orderResult.nftAddress}?cluster=${import.meta.env.SOL_NETWORK || 'devnet'}`}
+                  href={`https://solscan.io/token/${orderResult.nftAddress}?cluster=${import.meta.env.VITE_SOL_NETWORK || 'devnet'}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="view-nft-link"
