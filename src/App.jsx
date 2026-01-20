@@ -387,9 +387,7 @@ const handleImageUpload = (index, file) => {
   return (
     <div className="app">
       <header>
-        <div className="header-top">
-          <img src="/BannerWithLogo.png" alt="RGN Banner" className="banner" />
-        </div>
+        <img src="/BannerWithLogo.png" alt="RGN Banner" className="banner" />
         <h1 style={{ textAlign: 'left' }}>Onchain Brainrot Broadcast</h1>
         <p style={{ textAlign: 'left' }}>Stop consuming brainrot - it's time to own it! <br></br> <br></br> Select a simulation, customize it, and receive an organically recorded NFT with a short-form video you can share anywhere.</p>
       </header>
