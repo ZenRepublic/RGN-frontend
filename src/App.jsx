@@ -75,7 +75,6 @@ function App() {
   const [videoError, setVideoError] = useState(false);
 
   const inWalletBrowser = useIsInAppWalletBrowser();  // ← Now safe: called during render of a function component
-
   // Cropping state
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropImage, setCropImage] = useState(null);
