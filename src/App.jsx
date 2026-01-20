@@ -168,8 +168,8 @@ function App() {
   const handleImageUpload = (index, file) => {
     if (!file) return;
 
-    if (file.type !== 'image/png') {
-      setError('Please upload a PNG image only');
+    if (!file.type.startsWith('image/')) {
+      setError('Please upload an image file');
       return;
     }
 
@@ -399,7 +399,7 @@ function App() {
                   <input
                     id={`f${index}-image`}
                     type="file"
-                    accept="image/png"
+                    accept="image/*"
                     onChange={(e) => handleImageUpload(index, e.target.files[0])}
                     style={{ display: 'none' }}
                   />
