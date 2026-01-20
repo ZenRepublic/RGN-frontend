@@ -412,7 +412,7 @@ const handleImageUpload = (index, file) => {
       {step === 'form' && (
         <div className="order-form">
           {/* Mobile wallet prompt overlay */}
-          {showMobileWalletPrompt && (
+          {inWalletBrowser && (
             <div className="mobile-wallet-overlay">
               <div className="mobile-wallet-prompt">
                 <h2>Open in Wallet</h2>
