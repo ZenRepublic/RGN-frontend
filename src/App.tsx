@@ -336,10 +336,27 @@ function App() {
       }
       const signedTransaction = await signTransaction(transaction);
 
-      console.log('Sending transaction...');
-      const signature = await connection.sendRawTransaction(
-        signedTransaction.serialize({ verifySignatures: false })
-      );
+      // Send signed transaction to backend (backend adds server + asset signatures and submits)
+      console.log('Submitting to backend...');
+      const serializedTx = signedTransaction.serialize({ verifySignatures: false });
+      const signedTxBase64 = btoa(String.fromCharCode(...serializedTx));
+
+      const submitResponse = await fetch(`${API_URL}/rgn/orders/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          signedTransaction: signedTxBase64,
+          assetAddress
+        })
+      });
+
+      const submitData = await submitResponse.json() as { success: boolean; signature?: string; error?: string };
+
+      if (!submitResponse.ok || !submitData.signature) {
+        throw new Error(submitData.error || 'Failed to submit transaction');
+      }
+
+      const signature = submitData.signature;
       console.log('Transaction sent:', signature);
 
       console.log('Waiting for confirmation...');
