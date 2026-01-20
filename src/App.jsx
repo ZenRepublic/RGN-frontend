@@ -7,39 +7,31 @@ import './App.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
-// Detect if user is on mobile but not in a wallet browser
-const isMobileNonWalletBrowser = () => {
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  if (!isMobile) return false;
-
-  // Check if we're inside a wallet's in-app browser
-  const isPhantomBrowser = window.phantom?.solana?.isPhantom;
-  const isSolflareBrowser = window.solflare?.isSolflare;
-  const hasWalletExtension = isPhantomBrowser || isSolflareBrowser;
-
-  return !hasWalletExtension;
-};
-
-// Detect if we're inside a wallet's in-app browser
+// Detect if we're inside a wallet's in-app browser (Phantom/Solflare)
 const isWalletBrowser = () => {
   const isPhantomBrowser = window.phantom?.solana?.isPhantom;
   const isSolflareBrowser = window.solflare?.isSolflare;
   return isPhantomBrowser || isSolflareBrowser;
 };
 
+// Detect if user is on mobile
+const isMobile = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
 const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
 
 function App() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction, connected, connecting, disconnect, wallet, connect, select } = useWallet();
+  const [inWalletBrowser, setInWalletBrowser] = useState(false);
   const [showMobileWalletPrompt, setShowMobileWalletPrompt] = useState(false);
   const [videoError, setVideoError] = useState(false);
-  const [inWalletBrowser, setInWalletBrowser] = useState(false);
 
-  // Check if mobile user needs to connect wallet first
+  // Check browser environment on mount
   useEffect(() => {
-    setShowMobileWalletPrompt(isMobileNonWalletBrowser());
-    setInWalletBrowser(isWalletBrowser());
+    const walletBrowser = isWalletBrowser();
+    setInWalletBrowser(walletBrowser);
+    // Show wallet prompt if on mobile but NOT in wallet browser
+    setShowMobileWalletPrompt(isMobile() && !walletBrowser);
   }, []);
 
   // Disconnect on initial page load to prevent auto-reconnect from previous session
@@ -179,8 +171,8 @@ function App() {
 
   const handlePayAndOrder = async () => {
     // TEMP: Disabled for testing
-    // console.log('Payment disabled for testing');
-    // return;
+    console.log('Payment disabled for testing');
+    return;
 
     if (!connected || !publicKey) {
       setError('Please connect your wallet first');
