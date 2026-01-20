@@ -21,29 +21,43 @@ const isMobile = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera
 const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
 
 // Helper to create cropped image from canvas
-const createCroppedImage = async (imageSrc, pixelCrop) => {
-  const image = new Image();
-  image.src = imageSrc;
-  await new Promise((resolve) => { image.onload = resolve; });
+const createCroppedImage = (imageSrc, pixelCrop) => {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
 
-  const canvas = document.createElement('canvas');
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
-  const ctx = canvas.getContext('2d');
+    image.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = pixelCrop.width;
+        canvas.height = pixelCrop.height;
+        const ctx = canvas.getContext('2d');
 
-  ctx.drawImage(
-    image,
-    pixelCrop.x,
-    pixelCrop.y,
-    pixelCrop.width,
-    pixelCrop.height,
-    0,
-    0,
-    pixelCrop.width,
-    pixelCrop.height
-  );
+        ctx.drawImage(
+          image,
+          pixelCrop.x,
+          pixelCrop.y,
+          pixelCrop.width,
+          pixelCrop.height,
+          0,
+          0,
+          pixelCrop.width,
+          pixelCrop.height
+        );
 
-  return canvas.toDataURL('image/png');
+        resolve(canvas.toDataURL('image/png'));
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    image.onerror = () => reject(new Error('Failed to load image'));
+
+    // Timeout after 10 seconds
+    setTimeout(() => reject(new Error('Image load timeout')), 10000);
+
+    image.src = imageSrc;
+  });
 };
 
 function App() {
@@ -194,22 +208,30 @@ function App() {
   const handleCropConfirm = async () => {
     if (!croppedAreaPixels || cropFighterIndex === null) return;
 
-    const croppedImage = await createCroppedImage(cropImage, croppedAreaPixels);
+    try {
+      const croppedImage = await createCroppedImage(cropImage, croppedAreaPixels);
 
-    setFighters(prev => {
-      const updated = [...prev];
-      updated[cropFighterIndex] = {
-        ...updated[cropFighterIndex],
-        image: croppedImage,
-        imagePreview: croppedImage
-      };
-      return updated;
-    });
+      setFighters(prev => {
+        const updated = [...prev];
+        updated[cropFighterIndex] = {
+          ...updated[cropFighterIndex],
+          image: croppedImage,
+          imagePreview: croppedImage
+        };
+        return updated;
+      });
 
-    // Close modal and reset
-    setCropModalOpen(false);
-    setCropImage(null);
-    setCropFighterIndex(null);
+      // Close modal and reset
+      setCropModalOpen(false);
+      setCropImage(null);
+      setCropFighterIndex(null);
+    } catch (err) {
+      console.error('Crop failed:', err);
+      setError('Failed to crop image. Please try again.');
+      setCropModalOpen(false);
+      setCropImage(null);
+      setCropFighterIndex(null);
+    }
   };
 
   const handleCropCancel = () => {
