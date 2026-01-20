@@ -5,7 +5,7 @@ import { Transaction } from '@solana/web3.js';
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import './App.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
 function App() {
   const { connection } = useConnection();
