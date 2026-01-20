@@ -105,7 +105,7 @@ const FIGHTERS_CACHE_KEY = 'rgn-fighters-v2';
 
 function App() {
   const { connection } = useConnection();
-  const { publicKey, sendTransaction, connected } = useWallet();
+  const { publicKey, signTransaction, connected } = useWallet();
   const [videoError, setVideoError] = useState(false);
 
   const inWalletBrowser = useIsInAppWalletBrowser();
@@ -331,7 +331,13 @@ function App() {
       const transaction = Transaction.from(txBytes);
 
       console.log('Requesting signature...');
-      const signature = await sendTransaction(transaction, connection);
+      if (!signTransaction) {
+        throw new Error('Wallet does not support transaction signing');
+      }
+      const signedTransaction = await signTransaction(transaction);
+
+      console.log('Sending transaction...');
+      const signature = await connection.sendRawTransaction(signedTransaction.serialize());
       console.log('Transaction sent:', signature);
 
       console.log('Waiting for confirmation...');
