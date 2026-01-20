@@ -314,7 +314,24 @@ function App() {
       return;
     }
 
-    setError('');
+    // HEIC detection: check extension (most reliable on iOS Safari)
+    const extension = file.name.toLowerCase().split('.').pop();
+    const isHeicFile =
+      extension === 'heic' ||
+      extension === 'heif' ||
+      // Rare, but sometimes mime is set correctly
+      file.type === 'image/heic' ||
+      file.type === 'image/heif' ||
+      // Extra safety: empty mime + suspicious extension
+      (file.type === '' && (extension === 'heic' || extension === 'heif'));
+
+    if (isHeicFile) {
+      setError(
+        'HEIC/HEIF files are not supported. ' +
+        'Please convert to JPEG/PNG first (in Photos app: Edit → tiny crop → Done).'
+      );
+      return;
+    }
 
     try {
       // Resize image first to prevent iPhone memory crash
