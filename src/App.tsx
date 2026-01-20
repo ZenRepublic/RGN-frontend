@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react"
 import { useIsInAppWalletBrowser } from './utils/walletUtils';
 import Cropper from 'react-easy-crop';
 import type { Area, Point } from 'react-easy-crop';
+import { heicTo, isHeic } from 'heic-to';
 import './App.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
@@ -62,25 +63,41 @@ function createImage(url: string): Promise<HTMLImageElement> {
 
 async function resizeImageForCropper(
   file: File,
-  maxSize: number = 800  // longest side ≤ 800 px — adjust down to 700/600 if needed
+  maxSize: number = 800
 ): Promise<string> {
+  let workingBlob: Blob = file;
+
+  // Step 1: Detect & convert HEIC → JPEG Blob (prevents crash)
+  if (await isHeic(file)) {
+    console.log('HEIC detected → converting to JPEG');
+    try {
+      workingBlob = await heicTo({
+        blob: file,
+        type: 'image/jpeg',
+        quality: 0.82,          // 0.7–0.9 range; lower = faster/less memory
+      });
+    } catch (err) {
+      console.error('HEIC conversion failed:', err);
+      throw new Error('Failed to convert HEIC image – try a JPEG instead');
+    }
+  }
+
+  // Now workingBlob is JPEG (or original if not HEIC) — proceed with resize
   let bitmap: ImageBitmap | null = null;
   let canvas: HTMLCanvasElement | null = null;
 
   try {
-    // ── Preferred: createImageBitmap + resize (best memory on modern iOS)
     if ('createImageBitmap' in window) {
-      bitmap = await createImageBitmap(file, {
-        resizeQuality: 'medium',  // 'low' = smaller memory footprint
+      bitmap = await createImageBitmap(workingBlob, {
+        resizeQuality: 'medium',
       });
 
-      // Calculate proportional dimensions — keep aspect ratio!
-      const scale = Math.min(maxSize / bitmap.width, maxSize / bitmap.height);
-      const targetWidth  = Math.round(bitmap.width  * scale);
+      const scale = Math.min(maxSize / bitmap.width, maxSize / bitmap.height, 1);
+      const targetWidth = Math.round(bitmap.width * scale);
       const targetHeight = Math.round(bitmap.height * scale);
 
       canvas = document.createElement('canvas');
-      canvas.width  = targetWidth;
+      canvas.width = targetWidth;
       canvas.height = targetHeight;
 
       const ctx = canvas.getContext('2d');
@@ -96,18 +113,17 @@ async function resizeImageForCropper(
       });
     }
 
-    // ── Fallback: classic Image + canvas
-    const url = URL.createObjectURL(file);
+    // Fallback: Image element
+    const url = URL.createObjectURL(workingBlob);
     const img = await createImage(url);
     URL.revokeObjectURL(url);
 
-    // Calculate proportional dimensions — this is the key fix!
-    const scale = Math.min(maxSize / img.width, maxSize / img.height);
-    const targetWidth  = Math.round(img.width  * scale);
+    const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+    const targetWidth = Math.round(img.width * scale);
     const targetHeight = Math.round(img.height * scale);
 
     canvas = document.createElement('canvas');
-    canvas.width  = targetWidth;
+    canvas.width = targetWidth;
     canvas.height = targetHeight;
 
     const ctx = canvas.getContext('2d');
