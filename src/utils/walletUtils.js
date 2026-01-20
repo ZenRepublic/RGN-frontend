@@ -1,36 +1,32 @@
-import { useWallet } from '@solana/wallet-adapter-react';
 import { useMemo } from 'react';
 
-export const useInAppWalletBrowser = () => {
-  const { wallet, connected } = useWallet();
-
+export const useIsInAppWalletBrowser = () => {
   return useMemo(() => {
-    if (!connected || !wallet) return false;
-
-    const adapterName = wallet.adapter.name.toLowerCase();
-
-    // Known wallet names from the adapters you're using
-    const isPhantom = adapterName === 'phantom';
-    const isSolflare = adapterName === 'solflare';
-
-    // Brave usually shows up as "Brave" or via Phantom compat, but we can exclude it
-    const isBrave = adapterName.includes('brave') || 
-                    (isPhantom && navigator.brave?.isBrave?.());
-
-    // In-app browser detection (Phantom/Solflare mobile in-app view)
-    // These often run in a WebView-like environment with specific UA patterns
     const ua = navigator.userAgent.toLowerCase();
-    const isMobileLike = /iphone|ipad|ipod|android/.test(ua);
-    const isWebViewLike = 
-      ua.includes('wv') ||                    // Android WebView
-      (isMobileLike && ua.includes('version/') && !ua.includes('chrome')) || // iOS in-app Safari-like
-      ua.includes('phantom') || ua.includes('solflare') || // some in-app add hints
-      !window.chrome;                         // missing chrome object often in embedded browsers
 
-    // Main logic:
-    // - Connected via Phantom or Solflare
-    // - Not Brave
-    // - Looks like mobile in-app / WebView (not desktop extension)
-    return (isPhantom || isSolflare) && !isBrave && (isMobileLike && isWebViewLike);
-  }, [wallet, connected]);
+    // 1. Must look like a mobile device
+    const isMobile = /iphone|ipad|ipod|android/.test(ua);
+
+    if (!isMobile) return false;
+
+    // 2. WebView / in-app browser signals
+    const isWebView =
+      ua.includes('wv') ||                             // Android WebView marker
+      (ua.includes('version/') && !ua.includes('chrome') && !ua.includes('crios')) || // iOS in-app (missing Chrome/Safari full indicators)
+      !('chrome' in window) ||                         // Many in-app browsers miss window.chrome
+      ua.includes('phantom') ||                        // sometimes added by Phantom
+      ua.includes('solflare');                         // sometimes added by Solflare
+
+    if (!isWebView) return false;
+
+    // 3. Phantom or Solflare provider is injected (most reliable signal when inside their in-app browser)
+    const hasPhantom = !!(window).phantom?.solana;
+    const hasSolflare = !!(window).solflare;
+
+    // Optional: exclude Brave (Brave can mimic Phantom sometimes)
+    const isBrave = (navigator).brave?.isBrave?.() === true ||
+                    ua.includes('brave');
+
+    return (hasPhantom || hasSolflare) && !isBrave;
+  }, []); // empty deps = runs once + cheap
 };

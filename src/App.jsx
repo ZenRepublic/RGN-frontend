@@ -3,7 +3,7 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Transaction } from '@solana/web3.js';
 import { SpeedInsights } from "@vercel/speed-insights/react"
-import { useInAppWalletBrowser } from './utils/walletUtils'; // adjust path
+import { useIsInAppWalletBrowser } from './utils/walletUtils'; // adjust path
 import Cropper from 'react-easy-crop';
 import './App.css';
 
@@ -74,7 +74,7 @@ function App() {
   const [showMobileWalletPrompt, setShowMobileWalletPrompt] = useState(false);
   const [videoError, setVideoError] = useState(false);
 
-  const inWalletBrowser = useInAppWalletBrowser();  // ← Now safe: called during render of a function component
+  const inWalletBrowser = useIsInAppWalletBrowser();  // ← Now safe: called during render of a function component
 
   // Cropping state
   const [cropModalOpen, setCropModalOpen] = useState(false);
@@ -259,9 +259,40 @@ const handleImageUpload = (index, file) => {
   };
 
   const handlePayAndOrder = async () => {
-    // TEMP: Disabled for testing
-    console.log('Payment disabled for testing');
-    return;
+      // Get env values (they are strings!)
+    const allowPurchase = import.meta.env.VITE_ALLOW_PURCHASE === 'true'; // convert string → boolean
+    const adminIdsRaw = import.meta.env.VITE_ADMIN_IDS || '';
+
+    // Parse admin list — handles comma-separated or JSON-like array string
+    let adminIds = [];
+    if (adminIdsRaw) {
+      try {
+        // Try parsing as JSON array first (e.g. ["addr1","addr2"])
+        adminIds = JSON.parse(adminIdsRaw);
+      } catch {
+        // Fallback: comma-separated string
+        adminIds = adminIdsRaw
+          .split(',')
+          .map(id => id.trim().toLowerCase())
+          .filter(Boolean);
+      }
+    }
+
+    // Normalize current wallet address (if connected)
+    const currentPubkey = publicKey?.toBase58()?.toLowerCase();
+
+    // Check if purchase is allowed or if user is admin
+    const isAdmin = currentPubkey && adminIds.includes(currentPubkey);
+    const canProceed = allowPurchase || isAdmin;
+
+    if (!canProceed) {
+      if (isAdmin) {
+        console.log('Admin detected — purchase allowed despite global flag');
+      } else {
+        setError('Purchases are currently disabled. Contact admin if needed.');
+        return;
+      }
+    }
 
     if (!connected || !publicKey) {
       setError('Please connect your wallet first');
