@@ -394,8 +394,8 @@ function App() {
 
       {step === 'form' && (
         <div className="order-form">
-          {/* Mobile wallet prompt overlay */}
-          {showMobileWalletPrompt && (
+          {/* Mobile wallet prompt overlay - TEMP DISABLED */}
+          {false && showMobileWalletPrompt && (
             <div className="mobile-wallet-overlay">
               <div className="mobile-wallet-prompt">
                 <h2>Open in Wallet</h2>
