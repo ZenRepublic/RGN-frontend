@@ -212,7 +212,7 @@ const FIGHTERS_CACHE_KEY = 'rgn-fighters-v2';
 
 function App() {
   const { connection } = useConnection();
-  const { publicKey, sendTransaction, connected } = useWallet();
+  const { publicKey, sendTransaction,signTransaction, connected } = useWallet();
   const [videoError, setVideoError] = useState(false);
 
   const inWalletBrowser = useIsInAppWalletBrowser();
@@ -408,6 +408,15 @@ function App() {
       return;
     }
 
+        // Guard is REQUIRED – signTransaction is optional in types
+    if (!signTransaction) {
+      throw new Error(
+        "signTransaction not available. " +
+        "On Saga/mobile, ensure you're using Mobile Wallet Adapter integration. " +
+        "Some wallets may require signAndSendTransactions instead – test with Phantom/Solflare on device."
+      );
+    }
+
     if (!paymentInfo) {
       setError('Payment info not loaded. Please refresh the page.');
       return;
@@ -442,21 +451,24 @@ function App() {
 
       const txBytes = Uint8Array.from(atob(txBase64), c => c.charCodeAt(0));
       const transaction = Transaction.from(txBytes);
+      // transaction.feePayer = publicKey;
 
       console.log('Requesting signature...');
       // Use sendTransaction which handles partial signatures better
-      const signature = await sendTransaction(transaction, connection, {
+      // const signature = await sendTransaction(transaction, connection, {
+      //   skipPreflight: false,
+      //   preflightCommitment: 'confirmed'
+      // });
+      // Refresh blockhash EVERY TIME
+      // Now TypeScript knows signTransaction is defined
+      const signedTx = await signTransaction(transaction);
+
+      // Then you can serialize + send yourself
+      const rawTx = signedTx.serialize();
+      const signature = await connection.sendRawTransaction(rawTx, {
         skipPreflight: false,
-        preflightCommitment: 'confirmed'
+        maxRetries: 3,
       });
-      console.log('Transaction sent:', signature);
-
-      console.log('Waiting for confirmation...');
-      const confirmation = await connection.confirmTransaction(signature, 'confirmed');
-
-      if (confirmation.value.err) {
-        throw new Error('Transaction failed on chain');
-      }
 
       console.log('Transaction confirmed!');
 
