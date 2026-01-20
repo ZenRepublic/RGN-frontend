@@ -75,6 +75,7 @@ header p {
 
 .tab-btn {
   padding: 12px 20px;
+  font-family: 'Xirod', sans-serif;
   font-size: 14px;
   font-weight: 600;
   border: 2px solid #333;
@@ -113,9 +114,12 @@ header p {
 
 .about-section p {
   color: var(--black);
-  font-size: 14px;
-  line-height: 1.6;
-  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .video-container {
@@ -631,7 +635,7 @@ button.secondary:hover {
 /* Checkout button */
 .checkout-btn {
   width: 100%;
-  font-size: 18px;
+  font-size: 14px;
   padding: 16px 24px;
 }
 
@@ -767,7 +771,7 @@ button.secondary:hover {
   width: 100%;
   margin-top: 24px;
   padding: 16px 20px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   border: none;
   border-radius: 8px;

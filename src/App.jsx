@@ -206,6 +206,10 @@ function App() {
   };
 
   const handlePayAndOrder = async () => {
+    // TEMP: Disabled for testing
+    console.log('Payment disabled for testing');
+    return;
+
     if (!connected || !publicKey) {
       setError('Please connect your wallet first');
       return;
@@ -329,7 +333,7 @@ function App() {
 
       <section className="about-section">
         <p>
-          Welcome to DioDudes Battle Arena! Create epic AI-generated battles between any two fighters of your choice. Upload your images, name your warriors, and watch them clash in an animated showdown. Your battle gets minted as an NFT!
+          1v1 Boxing Simulation of locally trained AI Agents. Set your fighters and send them off to the match of the ages, in which the victor will be forever inscribed on the blockchain!
         </p>
         <div className="video-container">
           {videoSrc ? (

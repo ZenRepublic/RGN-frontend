@@ -1,3 +1,17 @@
+@font-face {
+  font-family: 'Masicu';
+  src: url('/Fonts/Masicu-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Xirod';
+  src: url('/Fonts/Xirod - new rubian font.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --blue-main: #5041E7;
   --blue-secondary: #6E63E7;
@@ -15,8 +29,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: 'Masicu', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -52,7 +65,7 @@ p {
 
 /* Button styles */
 button {
-  font-family: inherit;
+  font-family: 'Xirod', sans-serif;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 24px;
@@ -126,14 +139,14 @@ label {
   }
 
   h1 {
-    font-size: 50px;
+    font-size: 40px;
   }
 
   h2 {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   p {
-    font-size: 18px;
+    font-size: 16px;
   }
 }
