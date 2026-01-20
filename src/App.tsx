@@ -60,6 +60,59 @@ function createImage(url: string): Promise<HTMLImageElement> {
   });
 }
 
+// Resize image to max dimensions (for iPhone memory optimization)
+async function resizeImageForCropper(file: File, maxSize: number = 1024): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(url); // Clean up immediately
+
+      let { width, height } = img;
+
+      // Only resize if larger than maxSize
+      if (width > maxSize || height > maxSize) {
+        if (width > height) {
+          height = Math.round((height * maxSize) / width);
+          width = maxSize;
+        } else {
+          width = Math.round((width * maxSize) / height);
+          height = maxSize;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Failed to get canvas context'));
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Use lower quality for memory efficiency
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+      // Help garbage collection
+      canvas.width = 0;
+      canvas.height = 0;
+
+      resolve(dataUrl);
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to load image'));
+    };
+
+    img.src = url;
+  });
+}
+
 async function createCroppedImage(imageSrc: string, pixelCrop: Area): Promise<string> {
   try {
     const image = await createImage(imageSrc);
@@ -70,6 +123,7 @@ async function createCroppedImage(imageSrc: string, pixelCrop: Area): Promise<st
       throw new Error('Failed to get canvas context');
     }
 
+    // Use 512 for good quality, but could reduce to 256 if still having issues
     const OUTPUT_SIZE = 512;
     canvas.width = OUTPUT_SIZE;
     canvas.height = OUTPUT_SIZE;
@@ -89,7 +143,14 @@ async function createCroppedImage(imageSrc: string, pixelCrop: Area): Promise<st
       OUTPUT_SIZE
     );
 
-    return canvas.toDataURL('image/jpeg', 0.92);
+    // Use 0.85 quality instead of 0.92 for smaller file size
+    const result = canvas.toDataURL('image/jpeg', 0.85);
+
+    // Help garbage collection
+    canvas.width = 0;
+    canvas.height = 0;
+
+    return result;
   } catch (error) {
     console.error('createCroppedImage failed:', error);
     throw error;
@@ -194,7 +255,7 @@ function App() {
     }
   };
 
-  const handleImageUpload = (index: number, file: File | undefined) => {
+  const handleImageUpload = async (index: number, file: File | undefined) => {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
@@ -209,13 +270,20 @@ function App() {
 
     setError('');
 
-    const blobUrl = URL.createObjectURL(file);
+    try {
+      // Resize image first to prevent iPhone memory crash
+      // Max 1024px keeps quality while staying under memory limits
+      const resizedDataUrl = await resizeImageForCropper(file, 1024);
 
-    setCropImage(blobUrl);
-    setCropFighterIndex(index);
-    setCrop({ x: 0, y: 0 });
-    setZoom(1);
-    setCropModalOpen(true);
+      setCropImage(resizedDataUrl);
+      setCropFighterIndex(index);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCropModalOpen(true);
+    } catch (err) {
+      console.error('Failed to process image:', err);
+      setError('Failed to process image. Please try a smaller image.');
+    }
   };
 
   const handleCropConfirm = async () => {
@@ -226,9 +294,6 @@ function App() {
 
       setFighters(prev => {
         const updated = [...prev];
-        if (updated[cropFighterIndex]?.imagePreview?.startsWith('blob:')) {
-          URL.revokeObjectURL(updated[cropFighterIndex].imagePreview);
-        }
         updated[cropFighterIndex] = {
           ...updated[cropFighterIndex],
           image: croppedImage,
@@ -237,8 +302,7 @@ function App() {
         return updated;
       });
 
-      URL.revokeObjectURL(cropImage);
-
+      // Clear crop state
       setCropModalOpen(false);
       setCropImage(null);
       setCropFighterIndex(null);
@@ -252,9 +316,6 @@ function App() {
   };
 
   const handleCropCancel = () => {
-    if (cropImage) {
-      URL.revokeObjectURL(cropImage);
-    }
     setCropModalOpen(false);
     setCropImage(null);
     setCropFighterIndex(null);
