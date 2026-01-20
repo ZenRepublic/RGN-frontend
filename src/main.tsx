@@ -3,20 +3,46 @@ import { createRoot } from 'react-dom/client'
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import { clusterApiUrl } from '@solana/web3.js'
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
+
 import './index.css'
 import '@solana/wallet-adapter-react-ui/styles.css'
 import App from './App'
+
+// Mobile adapter imports – make sure these are correct
+import {
+  SolanaMobileWalletAdapter,
+  createDefaultAddressSelector,               // ← Add this!
+  createDefaultAuthorizationResultCache,
+  createDefaultWalletNotFoundHandler,
+} from '@solana-mobile/wallet-adapter-mobile'
 
 interface WalletContextProviderProps {
   children: ReactNode
 }
 
 function WalletContextProvider({ children }: WalletContextProviderProps) {
-  // Use devnet for testing, mainnet-beta for production
   const endpoint = useMemo(() => clusterApiUrl('devnet'), [])
 
-  // Wallets auto-register via Wallet Standard - no explicit adapters needed
-  const wallets = useMemo(() => [], [])
+  const wallets = useMemo(
+    () => [
+      new SolanaMobileWalletAdapter({
+        addressSelector: createDefaultAddressSelector(),  // ← REQUIRED: fixes your error
+        appIdentity: {
+          name: 'Ruby Global Network',           // Change to your real app name
+          uri: "https://www.rgn.cool",     // Good for dev; use full https://yourdomain.com in prod
+          icon: '/logo.png',               // Ensure public/icon.png exists (512x512 PNG recommended)
+        },
+        authorizationResultCache: createDefaultAuthorizationResultCache(),
+        onWalletNotFound: createDefaultWalletNotFoundHandler(),
+        cluster: WalletAdapterNetwork.Devnet,  // Matches your endpoint
+      }),
+      // If you want explicit desktop adapters (optional – Wallet Standard auto-detects many):
+      // new PhantomWalletAdapter(),
+      // new BackpackWalletAdapter(),
+    ],
+    []
+  )
 
   return (
     <ConnectionProvider endpoint={endpoint}>
