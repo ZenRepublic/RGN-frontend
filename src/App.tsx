@@ -337,7 +337,9 @@ function App() {
       const signedTransaction = await signTransaction(transaction);
 
       console.log('Sending transaction...');
-      const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+      const signature = await connection.sendRawTransaction(
+        signedTransaction.serialize({ verifySignatures: false })
+      );
       console.log('Transaction sent:', signature);
 
       console.log('Waiting for confirmation...');
