@@ -3,17 +3,11 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Transaction } from '@solana/web3.js';
 import { SpeedInsights } from "@vercel/speed-insights/react"
+import { useInAppWalletBrowser } from './utils/walletUtils'; // adjust path
 import Cropper from 'react-easy-crop';
 import './App.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
-
-// Detect if we're inside a wallet's in-app browser (Phantom/Solflare)
-const isWalletBrowser = () => {
-  const isPhantomBrowser = window.phantom?.solana?.isPhantom;
-  const isSolflareBrowser = window.solflare?.isSolflare;
-  return isPhantomBrowser || isSolflareBrowser;
-};
 
 // Detect if user is on mobile
 const isMobile = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -77,9 +71,10 @@ async function createCroppedImage(imageSrc, pixelCrop) {
 function App() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction, connected, connecting, disconnect, wallet, connect, select } = useWallet();
-  const [inWalletBrowser, setInWalletBrowser] = useState(false);
   const [showMobileWalletPrompt, setShowMobileWalletPrompt] = useState(false);
   const [videoError, setVideoError] = useState(false);
+
+  const inWalletBrowser = useInAppWalletBrowser();  // ← Now safe: called during render of a function component
 
   // Cropping state
   const [cropModalOpen, setCropModalOpen] = useState(false);
@@ -95,10 +90,8 @@ function App() {
 
   // Check browser environment on mount
   useEffect(() => {
-    const walletBrowser = isWalletBrowser();
-    setInWalletBrowser(walletBrowser);
     // Show wallet prompt if on mobile but NOT in wallet browser
-    setShowMobileWalletPrompt(isMobile() && !walletBrowser);
+    setShowMobileWalletPrompt(isMobile() && !inWalletBrowser);
   }, []);
 
   // Disconnect on initial page load to prevent auto-reconnect from previous session
@@ -217,71 +210,6 @@ const handleImageUpload = (index, file) => {
   setCrop({ x: 0, y: 0 });
   setZoom(1);
   setCropModalOpen(true);
-
-  // Optional: if you want to pre-resize for extra safety (recommended),
-  // comment out the lines above and use this async version instead:
-
-  /*
-  const resizeAndSet = async () => {
-    try {
-      const img = await new Promise((resolve, reject) => {
-        const i = new Image();
-        i.onload = () => resolve(i);
-        i.onerror = reject;
-        i.src = blobUrl;
-      });
-
-      const MAX_SIDE = 1000; // or 800 if still issues
-
-      let width = img.width;
-      let height = img.height;
-
-      if (width > height) {
-        if (width > MAX_SIDE) {
-          height = Math.round(height * (MAX_SIDE / width));
-          width = MAX_SIDE;
-        }
-      } else {
-        if (height > MAX_SIDE) {
-          width = Math.round(width * (MAX_SIDE / height));
-          height = MAX_SIDE;
-        }
-      }
-
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-
-      // Output as JPEG for lower memory usage
-      const resizedBlob = await new Promise((resolve) => {
-        canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.85);
-      });
-
-      const resizedUrl = URL.createObjectURL(resizedBlob);
-
-      // Clean up original blob URL
-      URL.revokeObjectURL(blobUrl);
-
-      setCropImage(resizedUrl);
-      setCropFighterIndex(index);
-      setCrop({ x: 0, y: 0 });
-      setZoom(1);
-      setCropModalOpen(true);
-    } catch (err) {
-      console.error('Resize failed', err);
-      // Fallback to original blob URL
-      setCropImage(blobUrl);
-      setCropFighterIndex(index);
-      setCrop({ x: 0, y: 0 });
-      setZoom(1);
-      setCropModalOpen(true);
-    }
-  };
-
-  resizeAndSet();
-  */
 };
 
   const handleCropConfirm = async () => {
@@ -447,8 +375,8 @@ const handleImageUpload = (index, file) => {
     <div className="app">
       <header>
         <img src="/BannerWithLogo.png" alt="RGN Banner" className="banner" />
-        <h1>The World's Leading Brainrot Broadcaster</h1>
-        <p>Own the brainrot, don't just watch it. Select a simulation, customize it, and receive an organically recorded NFT with a short-form video you can share anywhere.</p>
+        <h1 style={{ textAlign: 'left' }}>Onchain Brainrot Broadcast</h1>
+        <p style={{ textAlign: 'left' }}>Own the brainrot, don't just watch it. Select a simulation, customize it, and receive an organically recorded NFT with a short-form video you can share anywhere.</p>
       </header>
 
       <div className="tab-group">
