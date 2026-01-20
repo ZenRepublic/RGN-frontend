@@ -20,6 +20,13 @@ const isMobileNonWalletBrowser = () => {
   return !hasWalletExtension;
 };
 
+// Detect if we're inside a wallet's in-app browser
+const isWalletBrowser = () => {
+  const isPhantomBrowser = window.phantom?.solana?.isPhantom;
+  const isSolflareBrowser = window.solflare?.isSolflare;
+  return isPhantomBrowser || isSolflareBrowser;
+};
+
 const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
 
 function App() {
@@ -27,10 +34,12 @@ function App() {
   const { publicKey, sendTransaction, connected, connecting, disconnect, wallet, connect, select } = useWallet();
   const [showMobileWalletPrompt, setShowMobileWalletPrompt] = useState(false);
   const [videoError, setVideoError] = useState(false);
+  const [inWalletBrowser, setInWalletBrowser] = useState(false);
 
   // Check if mobile user needs to connect wallet first
   useEffect(() => {
     setShowMobileWalletPrompt(isMobileNonWalletBrowser());
+    setInWalletBrowser(isWalletBrowser());
   }, []);
 
   // Disconnect on initial page load to prevent auto-reconnect from previous session
@@ -298,23 +307,25 @@ function App() {
         <p>
           1v1 Boxing Simulation of locally trained AI Agents. Set your fighters and send them off to the match of the ages, in which the victor will be forever inscribed on the blockchain!
         </p>
-        <div className="video-container">
-          {!videoError ? (
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              onError={() => setVideoError(true)}
-            >
-              <source src={DEMO_VIDEO_URL} type="video/mp4" />
-            </video>
-          ) : (
-            <div className="video-loading">
-              <span>Video unavailable</span>
-            </div>
-          )}
-        </div>
+        {!inWalletBrowser && (
+          <div className="video-container">
+            {!videoError ? (
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                onError={() => setVideoError(true)}
+              >
+                <source src={DEMO_VIDEO_URL} type="video/mp4" />
+              </video>
+            ) : (
+              <div className="video-loading">
+                <span>Video unavailable</span>
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       {step === 'form' && (
