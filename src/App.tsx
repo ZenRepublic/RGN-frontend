@@ -60,74 +60,120 @@ function createImage(url: string): Promise<HTMLImageElement> {
   });
 }
 
-// Resize image to max dimensions (for iPhone memory optimization)
-async function resizeImageForCropper(file: File, maxSize: number = 1024): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
+async function resizeImageForCropper(
+  file: File,
+  maxSize: number = 800 // ← lowered from 1024; try 600–700 if still OOM
+): Promise<string> {
+  let bitmap: ImageBitmap | null = null;
+  let canvas: HTMLCanvasElement | null = null;
 
-    img.onload = () => {
-      URL.revokeObjectURL(url); // Clean up immediately
+  try {
+    // Preferred path: createImageBitmap with resize (very memory efficient)
+    if ('createImageBitmap' in window) {
+      bitmap = await createImageBitmap(file, {
+        resizeWidth: maxSize,
+        resizeHeight: maxSize,
+        resizeQuality: 'medium', // 'low' = even smaller memory, but test quality
+      });
 
-      let { width, height } = img;
-
-      // Only resize if larger than maxSize
-      if (width > maxSize || height > maxSize) {
-        if (width > height) {
-          height = Math.round((height * maxSize) / width);
-          width = maxSize;
-        } else {
-          width = Math.round((width * maxSize) / height);
-          height = maxSize;
-        }
-      }
-
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
+      canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
 
       const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        reject(new Error('Failed to get canvas context'));
-        return;
-      }
+      if (!ctx) throw new Error('Failed to get canvas context');
 
-      ctx.drawImage(img, 0, 0, width, height);
+      ctx.drawImage(bitmap, 0, 0);
 
-      // Use lower quality for memory efficiency
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-
-      // Help garbage collection
-      canvas.width = 0;
-      canvas.height = 0;
-
-      resolve(dataUrl);
-    };
-
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Failed to load image'));
-    };
-
-    img.src = url;
-  });
-}
-
-async function createCroppedImage(imageSrc: string, pixelCrop: Area): Promise<string> {
-  try {
-    const image = await createImage(imageSrc);
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) {
-      throw new Error('Failed to get canvas context');
+      return await new Promise<string>((resolve, reject) => {
+        canvas!.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('Failed to create blob'));
+              return;
+            }
+            resolve(URL.createObjectURL(blob));
+          },
+          'image/jpeg',
+          0.8
+        );
+      });
     }
 
-    // Use 512 for good quality, but could reduce to 256 if still having issues
-    const OUTPUT_SIZE = 512;
+    // Fallback: old-school Image + canvas (your original logic, but improved)
+    const url = URL.createObjectURL(file);
+    const img = await createImage(url);
+    URL.revokeObjectURL(url);
+
+    let { width, height } = img;
+
+    if (width > maxSize || height > maxSize) {
+      if (width > height) {
+        height = Math.round((height * maxSize) / width);
+        width = maxSize;
+      } else {
+        width = Math.round((width * maxSize) / height);
+        height = maxSize;
+      }
+    }
+
+    canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Failed to get canvas context');
+
+    ctx.drawImage(img, 0, 0, width, height);
+
+    return await new Promise<string>((resolve, reject) => {
+      canvas!.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('Failed to create blob'));
+            return;
+          }
+          resolve(URL.createObjectURL(blob));
+        },
+        'image/jpeg',
+        0.8
+      );
+    });
+  } catch (err) {
+    console.error('resizeImageForCropper failed:', err);
+    throw err;
+  } finally {
+    // Aggressive cleanup
+    if (bitmap) bitmap.close();
+    if (canvas) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+  }
+}
+
+// ────────────────────────────────────────────────
+// Your cropping function — updated to work with blob URLs
+// Outputs a small fixed-size JPEG data URL (or blob if you prefer)
+async function createCroppedImage(
+  imageSrc: string,           // blob URL from resizeImageForCropper
+  pixelCrop: { x: number; y: number; width: number; height: number }
+): Promise<string> {
+  let image: HTMLImageElement | null = null;
+  let canvas: HTMLCanvasElement | null = null;
+
+  try {
+    image = await createImage(imageSrc);
+
+    canvas = document.createElement('canvas');
+    const OUTPUT_SIZE = 512; // ← try 384 or 256 if still having memory trouble
     canvas.width = OUTPUT_SIZE;
     canvas.height = OUTPUT_SIZE;
 
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Failed to get canvas context');
+
+    // White background (optional — remove if you want transparency)
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
 
@@ -143,17 +189,21 @@ async function createCroppedImage(imageSrc: string, pixelCrop: Area): Promise<st
       OUTPUT_SIZE
     );
 
-    // Use 0.85 quality instead of 0.92 for smaller file size
+    // Lower quality = smaller memory during toDataURL / toBlob
     const result = canvas.toDataURL('image/jpeg', 0.85);
-
-    // Help garbage collection
-    canvas.width = 0;
-    canvas.height = 0;
 
     return result;
   } catch (error) {
     console.error('createCroppedImage failed:', error);
     throw error;
+  } finally {
+    // Cleanup
+    if (canvas) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+    // If you want even more aggressive GC on iOS, you can null out image.src too
+    if (image) image.src = '';
   }
 }
 
