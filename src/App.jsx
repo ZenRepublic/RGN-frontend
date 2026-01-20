@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Transaction } from '@solana/web3.js';
@@ -10,36 +10,13 @@ const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replac
 function App() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction, connected, connecting, disconnect, wallet, connect, select } = useWallet();
-  const [userSelectedWallet, setUserSelectedWallet] = useState(false);
-
   // Disconnect on initial page load to prevent auto-reconnect from previous session
   useEffect(() => {
-    if (wallet && !userSelectedWallet) {
+    if (wallet) {
       disconnect();
       select(null);
     }
   }, []);
-
-  // Track when user explicitly selects a wallet (after initial mount)
-  const hasInitialized = useRef(false);
-  useEffect(() => {
-    if (!hasInitialized.current) {
-      hasInitialized.current = true;
-      return;
-    }
-    if (wallet) {
-      setUserSelectedWallet(true);
-    }
-  }, [wallet]);
-
-  // Auto-connect when wallet is explicitly selected by user
-  useEffect(() => {
-    if (wallet && userSelectedWallet && !connected && !connecting) {
-      connect().catch((err) => {
-        console.log('Auto-connect failed:', err.message);
-      });
-    }
-  }, [wallet, userSelectedWallet, connected, connecting, connect]);
 
   const handleCancelConnect = () => {
     select(null);
