@@ -62,92 +62,72 @@ function createImage(url: string): Promise<HTMLImageElement> {
 
 async function resizeImageForCropper(
   file: File,
-  maxSize: number = 800 // ← lowered from 1024; try 600–700 if still OOM
+  maxSize: number = 800  // longest side ≤ 800 px — adjust down to 700/600 if needed
 ): Promise<string> {
   let bitmap: ImageBitmap | null = null;
   let canvas: HTMLCanvasElement | null = null;
 
   try {
-    // Preferred path: createImageBitmap with resize (very memory efficient)
+    // ── Preferred: createImageBitmap + resize (best memory on modern iOS)
     if ('createImageBitmap' in window) {
       bitmap = await createImageBitmap(file, {
-        resizeWidth: maxSize,
-        resizeHeight: maxSize,
-        resizeQuality: 'medium', // 'low' = even smaller memory, but test quality
+        resizeQuality: 'medium',  // 'low' = smaller memory footprint
       });
 
+      // Calculate proportional dimensions — keep aspect ratio!
+      const scale = Math.min(maxSize / bitmap.width, maxSize / bitmap.height);
+      const targetWidth  = Math.round(bitmap.width  * scale);
+      const targetHeight = Math.round(bitmap.height * scale);
+
       canvas = document.createElement('canvas');
-      canvas.width = bitmap.width;
-      canvas.height = bitmap.height;
+      canvas.width  = targetWidth;
+      canvas.height = targetHeight;
 
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Failed to get canvas context');
 
-      ctx.drawImage(bitmap, 0, 0);
+      ctx.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
 
       return await new Promise<string>((resolve, reject) => {
-        canvas!.toBlob(
-          (blob) => {
-            if (!blob) {
-              reject(new Error('Failed to create blob'));
-              return;
-            }
-            resolve(URL.createObjectURL(blob));
-          },
-          'image/jpeg',
-          0.8
-        );
+        canvas!.toBlob((blob) => {
+          if (!blob) return reject(new Error('Failed to create blob'));
+          resolve(URL.createObjectURL(blob));
+        }, 'image/jpeg', 0.8);
       });
     }
 
-    // Fallback: old-school Image + canvas (your original logic, but improved)
+    // ── Fallback: classic Image + canvas
     const url = URL.createObjectURL(file);
     const img = await createImage(url);
     URL.revokeObjectURL(url);
 
-    let { width, height } = img;
-
-    if (width > maxSize || height > maxSize) {
-      if (width > height) {
-        height = Math.round((height * maxSize) / width);
-        width = maxSize;
-      } else {
-        width = Math.round((width * maxSize) / height);
-        height = maxSize;
-      }
-    }
+    // Calculate proportional dimensions — this is the key fix!
+    const scale = Math.min(maxSize / img.width, maxSize / img.height);
+    const targetWidth  = Math.round(img.width  * scale);
+    const targetHeight = Math.round(img.height * scale);
 
     canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width  = targetWidth;
+    canvas.height = targetHeight;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Failed to get canvas context');
 
-    ctx.drawImage(img, 0, 0, width, height);
+    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
 
     return await new Promise<string>((resolve, reject) => {
-      canvas!.toBlob(
-        (blob) => {
-          if (!blob) {
-            reject(new Error('Failed to create blob'));
-            return;
-          }
-          resolve(URL.createObjectURL(blob));
-        },
-        'image/jpeg',
-        0.8
-      );
+      canvas!.toBlob((blob) => {
+        if (!blob) return reject(new Error('Failed to create blob'));
+        resolve(URL.createObjectURL(blob));
+      }, 'image/jpeg', 0.8);
     });
   } catch (err) {
     console.error('resizeImageForCropper failed:', err);
     throw err;
   } finally {
-    // Aggressive cleanup
     if (bitmap) bitmap.close();
     if (canvas) {
-      canvas.width = 0;
-      canvas.height = 0;
+      canvas.width = canvas.height = 0;
     }
   }
 }
