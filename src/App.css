@@ -632,7 +632,6 @@ button.secondary:hover {
   width: auto;
 }
 
-/* Checkout button */
 .checkout-btn {
   width: 100%;
   font-size: 14px;
@@ -768,6 +767,8 @@ button.secondary:hover {
 }
 
 .btn-purchase {
+  position: relative;
+  overflow: hidden;
   width: 100%;
   margin-top: 24px;
   padding: 16px 20px;
@@ -781,8 +782,45 @@ button.secondary:hover {
   transition: background 0.2s;
 }
 
-.btn-purchase:hover:not(:disabled) {
-  background: #e6d62c;
+.btn-purchase:not(:disabled)::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+
+  background: linear-gradient(
+    120deg,
+    transparent calc(50% - 16px),
+    white       calc(50% - 16px),
+    white       calc(50% - 6px),   /* 10px thick */
+    transparent calc(50% - 6px),
+
+    transparent calc(50% - 2px),
+
+    white       calc(50% - 2px),
+    white       calc(50% + 2px),   /* 4px thin */
+    transparent calc(50% + 2px)
+  );
+
+  transform: translateX(-150%);
+  animation: shine-sweep 3s infinite;
+}
+
+@keyframes shine-sweep {
+  0% {
+    transform: translateX(-150%);
+  }
+
+  30% {
+    transform: translateX(-150%);
+  }
+
+  100% {
+    transform: translateX(150%);
+  }
 }
 
 .btn-purchase:disabled {
