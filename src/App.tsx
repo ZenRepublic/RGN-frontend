@@ -212,7 +212,7 @@ const FIGHTERS_CACHE_KEY = 'rgn-fighters-v2';
 
 function App() {
   const { connection } = useConnection();
-  const { publicKey, sendTransaction,signTransaction, connected } = useWallet();
+  const { publicKey,signTransaction, connected } = useWallet();
   const [videoError, setVideoError] = useState(false);
 
   const inWalletBrowser = useIsInAppWalletBrowser();
@@ -454,13 +454,7 @@ function App() {
       // transaction.feePayer = publicKey;
 
       console.log('Requesting signature...');
-      // Use sendTransaction which handles partial signatures better
-      // const signature = await sendTransaction(transaction, connection, {
-      //   skipPreflight: false,
-      //   preflightCommitment: 'confirmed'
-      // });
-      // Refresh blockhash EVERY TIME
-      // Now TypeScript knows signTransaction is defined
+
       const signedTx = await signTransaction(transaction);
 
       // Then you can serialize + send yourself

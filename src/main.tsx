@@ -37,9 +37,6 @@ function WalletContextProvider({ children }: WalletContextProviderProps) {
         onWalletNotFound: createDefaultWalletNotFoundHandler(),
         cluster: WalletAdapterNetwork.Devnet,  // Matches your endpoint
       }),
-      // If you want explicit desktop adapters (optional – Wallet Standard auto-detects many):
-      // new PhantomWalletAdapter(),
-      // new BackpackWalletAdapter(),
     ],
     []
   )
