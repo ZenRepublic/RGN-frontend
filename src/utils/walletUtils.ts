@@ -1,9 +1,25 @@
 import { useMemo } from 'react';
 
+// Extend window type for wallet providers
+declare global {
+  interface Window {
+    phantom?: {
+      solana?: unknown;
+    };
+    solflare?: unknown;
+    chrome?: unknown;
+  }
+  interface Navigator {
+    brave?: {
+      isBrave?: () => boolean;
+    };
+  }
+}
+
 // ────────────────────────────────────────────────
 // Internal helper – not exported
 // ────────────────────────────────────────────────
-const isMobileDevice = () => {
+const isMobileDevice = (): boolean => {
   const ua = navigator.userAgent.toLowerCase();
 
   // Classic mobile UA patterns (still the most reliable quick check in 2026)
@@ -21,7 +37,7 @@ const isMobileDevice = () => {
 // ────────────────────────────────────────────────
 // Exported: simple mobile check (can be used anywhere)
 // ────────────────────────────────────────────────
-export const useIsMobile = () => {
+export const useIsMobile = (): boolean => {
   return useMemo(() => isMobileDevice(), []);
 };
 
@@ -29,7 +45,7 @@ export const useIsMobile = () => {
 // Exported: detects Phantom / Solflare mobile in-app browser
 // Only true if BOTH mobile + in-app/WebView signals
 // ────────────────────────────────────────────────
-export const useIsInAppWalletBrowser = () => {
+export const useIsInAppWalletBrowser = (): boolean => {
   return useMemo(() => {
     if (!isMobileDevice()) return false;
 
@@ -49,12 +65,12 @@ export const useIsInAppWalletBrowser = () => {
     if (!isWebViewLike) return false;
 
     // Strongest signal: wallet provider injected early in their own in-app browser
-    const hasPhantom = !!(window).phantom?.solana;
-    const hasSolflare = !!(window).solflare;
+    const hasPhantom = !!window.phantom?.solana;
+    const hasSolflare = !!window.solflare;
 
     // Exclude Brave (it sometimes mimics Phantom injection)
     const isBrave =
-      (navigator).brave?.isBrave?.() === true ||
+      navigator.brave?.isBrave?.() === true ||
       ua.includes('brave');
 
     return (hasPhantom || hasSolflare) && !isBrave;
