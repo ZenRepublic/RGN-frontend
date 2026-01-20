@@ -1,0 +1,139 @@
+:root {
+  --blue-main: #5041E7;
+  --blue-secondary: #6E63E7;
+  --red: #FF2F1F;
+  --yellow: #FEEE31;
+  --black: #050511;
+  --white: #FFFFFF;
+  --gray: #A0A0A0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  padding: 16px;
+}
+
+#root {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Mobile-first responsive typography */
+h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--gray);
+}
+
+/* Button styles */
+button {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 16px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.primary {
+  background: var(--blue-main);
+  color: var(--white);
+}
+
+button.primary:hover:not(:disabled) {
+  background: var(--blue-secondary);
+}
+
+button.primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Input styles */
+input,
+textarea {
+  font-family: inherit;
+  font-size: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 2px solid #333;
+  background: #1A1A1A;
+  color: var(--white);
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--blue-main);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--gray);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--white);
+}
+
+/* Responsive - Tablet and up */
+@media (min-width: 768px) {
+  body {
+    padding: 32px;
+  }
+
+  h1 {
+    font-size: 32px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  p {
+    font-size: 16px;
+  }
+}
