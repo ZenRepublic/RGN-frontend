@@ -20,10 +20,50 @@ const isMobileNonWalletBrowser = () => {
   return !hasWalletExtension;
 };
 
+const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
+const VIDEO_CACHE_KEY = 'rgn-demo-video';
+
 function App() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction, connected, connecting, disconnect, wallet, connect, select } = useWallet();
   const [showMobileWalletPrompt, setShowMobileWalletPrompt] = useState(false);
+  const [videoSrc, setVideoSrc] = useState(null);
+
+  // Load video from cache or fetch and cache it
+  useEffect(() => {
+    const loadVideo = async () => {
+      // Check localStorage first
+      const cached = localStorage.getItem(VIDEO_CACHE_KEY);
+      if (cached) {
+        setVideoSrc(cached);
+        return;
+      }
+
+      // Fetch and cache the video
+      try {
+        const response = await fetch(DEMO_VIDEO_URL);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result;
+          try {
+            localStorage.setItem(VIDEO_CACHE_KEY, base64);
+          } catch (e) {
+            // localStorage quota exceeded, just use the URL directly
+            console.log('Video too large for cache, streaming instead');
+          }
+          setVideoSrc(base64);
+        };
+        reader.readAsDataURL(blob);
+      } catch (err) {
+        // Fallback to direct URL if fetch fails
+        console.error('Failed to fetch video:', err);
+        setVideoSrc(DEMO_VIDEO_URL);
+      }
+    };
+
+    loadVideo();
+  }, []);
 
   // Check if mobile user needs to connect wallet first
   useEffect(() => {
@@ -277,10 +317,33 @@ function App() {
   return (
     <div className="app">
       <header>
-        <img src="/logo.png" alt="RGN Logo" className="logo" />
-        <h1>DioDudes Battle Arena</h1>
-        <p>Order a custom AI battle. Get an NFT with your battle video!</p>
+        <img src="/BannerWithLogo.png" alt="RGN Banner" className="banner" />
+        <h1>The World's Leading Brainrot Broadcaster</h1>
+        <p>Own the brainrot, don't just watch it. Select a simulation, customize it, and receive an organically recorded NFT with a short-form video you can share anywhere.</p>
       </header>
+
+      <div className="tab-group">
+        <button className="tab-btn active">Dio Dudes</button>
+        <button className="tab-btn" disabled>More Coming Soon...</button>
+      </div>
+
+      <section className="about-section">
+        <p>
+          Welcome to DioDudes Battle Arena! Create epic AI-generated battles between any two fighters of your choice. Upload your images, name your warriors, and watch them clash in an animated showdown. Your battle gets minted as an NFT!
+        </p>
+        <div className="video-container">
+          {videoSrc ? (
+            <video autoPlay loop muted playsInline>
+              <source src={videoSrc} type="video/mp4" />
+            </video>
+          ) : (
+            <div className="video-loading">
+              <div className="spinner"></div>
+              <span>Loading preview...</span>
+            </div>
+          )}
+        </div>
+      </section>
 
       {step === 'form' && (
         <div className="order-form">
@@ -473,6 +536,10 @@ function App() {
           </button>
         </div>
       )}
+      <footer className="powered-by">
+        <span>Powered by</span>
+        <img src="/mplx_logo.png" alt="Metaplex" />
+      </footer>
       <SpeedInsights />
     </div>
   );

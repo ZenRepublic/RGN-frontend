@@ -1,5 +1,35 @@
 .app {
   width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Animated diagonal stripes background */
+.app::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  z-index: -1;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--blue-main) 0px,
+    var(--blue-main) 50px,
+    var(--blue-secondary) 50px,
+    var(--blue-secondary) 100px
+  );
+  animation: diagonalScroll 50s linear infinite;
+}
+
+@keyframes diagonalScroll {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-50%, -50%);
+  }
 }
 
 header {
@@ -7,19 +37,107 @@ header {
   margin-bottom: 32px;
 }
 
-header .logo {
-  max-width: 200px;
+header .banner {
   width: 100%;
   height: auto;
   margin-bottom: 16px;
+  border-radius: 12px;
 }
 
 header h1 {
-  color: var(--blue-main);
+  color: var(--white);
   margin-bottom: 8px;
+  text-shadow:
+    -1px -1px 0 var(--black),
+    1px -1px 0 var(--black),
+    -1px 1px 0 var(--black),
+    1px 1px 0 var(--black),
+    0 0 10px rgba(0, 0, 0, 0.8);
 }
 
 header p {
+  color: var(--white);
+  text-shadow:
+    -1px -1px 0 var(--black),
+    1px -1px 0 var(--black),
+    -1px 1px 0 var(--black),
+    1px 1px 0 var(--black),
+    0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+/* Tab group */
+.tab-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #1A1A1A;
+  color: var(--gray);
+  cursor: pointer;
+  transition: all 0.2s;
+  width: auto;
+}
+
+.tab-btn:hover:not(:disabled):not(.active) {
+  border-color: var(--blue-main);
+  color: var(--white);
+}
+
+.tab-btn.active {
+  background: var(--blue-main);
+  border-color: var(--white);
+  color: var(--white);
+  cursor: default;
+}
+
+.tab-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* About section */
+.about-section {
+  background: var(--yellow);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.about-section p {
+  color: var(--black);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.video-container {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0A0A0A;
+}
+
+.video-container video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.video-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  gap: 12px;
   color: var(--gray);
 }
 
@@ -69,7 +187,8 @@ header p {
 
 /* Override wallet adapter button styles */
 .wallet-adapter-button {
-  background: var(--blue-main) !important;
+  background: var(--yellow) !important;
+  color: var(--black) !important;
   border-radius: 8px !important;
   font-family: inherit !important;
   font-size: 14px !important;
@@ -78,7 +197,7 @@ header p {
 }
 
 .wallet-adapter-button:hover {
-  background: var(--blue-secondary) !important;
+  background: #e6d62c !important;
 }
 
 /* Cancel button (appears when connecting) */
@@ -119,7 +238,7 @@ header p {
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--blue-main);
+  border: 3px solid var(--yellow);
   background: #0A0A0A;
 }
 
@@ -128,15 +247,15 @@ header p {
   font-weight: 600;
   padding: 6px 12px;
   border-radius: 6px;
-  background: var(--blue-main);
-  color: var(--white);
+  background: var(--yellow);
+  color: var(--black);
   cursor: pointer;
   transition: background 0.2s;
   text-align: center;
 }
 
 .upload-button:hover {
-  background: var(--blue-secondary);
+  background: #e6d62c;
 }
 
 .upload-button:active {
@@ -492,6 +611,23 @@ button.secondary:hover {
   max-width: 280px;
 }
 
+/* Powered by footer */
+.powered-by {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 32px;
+  padding: 16px;
+  color: var(--white);
+  font-size: 16px;
+}
+
+.powered-by img {
+  height: 40px;
+  width: auto;
+}
+
 /* Checkout button */
 .checkout-btn {
   width: 100%;
@@ -611,7 +747,7 @@ button.secondary:hover {
   height: 64px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid var(--blue-main);
+  border: 2px solid var(--yellow);
 }
 
 .fighter-preview-item span {
@@ -636,13 +772,13 @@ button.secondary:hover {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  background: var(--blue-main);
-  color: var(--white);
+  background: var(--yellow);
+  color: var(--black);
   transition: background 0.2s;
 }
 
 .btn-purchase:hover:not(:disabled) {
-  background: var(--blue-secondary);
+  background: #e6d62c;
 }
 
 .btn-purchase:disabled {

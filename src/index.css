@@ -69,12 +69,12 @@ button:disabled {
 }
 
 button.primary {
-  background: var(--blue-main);
-  color: var(--white);
+  background: var(--yellow);
+  color: var(--black);
 }
 
 button.primary:hover:not(:disabled) {
-  background: var(--blue-secondary);
+  background: #e6d62c;
 }
 
 button.primary:active:not(:disabled) {
@@ -126,14 +126,14 @@ label {
   }
 
   h1 {
-    font-size: 32px;
+    font-size: 50px;
   }
 
   h2 {
-    font-size: 20px;
+    font-size: 24px;
   }
 
   p {
-    font-size: 16px;
+    font-size: 18px;
   }
 }
