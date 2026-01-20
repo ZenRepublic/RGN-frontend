@@ -20,45 +20,59 @@ const isMobile = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera
 
 const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
 
-// Helper to create cropped image from canvas
-const createCroppedImage = (imageSrc, pixelCrop) => {
+// Helper to load image
+function createImage(url) {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.crossOrigin = 'anonymous';
-
-    image.onload = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = pixelCrop.width;
-        canvas.height = pixelCrop.height;
-        const ctx = canvas.getContext('2d');
-
-        ctx.drawImage(
-          image,
-          pixelCrop.x,
-          pixelCrop.y,
-          pixelCrop.width,
-          pixelCrop.height,
-          0,
-          0,
-          pixelCrop.width,
-          pixelCrop.height
-        );
-
-        resolve(canvas.toDataURL('image/png'));
-      } catch (err) {
-        reject(err);
-      }
-    };
-
-    image.onerror = () => reject(new Error('Failed to load image'));
-
-    // Timeout after 10 seconds
-    setTimeout(() => reject(new Error('Image load timeout')), 10000);
-
-    image.src = imageSrc;
+    image.addEventListener('load', () => resolve(image));
+    image.addEventListener('error', (error) => reject(error));
+    image.setAttribute('crossOrigin', 'anonymous'); // important for canvas
+    image.src = url;
   });
-};
+}
+
+async function createCroppedImage(imageSrc, pixelCrop) {
+  try {
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      throw new Error('Failed to get canvas context');
+    }
+
+    // Force fixed 512×512 output – this is the key change
+    const OUTPUT_SIZE = 512;
+    canvas.width = OUTPUT_SIZE;
+    canvas.height = OUTPUT_SIZE;
+
+    // Fill background to avoid transparent corners (optional but recommended for avatars)
+    ctx.fillStyle = '#ffffff'; // white; change to '#000000' for black, or remove for transparent
+    ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+
+    // Draw cropped region, scaled to fill 512×512 exactly
+    ctx.drawImage(
+      image,
+      pixelCrop.x,           // source x
+      pixelCrop.y,           // source y
+      pixelCrop.width,       // source width
+      pixelCrop.height,      // source height
+      0,                     // dest x
+      0,                     // dest y
+      OUTPUT_SIZE,           // dest width (scales!)
+      OUTPUT_SIZE            // dest height (scales!)
+    );
+
+    // Return as data URL (PNG for quality/transparency)
+    return canvas.toDataURL('image/png');
+
+    // Alternative: smaller file size with JPEG
+    // return canvas.toDataURL('image/jpeg', 0.92);
+  } catch (error) {
+    console.error('createCroppedImage failed:', error);
+    throw error; // let handleCropConfirm catch it
+  }
+}
 
 function App() {
   const { connection } = useConnection();
@@ -180,74 +194,31 @@ function App() {
     }
   };
 
-const handleImageUpload = (index, file) => {
-  if (!file) return;
+  const handleImageUpload = (index, file) => {
+    if (!file) return;
 
-  if (!file.type.startsWith('image/')) {
-    setError('Please upload an image file');
-    return;
-  }
+    if (!file.type.startsWith('image/')) {
+      setError('Please upload an image file');
+      return;
+    }
 
-  if (file.size > 5 * 1024 * 1024) {
-    setError('Image must be smaller than 5MB');
-    return;
-  }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image must be smaller than 5MB');
+      return;
+    }
 
-  setError('');
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      const MAX_SIDE = 1400; // keep this or lower to 1200 if still issues
-
-      let width = img.width;
-      let height = img.height;
-
-      if (width > height) {
-        if (width > MAX_SIDE) {
-          height = Math.round(height * (MAX_SIDE / width));
-          width = MAX_SIDE;
-        }
-      } else {
-        if (height > MAX_SIDE) {
-          width = Math.round(width * (MAX_SIDE / height));
-          height = MAX_SIDE;
-        }
-      }
-
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        // fallback
-        setCropImage(e.target?.result);
-        setCropFighterIndex(index);
-        setCrop({ x: 0, y: 0 });
-        setZoom(1);
-        setCropModalOpen(true);
-        return;
-      }
-
-      ctx.drawImage(img, 0, 0, width, height);
-
-      // Use PNG here (no quality param needed for PNG)
-      const resizedDataUrl = canvas.toDataURL('image/png');
-
-      setCropImage(resizedDataUrl);
+    setError('');
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // Open crop modal with the image
+      setCropImage(reader.result);
       setCropFighterIndex(index);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
       setCropModalOpen(true);
     };
-
-    img.src = e.target?.result;
+    reader.readAsDataURL(file);
   };
-
-  reader.readAsDataURL(file);
-};
 
   const handleCropConfirm = async () => {
     if (!croppedAreaPixels || cropFighterIndex === null) return;
