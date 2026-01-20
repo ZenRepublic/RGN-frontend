@@ -31,11 +31,29 @@ function App() {
   // Payment info from backend
   const [paymentInfo, setPaymentInfo] = useState(null);
 
-  // Form state
-  const [fighters, setFighters] = useState([
-    { name: '', image: null, imagePreview: '/mystery-fighter.png' },
-    { name: '', image: null, imagePreview: '/mystery-fighter.png' }
-  ]);
+  // Form state - load from localStorage if available
+  const [fighters, setFighters] = useState(() => {
+    const saved = localStorage.getItem('rgn-fighters');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [
+          { name: '', image: null, imagePreview: '/mystery-fighter.png' },
+          { name: '', image: null, imagePreview: '/mystery-fighter.png' }
+        ];
+      }
+    }
+    return [
+      { name: '', image: null, imagePreview: '/mystery-fighter.png' },
+      { name: '', image: null, imagePreview: '/mystery-fighter.png' }
+    ];
+  });
+
+  // Save fighters to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('rgn-fighters', JSON.stringify(fighters));
+  }, [fighters]);
 
   // Success state
   const [orderResult, setOrderResult] = useState(null);
@@ -223,6 +241,7 @@ function App() {
       }
 
       // Full success!
+      localStorage.removeItem('rgn-fighters');
       setOrderResult(data);
       setStep('success');
 
