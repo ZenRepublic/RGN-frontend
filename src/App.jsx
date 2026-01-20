@@ -64,10 +64,10 @@ async function createCroppedImage(imageSrc, pixelCrop) {
     );
 
     // Return as data URL (PNG for quality/transparency)
-    return canvas.toDataURL('image/png');
+    // return canvas.toDataURL('image/png');
 
     // Alternative: smaller file size with JPEG
-    // return canvas.toDataURL('image/jpeg', 0.92);
+    return canvas.toDataURL('image/jpeg', 0.92);
   } catch (error) {
     console.error('createCroppedImage failed:', error);
     throw error; // let handleCropConfirm catch it
@@ -194,31 +194,95 @@ function App() {
     }
   };
 
-  const handleImageUpload = (index, file) => {
-    if (!file) return;
+const handleImageUpload = (index, file) => {
+  if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      setError('Please upload an image file');
-      return;
-    }
+  if (!file.type.startsWith('image/')) {
+    setError('Please upload an image file');
+    return;
+  }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be smaller than 5MB');
-      return;
-    }
+  if (file.size > 5 * 1024 * 1024) {
+    setError('Image must be smaller than 5MB');
+    return;
+  }
 
-    setError('');
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      // Open crop modal with the image
-      setCropImage(reader.result);
+  setError('');
+
+  // Use blob URL directly instead of data URL
+  const blobUrl = URL.createObjectURL(file);
+
+  setCropImage(blobUrl);
+  setCropFighterIndex(index);
+  setCrop({ x: 0, y: 0 });
+  setZoom(1);
+  setCropModalOpen(true);
+
+  // Optional: if you want to pre-resize for extra safety (recommended),
+  // comment out the lines above and use this async version instead:
+
+  /*
+  const resizeAndSet = async () => {
+    try {
+      const img = await new Promise((resolve, reject) => {
+        const i = new Image();
+        i.onload = () => resolve(i);
+        i.onerror = reject;
+        i.src = blobUrl;
+      });
+
+      const MAX_SIDE = 1000; // or 800 if still issues
+
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_SIDE) {
+          height = Math.round(height * (MAX_SIDE / width));
+          width = MAX_SIDE;
+        }
+      } else {
+        if (height > MAX_SIDE) {
+          width = Math.round(width * (MAX_SIDE / height));
+          height = MAX_SIDE;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Output as JPEG for lower memory usage
+      const resizedBlob = await new Promise((resolve) => {
+        canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.85);
+      });
+
+      const resizedUrl = URL.createObjectURL(resizedBlob);
+
+      // Clean up original blob URL
+      URL.revokeObjectURL(blobUrl);
+
+      setCropImage(resizedUrl);
       setCropFighterIndex(index);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
       setCropModalOpen(true);
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Resize failed', err);
+      // Fallback to original blob URL
+      setCropImage(blobUrl);
+      setCropFighterIndex(index);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCropModalOpen(true);
+    }
   };
+
+  resizeAndSet();
+  */
+};
 
   const handleCropConfirm = async () => {
     if (!croppedAreaPixels || cropFighterIndex === null) return;
@@ -228,6 +292,10 @@ function App() {
 
       setFighters(prev => {
         const updated = [...prev];
+        // Revoke old preview if it was a blob URL
+        if (updated[cropFighterIndex]?.imagePreview?.startsWith('blob:')) {
+          URL.revokeObjectURL(updated[cropFighterIndex].imagePreview);
+        }
         updated[cropFighterIndex] = {
           ...updated[cropFighterIndex],
           image: croppedImage,
@@ -235,6 +303,10 @@ function App() {
         };
         return updated;
       });
+
+      if (cropImage) {
+        URL.revokeObjectURL(cropImage);
+      }
 
       // Close modal and reset
       setCropModalOpen(false);
@@ -250,6 +322,9 @@ function App() {
   };
 
   const handleCropCancel = () => {
+    if (cropImage) {
+      URL.revokeObjectURL(cropImage);
+    }
     setCropModalOpen(false);
     setCropImage(null);
     setCropFighterIndex(null);
