@@ -109,8 +109,9 @@ function App() {
   const [paymentInfo, setPaymentInfo] = useState(null);
 
   // Form state - load from localStorage if available
+  const FIGHTERS_CACHE_KEY = 'rgn-fighters-v2'; // Bump version to clear old GIF data
   const [fighters, setFighters] = useState(() => {
-    const saved = localStorage.getItem('rgn-fighters');
+    const saved = localStorage.getItem(FIGHTERS_CACHE_KEY);
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -129,7 +130,7 @@ function App() {
 
   // Save fighters to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('rgn-fighters', JSON.stringify(fighters));
+    localStorage.setItem(FIGHTERS_CACHE_KEY, JSON.stringify(fighters));
   }, [fighters]);
 
   // Success state
@@ -340,7 +341,7 @@ function App() {
       }
 
       // Full success!
-      localStorage.removeItem('rgn-fighters');
+      localStorage.removeItem('rgn-fighters-v2');
       setOrderResult(data);
       setStep('success');
 
