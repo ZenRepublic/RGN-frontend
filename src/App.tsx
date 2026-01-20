@@ -105,7 +105,7 @@ const FIGHTERS_CACHE_KEY = 'rgn-fighters-v2';
 
 function App() {
   const { connection } = useConnection();
-  const { publicKey, signTransaction, connected } = useWallet();
+  const { publicKey, sendTransaction, connected } = useWallet();
   const [videoError, setVideoError] = useState(false);
 
   const inWalletBrowser = useIsInAppWalletBrowser();
@@ -331,32 +331,11 @@ function App() {
       const transaction = Transaction.from(txBytes);
 
       console.log('Requesting signature...');
-      if (!signTransaction) {
-        throw new Error('Wallet does not support transaction signing');
-      }
-      const signedTransaction = await signTransaction(transaction);
-
-      // Send signed transaction to backend (backend adds server + asset signatures and submits)
-      console.log('Submitting to backend...');
-      const serializedTx = signedTransaction.serialize({ verifySignatures: false });
-      const signedTxBase64 = btoa(String.fromCharCode(...serializedTx));
-
-      const submitResponse = await fetch(`${API_URL}/rgn/orders/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          signedTransaction: signedTxBase64,
-          assetAddress
-        })
+      // Use sendTransaction which handles partial signatures better
+      const signature = await sendTransaction(transaction, connection, {
+        skipPreflight: false,
+        preflightCommitment: 'confirmed'
       });
-
-      const submitData = await submitResponse.json() as { success: boolean; signature?: string; error?: string };
-
-      if (!submitResponse.ok || !submitData.signature) {
-        throw new Error(submitData.error || 'Failed to submit transaction');
-      }
-
-      const signature = submitData.signature;
       console.log('Transaction sent:', signature);
 
       console.log('Waiting for confirmation...');
