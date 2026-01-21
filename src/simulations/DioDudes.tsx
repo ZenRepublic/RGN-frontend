@@ -277,13 +277,15 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
             <div className="sims-grid">
               {ownedAssets.map((asset) => (
                 <div key={asset.orderId} className="sim-card">
+                  <div className="sim-card-header">
+                    <span className="sim-card-id">#{asset.orderId}</span>
+                  </div>
                   <img
                     src={asset.image}
                     alt={asset.name}
                     className="sim-card-image"
                   />
-                  <div className="sim-card-info">
-                    <span className="sim-card-id">#{asset.orderId}</span>
+                  <div className="sim-card-footer">
                     {asset.animationUrl ? (
                       <button
                         onClick={() => handleDownload(asset)}
@@ -297,7 +299,7 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
                         )}
                       </button>
                     ) : (
-                      <span className="sim-card-pending">Processing...</span>
+                      <div className="sim-card-pending">Processing...</div>
                     )}
                   </div>
                 </div>

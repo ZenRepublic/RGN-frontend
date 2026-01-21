@@ -77,12 +77,12 @@ export default function CheckoutModal({
     const allowPurchase = import.meta.env.VITE_ALLOW_PURCHASE === 'true';
     const whitelistIdsRaw = import.meta.env.VITE_WHITELIST_IDS || '';
 
-    let adminIds: string[] = [];
+    let whitelistIds: string[] = [];
     if (whitelistIdsRaw) {
       try {
-        adminIds = JSON.parse(whitelistIdsRaw) as string[];
+        whitelistIds = JSON.parse(whitelistIdsRaw) as string[];
       } catch {
-        adminIds = whitelistIdsRaw
+        whitelistIds = whitelistIdsRaw
           .split(',')
           .map((id: string) => id.trim().toLowerCase())
           .filter(Boolean);
@@ -91,7 +91,7 @@ export default function CheckoutModal({
 
     const currentPubkey = publicKey?.toBase58()?.toLowerCase();
 
-    const isAdmin = currentPubkey && adminIds.includes(currentPubkey);
+    const isAdmin = currentPubkey && whitelistIds.includes(currentPubkey);
     const canProceed = allowPurchase || isAdmin;
 
     if (!canProceed) {
