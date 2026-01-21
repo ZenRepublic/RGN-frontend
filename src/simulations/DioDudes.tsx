@@ -1,7 +1,7 @@
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import ImageUpload from '../components/ImageUpload';
+import ImageUpload, { CroppedImageData, blobToBase64 } from '../components/ImageUpload';
 import { SimulationProps } from '../types/simulation';
 import { useIsInAppWalletBrowser } from '../utils/walletUtils';
 import './DioDudes.css';
@@ -22,13 +22,13 @@ interface MplCoreAsset {
 
 interface Fighter {
   name: string;
-  image: string | null;
-  imagePreview: string;
+  imageBlob: Blob | null;      // The actual blob (memory efficient, can't be cached)
+  imagePreview: string;         // Object URL for display, or fallback
 }
 
 const DEFAULT_FIGHTERS: Fighter[] = [
-  { name: '', image: null, imagePreview: '/mystery-fighter.png' },
-  { name: '', image: null, imagePreview: '/mystery-fighter.png' }
+  { name: '', imageBlob: null, imagePreview: '/mystery-fighter.png' },
+  { name: '', imageBlob: null, imagePreview: '/mystery-fighter.png' }
 ];
 
 const INCLUDES = [
@@ -49,12 +49,17 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [showCopyToast, setShowCopyToast] = useState(false);
 
-  // Form state - load from localStorage if available
+  // Form state - only cache names (blobs can't be serialized to localStorage)
   const [fighters, setFighters] = useState<Fighter[]>(() => {
     const saved = localStorage.getItem(FIGHTERS_CACHE_KEY);
     if (saved) {
       try {
-        return JSON.parse(saved) as Fighter[];
+        const cached = JSON.parse(saved) as { name: string }[];
+        return cached.map((c, i) => ({
+          name: c.name || '',
+          imageBlob: null,
+          imagePreview: DEFAULT_FIGHTERS[i]?.imagePreview || '/mystery-fighter.png'
+        }));
       } catch {
         return DEFAULT_FIGHTERS;
       }
@@ -62,27 +67,44 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
     return DEFAULT_FIGHTERS;
   });
 
-  // Save fighters to localStorage whenever they change
+  // Track object URLs to revoke on cleanup
+  const objectUrlsRef = useRef<string[]>([]);
+
+  // Cleanup object URLs on unmount
   useEffect(() => {
-    localStorage.setItem(FIGHTERS_CACHE_KEY, JSON.stringify(fighters));
+    return () => {
+      objectUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, []);
+
+  // Save only names to localStorage (blobs can't be cached)
+  useEffect(() => {
+    localStorage.setItem(
+      FIGHTERS_CACHE_KEY,
+      JSON.stringify(fighters.map(f => ({ name: f.name })))
+    );
   }, [fighters]);
 
-  // Notify parent of form data changes
+  // Notify parent of form data changes - convert blobs to base64 only when needed
   useEffect(() => {
-    const isValid = fighters.every(f => f.name.trim() !== '' && f.image !== null);
+    const isValid = fighters.every(f => f.name.trim() !== '' && f.imageBlob !== null);
 
     if (isValid) {
-      onFormDataChange({
-        fighters: fighters.map(f => ({
-          name: f.name,
-          imageUrl: f.image || f.imagePreview
-        })),
-        preview: fighters.map(f => ({
-          name: f.name,
-          imagePreview: f.imagePreview
-        })),
-        includes: INCLUDES
-      });
+      // Convert blobs to base64 for backend submission
+      Promise.all(fighters.map(f => blobToBase64(f.imageBlob!)))
+        .then(base64Images => {
+          onFormDataChange({
+            fighters: fighters.map((f, i) => ({
+              name: f.name,
+              imageUrl: base64Images[i]
+            })),
+            preview: fighters.map(f => ({
+              name: f.name,
+              imagePreview: f.imagePreview
+            })),
+            includes: INCLUDES
+          });
+        });
     } else {
       onFormDataChange(null);
     }
@@ -143,36 +165,37 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
     fetchOwnedNfts();
   }, [connected, publicKey, onError]);
 
-  const updateFighter = (index: number, field: keyof Fighter, value: string) => {
-    if (field === 'name') {
-      const filteredValue = value.replace(/[^a-zA-Z0-9_ ]/g, '');
+  const updateFighterName = (index: number, value: string) => {
+    const filteredValue = value.replace(/[^a-zA-Z0-9_ ]/g, '');
 
-      if (filteredValue.length > 12) {
-        onError('Fighter name must be 12 characters or less');
-        return;
-      }
-
-      setFighters(prev => {
-        const updated = [...prev];
-        updated[index] = { ...updated[index], [field]: filteredValue };
-        return updated;
-      });
-    } else {
-      setFighters(prev => {
-        const updated = [...prev];
-        updated[index] = { ...updated[index], [field]: value };
-        return updated;
-      });
+    if (filteredValue.length > 12) {
+      onError('Fighter name must be 12 characters or less');
+      return;
     }
-  };
 
-  const handleFighterImageChange = (index: number, croppedImage: string) => {
     setFighters(prev => {
       const updated = [...prev];
+      updated[index] = { ...updated[index], name: filteredValue };
+      return updated;
+    });
+  };
+
+  const handleFighterImageChange = (index: number, croppedImageData: CroppedImageData) => {
+    // Track the object URL for cleanup
+    objectUrlsRef.current.push(croppedImageData.objectUrl);
+
+    setFighters(prev => {
+      const updated = [...prev];
+      // Revoke old object URL if it exists and isn't default
+      const oldPreview = updated[index].imagePreview;
+      if (oldPreview && oldPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(oldPreview);
+      }
+
       updated[index] = {
         ...updated[index],
-        image: croppedImage,
-        imagePreview: croppedImage
+        imageBlob: croppedImageData.blob,
+        imagePreview: croppedImageData.objectUrl
       };
       return updated;
     });
@@ -344,8 +367,8 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
               <div className="fighter-content">
                 <ImageUpload
                   imagePreview={fighter.imagePreview}
-                  hasImage={fighter.image !== null}
-                  onImageChange={(croppedImage) => handleFighterImageChange(index, croppedImage)}
+                  hasImage={fighter.imageBlob !== null}
+                  onImageChange={(croppedImageData) => handleFighterImageChange(index, croppedImageData)}
                   onError={onError}
                   inputId={`diodudes-f${index}-image`}
                 />
@@ -358,7 +381,7 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
                       required
                       maxLength={12}
                       value={fighter.name}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => updateFighter(index, 'name', e.target.value)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => updateFighterName(index, e.target.value)}
                       placeholder="*Up to 12 Characters"
                       disabled={disabled}
                     />
@@ -371,7 +394,7 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
           <button
             type="button"
             className="primary checkout-btn"
-            disabled={!fighters.every(f => f.name.trim() !== '' && f.image !== null)}
+            disabled={!fighters.every(f => f.name.trim() !== '' && f.imageBlob !== null)}
             onClick={onCheckout}
           >
             Go To Checkout

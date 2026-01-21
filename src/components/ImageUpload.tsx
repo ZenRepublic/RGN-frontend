@@ -4,10 +4,15 @@ import type { Area, Point } from 'react-easy-crop';
 import { isHeic } from 'heic-to';
 import './ImageUpload.css';
 
+export interface CroppedImageData {
+  blob: Blob;
+  objectUrl: string;
+}
+
 interface ImageUploadProps {
   imagePreview: string;
   hasImage: boolean;
-  onImageChange: (croppedImage: string) => void;
+  onImageChange: (croppedImage: CroppedImageData) => void;
   onError: (message: string) => void;
   inputId: string;
 }
@@ -98,7 +103,7 @@ async function resizeImageForCropper(
 async function createCroppedImage(
   imageSrc: string,
   pixelCrop: { x: number; y: number; width: number; height: number }
-): Promise<string> {
+): Promise<CroppedImageData> {
   const image = await createImage(imageSrc);
 
   const OUTPUT_SIZE = 512;
@@ -124,7 +129,7 @@ async function createCroppedImage(
     OUTPUT_SIZE
   );
 
-  // 1. Convert canvas → Blob (NO base64 yet)
+  // Convert canvas → Blob (NO base64 - much more memory efficient on iOS)
   const blob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
       b => (b ? resolve(b) : reject(new Error('toBlob failed'))),
@@ -133,59 +138,20 @@ async function createCroppedImage(
     );
   });
 
-  // 2. HARD cleanup BEFORE base64 conversion
+  // HARD cleanup to free memory immediately
   canvas.width = 0;
   canvas.height = 0;
   image.src = '';
 
-  // 3. Convert Blob → base64 string
-  return await blobToBase64(blob);
+  // Return blob + object URL for display (no base64 conversion!)
+  return {
+    blob,
+    objectUrl: URL.createObjectURL(blob)
+  };
 }
 
-async function createCroppedImageFromImage(
-  image: HTMLImageElement,
-  pixelCrop: { x: number; y: number; width: number; height: number }
-): Promise<string> {
-  const OUTPUT_SIZE = 512;
-
-  const canvas = document.createElement('canvas');
-  canvas.width = OUTPUT_SIZE;
-  canvas.height = OUTPUT_SIZE;
-
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Failed to get canvas context');
-
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
-
-  ctx.drawImage(
-    image,
-    pixelCrop.x,
-    pixelCrop.y,
-    pixelCrop.width,
-    pixelCrop.height,
-    0,
-    0,
-    OUTPUT_SIZE,
-    OUTPUT_SIZE
-  );
-
-  const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      b => (b ? resolve(b) : reject(new Error('toBlob failed'))),
-      'image/jpeg',
-      0.85
-    );
-  });
-
-  // Cleanup
-  canvas.width = 0;
-  canvas.height = 0;
-
-  return blobToBase64(blob);
-}
-
-function blobToBase64(blob: Blob): Promise<string> {
+// Export for use when uploading to backend
+export function blobToBase64(blob: Blob): Promise<string> {
   return new Promise(resolve => {
     const reader = new FileReader();
     reader.onloadend = () => resolve(reader.result as string);
@@ -250,9 +216,12 @@ export default function ImageUpload({
     if (!croppedAreaPixels || !cropImage) return;
 
     try {
-      const croppedImage = await createCroppedImage(cropImage, croppedAreaPixels);
-      // const croppedImage = await createCroppedImageFromImage(fileInputRef.current, croppedAreaPixels);
-      onImageChange(croppedImage);
+      const croppedImageData = await createCroppedImage(cropImage, croppedAreaPixels);
+
+      // Revoke the cropper's source URL to free memory
+      URL.revokeObjectURL(cropImage);
+
+      onImageChange(croppedImageData);
 
       // Clear crop state
       setCropModalOpen(false);
@@ -261,6 +230,10 @@ export default function ImageUpload({
     } catch (err) {
       console.error('Crop failed:', err);
       onError('Failed to crop image. Please try again.');
+
+      // Revoke URL even on error
+      if (cropImage) URL.revokeObjectURL(cropImage);
+
       setCropModalOpen(false);
       setCropImage(null);
       resetFileInput();
@@ -268,6 +241,9 @@ export default function ImageUpload({
   };
 
   const handleCropCancel = () => {
+    // Revoke URL to free memory
+    if (cropImage) URL.revokeObjectURL(cropImage);
+
     setCropModalOpen(false);
     setCropImage(null);
     resetFileInput();
