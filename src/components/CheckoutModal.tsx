@@ -59,7 +59,7 @@ export default function CheckoutModal({
 }: CheckoutModalProps) {
   const navigate = useNavigate();
   const { connection } = useConnection();
-  const { publicKey, signTransaction, connected } = useWallet();
+  const { publicKey, sendTransaction, connected } = useWallet();
 
   const [step, setStep] = useState<ModalStep>('details');
   const [loading, setLoading] = useState(false);
@@ -108,14 +108,6 @@ export default function CheckoutModal({
       return;
     }
 
-    if (!signTransaction) {
-      setError(
-        "signTransaction not available. " +
-        "On Saga/mobile, ensure you're using Mobile Wallet Adapter integration."
-      );
-      return;
-    }
-
     if (!paymentInfo) {
       setError('Payment info not loaded. Please refresh the page.');
       return;
@@ -125,8 +117,9 @@ export default function CheckoutModal({
     setError('');
     setStep('processing');
 
+    console.log('Preparing order...');
+
     try {
-      console.log('Preparing order...');
       const prepareResponse = await fetch(`${API_URL}/rgn/orders/prepare`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -144,15 +137,15 @@ export default function CheckoutModal({
       const txBytes = Uint8Array.from(atob(txBase64), c => c.charCodeAt(0));
       const transaction = Transaction.from(txBytes);
 
-      console.log('Requesting signature...');
+      console.log('Signing and Sending Transaction..');
 
-      const signedTx = await signTransaction(transaction);
-
-      const rawTx = signedTx.serialize();
-      const signature = await connection.sendRawTransaction(rawTx, {
+      const signature = await sendTransaction(transaction, connection, {
         skipPreflight: false,
         maxRetries: 3,
+        preflightCommitment: 'confirmed',
       });
+
+      console.log('Confirming Transaction..');
 
       // Wait for transaction to be confirmed on-chain before verifying with backend
       const confirmation = await connection.confirmTransaction(signature, 'confirmed');
