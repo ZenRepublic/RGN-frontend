@@ -190,7 +190,7 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
       try {
         await navigator.clipboard.writeText(asset.animationUrl);
         setShowCopyToast(true);
-        setTimeout(() => setShowCopyToast(false), 2000);
+        setTimeout(() => setShowCopyToast(false), 3000);
       } catch {
         // Fallback for older browsers
         prompt('Copy this link:', asset.animationUrl);

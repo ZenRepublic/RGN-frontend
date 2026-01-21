@@ -220,21 +220,21 @@
 /* Copy link toast */
 .copy-toast {
   position: fixed;
-  bottom: 24px;
+  bottom: 35px;
   left: 50%;
   transform: translateX(-50%);
   background: #1a1a2e;
   border: 1px solid #333;
   border-radius: 8px;
   padding: 16px;
-  max-width: 320px;
+  max-width: 360px;
   z-index: 1000;
   overflow: hidden;
 }
 
 .copy-toast p {
   color: var(--white);
-  font-size: 14px;
+  font-size: 16px;
   margin: 0 0 12px 0;
   text-align: center;
 }
@@ -243,7 +243,7 @@
   height: 4px;
   background: var(--yellow);
   border-radius: 2px;
-  animation: toast-countdown 2s linear forwards;
+  animation: toast-countdown 3s linear forwards;
 }
 
 @keyframes toast-countdown {
