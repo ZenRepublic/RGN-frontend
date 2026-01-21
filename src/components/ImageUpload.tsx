@@ -142,6 +142,49 @@ async function createCroppedImage(
   return await blobToBase64(blob);
 }
 
+async function createCroppedImageFromImage(
+  image: HTMLImageElement,
+  pixelCrop: { x: number; y: number; width: number; height: number }
+): Promise<string> {
+  const OUTPUT_SIZE = 512;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = OUTPUT_SIZE;
+  canvas.height = OUTPUT_SIZE;
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Failed to get canvas context');
+
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    OUTPUT_SIZE,
+    OUTPUT_SIZE
+  );
+
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      b => (b ? resolve(b) : reject(new Error('toBlob failed'))),
+      'image/jpeg',
+      0.85
+    );
+  });
+
+  // Cleanup
+  canvas.width = 0;
+  canvas.height = 0;
+
+  return blobToBase64(blob);
+}
+
 function blobToBase64(blob: Blob): Promise<string> {
   return new Promise(resolve => {
     const reader = new FileReader();
@@ -208,6 +251,7 @@ export default function ImageUpload({
 
     try {
       const croppedImage = await createCroppedImage(cropImage, croppedAreaPixels);
+      // const croppedImage = await createCroppedImageFromImage(fileInputRef.current, croppedAreaPixels);
       onImageChange(croppedImage);
 
       // Clear crop state

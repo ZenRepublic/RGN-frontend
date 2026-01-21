@@ -9,6 +9,17 @@ import './DioDudes.css';
 const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
 const FIGHTERS_CACHE_KEY = 'rgn-diodudes-fighters';
 
+// Hardcoded collection ID for DioDudes simulations
+const COLLECTION_ID = '9VMfraMtZao8d27ScRx6qvqGTzW2Md9vQv5YZyAopPQx'; 
+const HELIUS_API_KEY = import.meta.env.VITE_HELIUS_API_KEY || '';
+
+interface MplCoreAsset {
+  orderId: string; // e.g., "OMF561" extracted from name
+  name: string;
+  image: string;
+  animationUrl: string | null;
+}
+
 interface Fighter {
   name: string;
   image: string | null;
@@ -27,9 +38,14 @@ const INCLUDES = [
 ];
 
 export default function DioDudes({ onFormDataChange, onError, onCheckout, disabled }: SimulationProps) {
-  const { connected } = useWallet();
+  const { connected, publicKey } = useWallet();
   const inWalletBrowser = useIsInAppWalletBrowser();
   const [videoError, setVideoError] = useState(false);
+  const [activeTab, setActiveTab] = useState<'new-order' | 'your-sims'>('your-sims');
+
+  // Your Sims state
+  const [ownedAssets, setOwnedAssets] = useState<MplCoreAsset[]>([]);
+  const [loadingNfts, setLoadingNfts] = useState(false);
 
   // Form state - load from localStorage if available
   const [fighters, setFighters] = useState<Fighter[]>(() => {
@@ -69,6 +85,61 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
       onFormDataChange(null);
     }
   }, [fighters, onFormDataChange]);
+
+  // Fetch owned NFTs once when wallet connects (not on tab switch)
+  useEffect(() => {
+    if (!connected || !publicKey) {
+      return;
+    }
+
+    const fetchOwnedNfts = async () => {
+      setLoadingNfts(true);
+      try {
+        const response = await fetch(`https://devnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'my-id',
+            method: 'searchAssets',
+            params: {
+              ownerAddress: publicKey.toBase58(),
+              grouping: ['collection', COLLECTION_ID],
+              page: 1,
+              limit: 100,
+            },
+          }),
+        });
+
+        const data = await response.json();
+        const items = data?.result?.items || [];
+        console.log(data);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const assets: MplCoreAsset[] = items.map((item: any) => {
+          const name = item.content?.metadata?.name || 'Unnamed';
+          // Extract order ID from name like "Dio Dudes #OMF561" -> "OMF561"
+          const hashIndex = name.indexOf('#');
+          const orderId = hashIndex !== -1 ? name.substring(hashIndex + 1) : name;
+
+          return {
+            orderId,
+            name,
+            image: item.content?.links?.image || '',
+            animationUrl: item.content?.links?.animation_url || null,
+          };
+        });
+
+        setOwnedAssets(assets);
+      } catch (err) {
+        console.error('Failed to fetch NFTs:', err);
+        onError('Failed to load your simulations');
+      } finally {
+        setLoadingNfts(false);
+      }
+    };
+
+    fetchOwnedNfts();
+  }, [connected, publicKey, onError]);
 
   const updateFighter = (index: number, field: keyof Fighter, value: string) => {
     if (field === 'name') {
@@ -132,55 +203,118 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
         )}
       </section>
 
-      <div className="order-form">
-        {!connected && (
-          <div className="form-wallet-overlay">
-            <div className="form-wallet-prompt">
-              <h3>Connect Wallet To Place an Order</h3>
-              <WalletMultiButton />
-            </div>
-          </div>
-        )}
-
-        {fighters.map((fighter, index) => (
-          <section key={index} className="section fighter-section">
-            <h2>Fighter {index + 1}</h2>
-            <div className="fighter-content">
-              <ImageUpload
-                imagePreview={fighter.imagePreview}
-                hasImage={fighter.image !== null}
-                onImageChange={(croppedImage) => handleFighterImageChange(index, croppedImage)}
-                onError={onError}
-                inputId={`diodudes-f${index}-image`}
-              />
-              <div className="fighter-fields">
-                <div className="field">
-                  <label htmlFor={`diodudes-f${index}-name`}>Name* (max 12 chars)</label>
-                  <input
-                    id={`diodudes-f${index}-name`}
-                    type="text"
-                    required
-                    maxLength={12}
-                    value={fighter.name}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => updateFighter(index, 'name', e.target.value)}
-                    placeholder="e.g. Solana"
-                    disabled={disabled}
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-        ))}
-
-        <button
-          type="button"
-          className="primary checkout-btn"
-          disabled={!fighters.every(f => f.name.trim() !== '' && f.image !== null)}
-          onClick={onCheckout}
+      {/* Tab navigation */}
+      <div className="tab-buttons">
+        <button 
+          className={`tab-button ${activeTab === 'your-sims' ? 'active' : ''}`}
+          onClick={() => setActiveTab('your-sims')}
         >
-          Go To Checkout
+          Your Sims
+        </button>
+
+        <button 
+          className={`tab-button ${activeTab === 'new-order' ? 'active' : ''}`}
+          onClick={() => setActiveTab('new-order')}
+        >
+          New Order...
         </button>
       </div>
+
+      {activeTab === 'your-sims' && (
+        <div className="your-sims-section">
+          {!connected ? (
+            <div className="sims-wallet-prompt">
+              <h2>Connect Your Wallet to Proceed</h2>
+              <WalletMultiButton />
+            </div>
+          ) : loadingNfts ? (
+            <div className="sims-loading">Loading your simulations...</div>
+          ) : ownedAssets.length === 0 ? (
+            <div className="sims-empty">No simulations found for this collection.</div>
+          ) : (
+            <div className="sims-grid">
+              {ownedAssets.map((asset) => (
+                <div key={asset.orderId} className="sim-card">
+                  <img
+                    src={asset.image}
+                    alt={asset.name}
+                    className="sim-card-image"
+                  />
+                  <div className="sim-card-info">
+                    <span className="sim-card-id">#{asset.orderId}</span>
+                    {asset.animationUrl ? (
+                      <a
+                        href={asset.animationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="sim-card-view-btn"
+                      >
+                        View
+                      </a>
+                    ) : (
+                      <span className="sim-card-loading">
+                        <span className="spinner" />
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'new-order' && (
+        <div className="order-form">
+          {!connected && (
+            <div className="form-wallet-overlay">
+              <div className="form-wallet-prompt">
+                <h2>Connect Your Wallet to Proceed</h2>
+                <WalletMultiButton />
+              </div>
+            </div>
+          )}
+
+          {fighters.map((fighter, index) => (
+            <section key={index} className="section fighter-section">
+              <h2>Actor {index + 1}</h2>
+              <div className="fighter-content">
+                <ImageUpload
+                  imagePreview={fighter.imagePreview}
+                  hasImage={fighter.image !== null}
+                  onImageChange={(croppedImage) => handleFighterImageChange(index, croppedImage)}
+                  onError={onError}
+                  inputId={`diodudes-f${index}-image`}
+                />
+                <div className="fighter-fields">
+                  <div className="field">
+                    <label htmlFor={`diodudes-f${index}-name`}>Enter Name:</label>
+                    <input
+                      id={`diodudes-f${index}-name`}
+                      type="text"
+                      required
+                      maxLength={12}
+                      value={fighter.name}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => updateFighter(index, 'name', e.target.value)}
+                      placeholder="*Up to 12 Characters"
+                      disabled={disabled}
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+          ))}
+
+          <button
+            type="button"
+            className="primary checkout-btn"
+            disabled={!fighters.every(f => f.name.trim() !== '' && f.image !== null)}
+            onClick={onCheckout}
+          >
+            Go To Checkout
+          </button>
+        </div>
+      )}
     </>
   );
 }

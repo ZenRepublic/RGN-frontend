@@ -57,7 +57,7 @@ function App() {
       <header>
         <img src="/BannerWithLogo.png" alt="RGN Banner" className="banner" />
         <h1 style={{ textAlign: 'left' }}>Onchain Brainrot Broadcast</h1>
-        <p style={{ textAlign: 'left' }}>Stop consuming brainrot - it's time to own it! <br /> <br /> Select a simulation, customize it, and receive an organically recorded NFT with a short-form video you can share anywhere.</p>
+        <p style={{ textAlign: 'left' }}>Stop consuming brainrot - it's time to own it... <br /> <br /> Select a channel, set your actors, and receive an organically recorded NFT with a short-form video you can share anywhere to interact with your internet friends and increase your mindshare!</p>
       </header>
 
       <div className="tab-group">

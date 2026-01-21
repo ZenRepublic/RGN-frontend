@@ -63,7 +63,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(5, 5, 17, 0.9);
+  background: var(--blue-main);
+  opacity: 0.8;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,4 +81,125 @@
   color: var(--blue-main);
   margin-bottom: 16px;
   font-size: 1.1rem;
+}
+
+
+.tab-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  /* border-bottom: 5px solid #ccc; */
+}
+
+.tab-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: 500;
+  opacity: 0.8;
+  color: var(--white);
+}
+
+.tab-button.active {
+  opacity: 1.0;
+  border-bottom: 5px solid var(--yellow);
+  color: var(--yellow );
+}
+
+/* Your Sims section */
+.your-sims-section {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.sims-wallet-prompt {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.sims-wallet-prompt h3 {
+  color: var(--blue-main);
+  margin-bottom: 16px;
+}
+
+.sims-loading,
+.sims-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--yellow);
+}
+
+/* Sims grid - 2 columns */
+.sims-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.sim-card {
+  background: #1a1a2e;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.sim-card-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+.sim-card-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+}
+
+.sim-card-id {
+  color: var(--white);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.sim-card-view-btn {
+  background: var(--yellow);
+  color: var(--black);
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.sim-card-view-btn:hover {
+  opacity: 0.85;
+}
+
+.sim-card-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 28px;
+}
+
+.sim-card-loading .spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #333;
+  border-top-color: var(--yellow);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
