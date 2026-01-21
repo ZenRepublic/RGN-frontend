@@ -148,7 +148,11 @@ export default function CheckoutModal({
       console.log('Confirming Transaction..');
 
       // Wait for transaction to be confirmed on-chain before verifying with backend
-      const confirmation = await connection.confirmTransaction(signature, 'confirmed');
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+      const confirmation = await connection.confirmTransaction(
+        { signature, blockhash, lastValidBlockHeight },
+        'confirmed'
+      );
       if (confirmation.value.err) {
         throw new Error('Transaction failed on-chain');
       }
