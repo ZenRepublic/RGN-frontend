@@ -46,6 +46,7 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
   // Your Sims state
   const [ownedAssets, setOwnedAssets] = useState<MplCoreAsset[]>([]);
   const [loadingNfts, setLoadingNfts] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   // Form state - load from localStorage if available
   const [fighters, setFighters] = useState<Fighter[]>(() => {
@@ -176,6 +177,47 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
     });
   };
 
+  const handleDownload = async (asset: MplCoreAsset) => {
+    if (!asset.animationUrl) return;
+
+    setDownloadingId(asset.orderId);
+    const fileName = `${asset.name}.mp4`;
+
+    try {
+      const response = await fetch(asset.animationUrl);
+      const blob = await response.blob();
+
+      // Try Share API for mobile (works in Phantom's in-app browser)
+      if (navigator.share && navigator.canShare) {
+        const file = new File([blob], fileName, { type: 'video/mp4' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: asset.name,
+          });
+          setDownloadingId(null);
+          return;
+        }
+      }
+
+      // Fallback: blob download for desktop
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Download failed:', err);
+      // Ultimate fallback: open in new tab
+      window.open(asset.animationUrl, '_blank');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   return (
     <>
       <section className="about-section">
@@ -243,18 +285,19 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
                   <div className="sim-card-info">
                     <span className="sim-card-id">#{asset.orderId}</span>
                     {asset.animationUrl ? (
-                      <a
-                        href={asset.animationUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="sim-card-view-btn"
+                      <button
+                        onClick={() => handleDownload(asset)}
+                        disabled={downloadingId === asset.orderId}
+                        className="sim-card-download-btn"
                       >
-                        View
-                      </a>
+                        {downloadingId === asset.orderId ? (
+                          <span className="spinner" />
+                        ) : (
+                          'Download'
+                        )}
+                      </button>
                     ) : (
-                      <span className="sim-card-loading">
-                        <span className="spinner" />
-                      </span>
+                      <span className="sim-card-pending">Processing...</span>
                     )}
                   </div>
                 </div>
