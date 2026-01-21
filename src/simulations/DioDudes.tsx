@@ -180,6 +180,16 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
   const handleDownload = async (asset: MplCoreAsset) => {
     if (!asset.animationUrl) return;
 
+    const ua = navigator.userAgent.toLowerCase();
+    const isAndroid = /android/.test(ua);
+    const isIOS = /iphone|ipad|ipod/.test(ua);
+
+    // Android: open in external browser (Phantom blocks downloads)
+    if (isAndroid) {
+      window.open(asset.animationUrl, '_blank');
+      return;
+    }
+
     setDownloadingId(asset.orderId);
     const fileName = `${asset.name}.mp4`;
 
@@ -187,8 +197,8 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
       const response = await fetch(asset.animationUrl);
       const blob = await response.blob();
 
-      // Try Share API for mobile (works in Phantom's in-app browser)
-      if (navigator.share && navigator.canShare) {
+      // iOS: use Share API (works in Phantom's in-app browser)
+      if (isIOS && navigator.share && navigator.canShare) {
         const file = new File([blob], fileName, { type: 'video/mp4' });
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({
@@ -200,7 +210,7 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
         }
       }
 
-      // Fallback: blob download for desktop
+      // Desktop: classic blob download
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -211,7 +221,7 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Download failed:', err);
-      // Ultimate fallback: open in new tab
+      // Fallback: open in new tab
       window.open(asset.animationUrl, '_blank');
     } finally {
       setDownloadingId(null);
