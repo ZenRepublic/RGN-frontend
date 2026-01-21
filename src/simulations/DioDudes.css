@@ -100,6 +100,10 @@
   font-weight: 500;
   opacity: 0.8;
   color: var(--white);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
 }
 
 .tab-button.active {
