@@ -75,14 +75,14 @@ export default function CheckoutModal({
 
   const handlePayAndOrder = async () => {
     const allowPurchase = import.meta.env.VITE_ALLOW_PURCHASE === 'true';
-    const adminIdsRaw = import.meta.env.VITE_ADMIN_IDS || '';
+    const whitelistIdsRaw = import.meta.env.VITE_WHITELIST_IDS || '';
 
     let adminIds: string[] = [];
-    if (adminIdsRaw) {
+    if (whitelistIdsRaw) {
       try {
-        adminIds = JSON.parse(adminIdsRaw) as string[];
+        adminIds = JSON.parse(whitelistIdsRaw) as string[];
       } catch {
-        adminIds = adminIdsRaw
+        adminIds = whitelistIdsRaw
           .split(',')
           .map((id: string) => id.trim().toLowerCase())
           .filter(Boolean);
