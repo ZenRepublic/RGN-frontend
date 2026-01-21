@@ -184,9 +184,12 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
     const isAndroid = /android/.test(ua);
     const isIOS = /iphone|ipad|ipod/.test(ua);
 
-    // Android: open in external browser (Phantom blocks downloads)
+    // Android: try to open in external browser via intent URL
     if (isAndroid) {
-      window.open(asset.animationUrl, '_blank');
+      // Strip protocol and create Android intent URL to open in default browser
+      const urlWithoutProtocol = asset.animationUrl.replace(/^https?:\/\//, '');
+      const intentUrl = `intent://${urlWithoutProtocol}#Intent;scheme=https;end`;
+      window.location.href = intentUrl;
       return;
     }
 
