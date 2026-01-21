@@ -104,47 +104,55 @@ async function createCroppedImage(
   imageSrc: string,
   pixelCrop: { x: number; y: number; width: number; height: number }
 ): Promise<string> {
-  let image: HTMLImageElement | null = null;
-  let canvas: HTMLCanvasElement | null = null;
+  const image = await createImage(imageSrc);
 
-  try {
-    image = await createImage(imageSrc);
+  const OUTPUT_SIZE = 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = OUTPUT_SIZE;
+  canvas.height = OUTPUT_SIZE;
 
-    canvas = document.createElement('canvas');
-    const OUTPUT_SIZE = 512;
-    canvas.width = OUTPUT_SIZE;
-    canvas.height = OUTPUT_SIZE;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Failed to get canvas context');
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Failed to get canvas context');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
 
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    OUTPUT_SIZE,
+    OUTPUT_SIZE
+  );
 
-    ctx.drawImage(
-      image,
-      pixelCrop.x,
-      pixelCrop.y,
-      pixelCrop.width,
-      pixelCrop.height,
-      0,
-      0,
-      OUTPUT_SIZE,
-      OUTPUT_SIZE
+  // 1. Convert canvas → Blob (NO base64 yet)
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      b => (b ? resolve(b) : reject(new Error('toBlob failed'))),
+      'image/jpeg',
+      0.85
     );
+  });
 
-    const result = canvas.toDataURL('image/jpeg', 0.85);
-    return result;
-  } catch (error) {
-    console.error('createCroppedImage failed:', error);
-    throw error;
-  } finally {
-    if (canvas) {
-      canvas.width = 0;
-      canvas.height = 0;
-    }
-    if (image) image.src = '';
-  }
+  // 2. HARD cleanup BEFORE base64 conversion
+  canvas.width = 0;
+  canvas.height = 0;
+  image.src = '';
+
+  // 3. Convert Blob → base64 string
+  return await blobToBase64(blob);
+}
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.readAsDataURL(blob);
+  });
 }
 
 export default function ImageUpload({
@@ -178,14 +186,6 @@ export default function ImageUpload({
 
     if (file.size > 5 * 1024 * 1024) {
       onError('Image must be smaller than 5MB');
-      return;
-    }
-
-    if (await isHeic(file)) {
-      onError(
-        'HEIC/HEIF files are not supported. ' +
-        'Please convert to JPEG/PNG first (in Photos app: Edit → tiny crop → Done).'
-      );
       return;
     }
 
