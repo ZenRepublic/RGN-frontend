@@ -1,0 +1,83 @@
+/* About section */
+.about-section {
+  background: var(--yellow);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.about-section p {
+  color: var(--black);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.video-container {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0A0A0A;
+}
+
+.video-container video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.video-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  gap: 12px;
+  color: var(--gray);
+}
+
+/* Fighter section layout */
+.fighter-section h2 {
+  color: var(--blue-secondary);
+  margin-bottom: 16px;
+}
+
+.fighter-content {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.fighter-fields {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Form wallet overlay (covers the form section including checkout button) */
+.form-wallet-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(5, 5, 17, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: 12px;
+}
+
+.form-wallet-prompt {
+  text-align: center;
+  padding: 24px;
+}
+
+.form-wallet-prompt h3 {
+  color: var(--blue-main);
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}

@@ -1,5 +1,6 @@
 import { StrictMode, useMemo, ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import { clusterApiUrl } from '@solana/web3.js'
@@ -8,6 +9,7 @@ import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import './index.css'
 import '@solana/wallet-adapter-react-ui/styles.css'
 import App from './App'
+import OrderSuccess from './pages/OrderSuccess'
 
 // Mobile adapter imports – make sure these are correct
 import {
@@ -54,8 +56,13 @@ function WalletContextProvider({ children }: WalletContextProviderProps) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <WalletContextProvider>
-      <App />
-    </WalletContextProvider>
+    <BrowserRouter>
+      <WalletContextProvider>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
+        </Routes>
+      </WalletContextProvider>
+    </BrowserRouter>
   </StrictMode>,
 )
