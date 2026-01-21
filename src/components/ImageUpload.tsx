@@ -27,75 +27,70 @@ async function resizeImageForCropper(
   file: File,
   maxSize: number = 800
 ): Promise<string> {
-  let workingBlob: Blob = file;
+  // iOS detection (covers iPadOS in desktop mode)
+  const isIOS =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-  // Step 1: Detect & convert HEIC → JPEG Blob (prevents crash)
-  // Note: HEIC is blocked before this function is called, but keep as safety net
+  // HEIC guard (keep your existing policy)
   if (await isHeic(file)) {
     throw new Error('HEIC/HEIF files are not supported');
   }
 
-  let bitmap: ImageBitmap | null = null;
   let canvas: HTMLCanvasElement | null = null;
+  let objectUrl: string | null = null;
 
   try {
-    if ('createImageBitmap' in window) {
-      bitmap = await createImageBitmap(workingBlob, {
-        resizeQuality: 'medium',
-      });
+    objectUrl = URL.createObjectURL(file);
 
-      const scale = Math.min(maxSize / bitmap.width, maxSize / bitmap.height, 1);
-      const targetWidth = Math.round(bitmap.width * scale);
-      const targetHeight = Math.round(bitmap.height * scale);
+    // ⚠️ DO NOT use createImageBitmap on iOS
+    const img = await createImage(objectUrl);
 
-      canvas = document.createElement('canvas');
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
+    const { naturalWidth, naturalHeight } = img;
 
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Failed to get canvas context');
+    const scale = Math.min(
+      maxSize / naturalWidth,
+      maxSize / naturalHeight,
+      1
+    );
 
-      ctx.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
-
-      return await new Promise<string>((resolve, reject) => {
-        canvas!.toBlob((blob) => {
-          if (!blob) return reject(new Error('Failed to create blob'));
-          resolve(URL.createObjectURL(blob));
-        }, 'image/jpeg', 0.8);
-      });
-    }
-
-    // Fallback: Image element
-    const url = URL.createObjectURL(workingBlob);
-    const img = await createImage(url);
-    URL.revokeObjectURL(url);
-
-    const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
-    const targetWidth = Math.round(img.width * scale);
-    const targetHeight = Math.round(img.height * scale);
+    const targetWidth = Math.round(naturalWidth * scale);
+    const targetHeight = Math.round(naturalHeight * scale);
 
     canvas = document.createElement('canvas');
     canvas.width = targetWidth;
     canvas.height = targetHeight;
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Failed to get canvas context');
+    if (!ctx) {
+      throw new Error('Failed to get canvas context');
+    }
 
     ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
 
-    return await new Promise<string>((resolve, reject) => {
-      canvas!.toBlob((blob) => {
-        if (!blob) return reject(new Error('Failed to create blob'));
-        resolve(URL.createObjectURL(blob));
-      }, 'image/jpeg', 0.8);
+    // Convert to Blob (NOT base64)
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas!.toBlob(
+        b => (b ? resolve(b) : reject(new Error('toBlob failed'))),
+        'image/jpeg',
+        0.8
+      );
     });
+
+    // HARD cleanup before returning
+    canvas.width = 0;
+    canvas.height = 0;
+    img.src = '';
+
+    // Return object URL for cropper
+    return URL.createObjectURL(blob);
   } catch (err) {
     console.error('resizeImageForCropper failed:', err);
     throw err;
   } finally {
-    if (bitmap) bitmap.close();
-    if (canvas) {
-      canvas.width = canvas.height = 0;
+    // Always revoke the original file URL
+    if (objectUrl) {
+      URL.revokeObjectURL(objectUrl);
     }
   }
 }
