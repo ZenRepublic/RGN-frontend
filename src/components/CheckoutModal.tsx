@@ -214,7 +214,7 @@ export default function CheckoutModal({
       <div className="checkout-modal" onClick={(e) => e.stopPropagation()}>
         {(step === 'processing' || step === 'confirming') ? (
           <div className="checkout-processing">
-            <div className="spinner large"></div>
+            <div className={`spinner large ${step === 'confirming' ? 'confirmed' : ''}`}></div>
             <h2>{step === 'processing' ? 'Waiting for Transaction' : 'Transaction Confirmed'}</h2>
             <p>{step === 'processing'
               ? 'Please approve the transaction in your wallet...'
