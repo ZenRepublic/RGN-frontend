@@ -216,3 +216,41 @@
     transform: rotate(360deg);
   }
 }
+
+/* Copy link toast */
+.copy-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a2e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 320px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.copy-toast p {
+  color: var(--white);
+  font-size: 14px;
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.copy-toast-bar {
+  height: 4px;
+  background: var(--yellow);
+  border-radius: 2px;
+  animation: toast-countdown 2s linear forwards;
+}
+
+@keyframes toast-countdown {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}

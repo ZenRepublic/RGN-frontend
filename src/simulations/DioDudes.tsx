@@ -47,6 +47,7 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
   const [ownedAssets, setOwnedAssets] = useState<MplCoreAsset[]>([]);
   const [loadingNfts, setLoadingNfts] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [showCopyToast, setShowCopyToast] = useState(false);
 
   // Form state - load from localStorage if available
   const [fighters, setFighters] = useState<Fighter[]>(() => {
@@ -184,12 +185,16 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
     const isAndroid = /android/.test(ua);
     const isIOS = /iphone|ipad|ipod/.test(ua);
 
-    // Android: try to open in external browser via intent URL
+    // Android: copy link to clipboard (Phantom blocks downloads/external browser)
     if (isAndroid) {
-      // Strip protocol and create Android intent URL to open in default browser
-      const urlWithoutProtocol = asset.animationUrl.replace(/^https?:\/\//, '');
-      const intentUrl = `intent://${urlWithoutProtocol}#Intent;scheme=https;end`;
-      window.location.href = intentUrl;
+      try {
+        await navigator.clipboard.writeText(asset.animationUrl);
+        setShowCopyToast(true);
+        setTimeout(() => setShowCopyToast(false), 2000);
+      } catch {
+        // Fallback for older browsers
+        prompt('Copy this link:', asset.animationUrl);
+      }
       return;
     }
 
@@ -371,6 +376,14 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
           >
             Go To Checkout
           </button>
+        </div>
+      )}
+
+      {/* Copy link toast for Android */}
+      {showCopyToast && (
+        <div className="copy-toast">
+          <p>Link copied to clipboard. Paste it in your mobile browser to download.</p>
+          <div className="copy-toast-bar" />
         </div>
       )}
     </>
