@@ -21,7 +21,6 @@ export function ConnectWalletButton() {
   }, [connected, connecting, publicKey]);
 
   const onClick = useCallback(async () => {
-  console.log('[ConnectButton] Clicked. isSaga() =', isSaga());
 
   if (connected) {
     await disconnect?.();
@@ -30,20 +29,8 @@ export function ConnectWalletButton() {
     return;
   }
 
-  if (isSaga()) {
-    console.log('[ConnectButton] Entering MWA/Saga path');
-    try {
-      const pk = await connectWallet();
-      console.log('[ConnectButton] connectWallet() returned pubkey:', pk?.toBase58?.() ?? 'null/undefined');
-      setConnectedPublicKey(pk);
-      console.log('[ConnectButton] setConnectedPublicKey called with:', pk?.toBase58?.() ?? 'null');
-    } catch (err) {
-      console.error('[ConnectButton] MWA connection failed:', err);
-    }
-  } else {
-    console.log('[ConnectButton] Opening desktop modal');
-    setModalVisible(true);
-  }
+  console.log('[ConnectButton] Opening desktop modal');
+  setModalVisible(true);
 }, [connected, disconnect, setModalVisible]);
 
   return (
