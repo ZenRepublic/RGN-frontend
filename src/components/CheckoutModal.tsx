@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Transaction } from '@solana/web3.js';
-import { SimulationFormData } from '../types/simulation';
-import { clearDioDudesCache } from '../simulations';
-import { storeOrderResult } from '../pages/OrderSuccess';
+import { SimulationFormData } from '@/types/simulation';
+import { clearDioDudesCache } from '@/simulations';
+import { storeOrderResult } from '@/pages/OrderSuccess';
+import { signAndSendTransaction, getConnectedPublicKey, setConnectedPublicKey } from '@/wallet/wallet'; // adjust path
 import './CheckoutModal.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
@@ -60,6 +61,11 @@ export default function CheckoutModal({
   const navigate = useNavigate();
   const { connection } = useConnection();
   const { publicKey, signTransaction, connected } = useWallet();
+
+  // For desktop consistency: set the pubkey if not already set (e.g., after wallet connects)
+  if (publicKey && !getConnectedPublicKey()) {
+    setConnectedPublicKey(publicKey);
+  }
 
   const [step, setStep] = useState<ModalStep>('details');
   const [loading, setLoading] = useState(false);
@@ -139,13 +145,16 @@ export default function CheckoutModal({
 
       console.log('Signing and Sending Transaction..');
 
-      // Use signTransaction from wallet adapter - handles MWA authorization automatically
-      const signedTx = await signTransaction(transaction);
-      const signature = await connection.sendRawTransaction(signedTx.serialize(), {
-        skipPreflight: false,
-        maxRetries: 3,
-        preflightCommitment: 'confirmed',
-      });
+      // // Use signTransaction from wallet adapter - handles MWA authorization automatically
+      // const signedTx = await signTransaction(transaction);
+      // const signature = await connection.sendRawTransaction(signedTx.serialize(), {
+      //   skipPreflight: false,
+      //   maxRetries: 3,
+      //   preflightCommitment: 'confirmed',
+      // });
+
+      // Unified call: pass connection and signTransaction only if desktop (but since the function checks isSaga(), it's safe to always pass them if available)
+      const signature = await signAndSendTransaction(transaction, connection, signTransaction);
 
       console.log('Confirming Transaction..');
 

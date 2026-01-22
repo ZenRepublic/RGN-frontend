@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import ImageUpload, { CroppedImageData, blobToBase64 } from '../components/ImageUpload';
+import ImageUpload, { CroppedImageData, blobToBase64 } from '@/components/ImageUpload';
 import { SimulationProps } from '../types/simulation';
-import { useIsInAppWalletBrowser } from '../utils/walletUtils';
+import { useIsInAppWalletBrowser } from '@/utils/walletUtils';
+import { ConnectWalletButton } from '@/components/ConnectWalletButton'; 
+import { getConnectedPublicKey } from '@/wallet/wallet';  
+import { useUnifiedWallet } from '@/hooks/useUnifiedWallet'; 
 import './DioDudes.css';
 
 const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
@@ -38,7 +41,9 @@ const INCLUDES = [
 ];
 
 export default function DioDudes({ onFormDataChange, onError, onCheckout, disabled }: SimulationProps) {
-  const { connected, publicKey } = useWallet();
+  // const { connected, publicKey } = useWallet();
+  const { connected, publicKey } = useUnifiedWallet();
+
   const inWalletBrowser = useIsInAppWalletBrowser();
   const [videoError, setVideoError] = useState(false);
   const [activeTab, setActiveTab] = useState<'new-order' | 'your-sims'>('your-sims');
@@ -48,6 +53,8 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
   const [loadingNfts, setLoadingNfts] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [showCopyToast, setShowCopyToast] = useState(false);
+
+
 
   // Form state - only cache names (blobs can't be serialized to localStorage)
   const [fighters, setFighters] = useState<Fighter[]>(() => {
@@ -263,7 +270,7 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
     <>
       <section className="about-section">
         <p>
-          1v1 Boxing Simulation of locally trained AI Agents. Set your fighters and send them off to the match of the ages, in which the victor will be forever inscribed on the blockchain!
+          1v1 Physics-based Boxing Fight of RL-trained Agents. Create the match of the ages, in which the victor will be forever inscribed on the blockchain!
         </p>
         {!inWalletBrowser && (
           <div className="video-container">
@@ -305,10 +312,13 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
 
       {activeTab === 'your-sims' && (
         <div className="your-sims-section">
-          {!connected ? (
+          {!connected || !publicKey ? (
             <div className="sims-wallet-prompt">
               <h2>Connect Your Wallet to Proceed</h2>
-              <WalletMultiButton />
+              <div className="...">
+                <ConnectWalletButton />
+                {/* other nav items */}
+              </div>
             </div>
           ) : loadingNfts ? (
             <div className="sims-loading">Loading your simulations...</div>
@@ -352,11 +362,14 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
 
       {activeTab === 'new-order' && (
         <div className="order-form">
-          {!connected && (
+          {(!connected || !publicKey) && (
             <div className="form-wallet-overlay">
               <div className="form-wallet-prompt">
                 <h2>Connect Your Wallet to Proceed</h2>
-                <WalletMultiButton />
+                  <div className="...">
+                  <ConnectWalletButton />
+                  {/* other nav items */}
+                </div>
               </div>
             </div>
           )}
