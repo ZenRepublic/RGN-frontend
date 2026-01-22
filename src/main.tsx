@@ -43,7 +43,7 @@ registerMwa({
     icon: '/logo.png', // must exist in /public
   },
   authorizationCache: createDefaultAuthorizationCache(),
-  chains: ['solana:mainnet'],
+  chains: ['solana:devnet'],
   chainSelector: createDefaultChainSelector(),
   onWalletNotFound: createDefaultWalletNotFoundHandler(),
 });
@@ -58,7 +58,7 @@ function WalletContextProvider({ children }: WalletContextProviderProps) {
    * You may replace with a private RPC later.
    */
   const endpoint = useMemo(
-    () => clusterApiUrl('mainnet-beta'),
+    () => clusterApiUrl('devnet'),
     []
   );
 
