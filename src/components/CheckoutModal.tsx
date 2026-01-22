@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { transact } from '@solana-mobile/mobile-wallet-adapter-protocol-web3js';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Transaction } from '@solana/web3.js';
 import { SimulationFormData } from '../types/simulation';
@@ -137,25 +138,28 @@ export default function CheckoutModal({
       const txBytes = Uint8Array.from(atob(txBase64), c => c.charCodeAt(0));
       const transaction = Transaction.from(txBytes);
 
-      // Refresh blockhash for MWA compatibility - mobile wallets are strict about blockhash freshness
-      const { blockhash } = await connection.getLatestBlockhash('confirmed');
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = publicKey;
-
       console.log('Signing and Sending Transaction..');
 
-      const signature = await sendTransaction(transaction, connection, {
-        skipPreflight: false,
-        maxRetries: 3,
-        preflightCommitment: 'confirmed',
+      // const signature = await sendTransaction(transaction, connection, {
+      //   skipPreflight: false,
+      //   maxRetries: 3,
+      //   preflightCommitment: 'confirmed',
+      // });
+
+      const signature = await transact(async wallet => {
+      const signedTxs = await wallet.signAndSendTransactions({
+        transactions: [transaction],
       });
+
+      return signedTxs[0];
+    });
 
       console.log('Confirming Transaction..');
 
       // Wait for transaction to be confirmed on-chain before verifying with backend
-      const latestBlock = await connection.getLatestBlockhash('confirmed');
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
       const confirmation = await connection.confirmTransaction(
-        { signature, blockhash: latestBlock.blockhash, lastValidBlockHeight: latestBlock.lastValidBlockHeight },
+        { signature, blockhash, lastValidBlockHeight },
         'confirmed'
       );
       if (confirmation.value.err) {
