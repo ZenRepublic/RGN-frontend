@@ -46,6 +46,9 @@ const WalletContextProvider = ({ children }: WalletContextProviderProps) => {
   );
 };
 
+// Clear cached wallet selection so users always see "Select Wallet" modal
+localStorage.removeItem('walletName');
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
