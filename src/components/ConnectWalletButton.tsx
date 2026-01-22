@@ -1,48 +1,73 @@
-import { useWallet } from '@solana/wallet-adapter-react';
-import { useWalletModal } from '@solana/wallet-adapter-react-ui';  // ← from -react-ui
 import { useCallback, useMemo } from 'react';
-import { connectWallet, setConnectedPublicKey } from '@/wallet/wallet'; // your existing helpers
-import { isSaga } from '@/wallet/platform';
-import { PublicKey } from '@solana/web3.js';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-standard-mobile';
 
 export function ConnectWalletButton() {
-  const { publicKey, connect, connecting, disconnect, connected } = useWallet();
-  const { setVisible: setModalVisible } = useWalletModal(); // ← this opens the modal
+  const {
+    wallet,
+    wallets,
+    connected,
+    connecting,
+    connect,
+    disconnect,
+    select,
+  } = useWallet();
 
-  // Optional: show different text based on state (like WalletMultiButton does)
+  const { setVisible: setModalVisible } = useWalletModal();
+
   const buttonText = useMemo(() => {
     if (connecting) return 'Connecting...';
-    if (connected) {
-      return publicKey
-        ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
-        : 'Connected';
+    if (connected && wallet?.adapter.publicKey) {
+      const pk = wallet.adapter.publicKey.toBase58();
+      return `${pk.slice(0, 4)}...${pk.slice(-4)}`;
     }
     return 'Connect Wallet';
-  }, [connected, connecting, publicKey]);
+  }, [connected, connecting, wallet]);
 
   const onClick = useCallback(async () => {
+    if (connected) {
+      await disconnect();
+      return;
+    }
 
-  if (connected) {
-    await disconnect?.();
-    setConnectedPublicKey(null);
-    console.log('[ConnectButton] Disconnected & cleared pubkey');
-    return;
-  }
+    // 1. If MWA is already selected, connect directly
+    if (wallet?.adapter.name === SolanaMobileWalletAdapterWalletName) {
+      await connect();
+      return;
+    }
 
-  console.log('[ConnectButton] Opening desktop modal');
-  setModalVisible(true);
-}, [connected, disconnect, setModalVisible]);
+    // 2. Prefer MWA if it exists
+    const mwaWallet = wallets.find(
+      (w) => w.adapter.name === SolanaMobileWalletAdapterWalletName
+    );
+
+    if (mwaWallet) {
+      await select(mwaWallet.adapter.name);
+      return;
+    }
+
+    // 3. Fallback: open wallet modal
+    setModalVisible(true);
+  }, [
+    connected,
+    disconnect,
+    connect,
+    wallet,
+    wallets,
+    select,
+    setModalVisible,
+  ]);
 
   return (
     <button
       onClick={onClick}
       disabled={connecting}
-      // Add your styling here – or use className / tailwind etc.
-      className={`
+      className="
         px-4 py-2 rounded-lg font-medium
-        ${connected ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}
-        text-white disabled:opacity-50 disabled:cursor-not-allowed
-      `}
+        bg-blue-600 hover:bg-blue-700
+        text-white disabled:opacity-50
+      "
     >
       {buttonText}
     </button>
