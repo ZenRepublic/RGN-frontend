@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { transact } from '@solana-mobile/mobile-wallet-adapter-protocol-web3js';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Transaction } from '@solana/web3.js';
 import { SimulationFormData } from '../types/simulation';
@@ -60,7 +59,7 @@ export default function CheckoutModal({
 }: CheckoutModalProps) {
   const navigate = useNavigate();
   const { connection } = useConnection();
-  const { publicKey, sendTransaction, connected } = useWallet();
+  const { publicKey, signTransaction, connected } = useWallet();
 
   const [step, setStep] = useState<ModalStep>('details');
   const [loading, setLoading] = useState(false);
@@ -104,7 +103,7 @@ export default function CheckoutModal({
       }
     }
 
-    if (!connected || !publicKey) {
+    if (!connected || !publicKey || !signTransaction) {
       setError('Please connect your wallet first');
       return;
     }
@@ -140,28 +139,13 @@ export default function CheckoutModal({
 
       console.log('Signing and Sending Transaction..');
 
-      // const signature = await sendTransaction(transaction, connection, {
-      //   skipPreflight: false,
-      //   maxRetries: 3,
-      //   preflightCommitment: 'confirmed',
-      // });
-
-      const signature = await transact(async wallet => {
-
-        await wallet.authorize({
-          cluster: 'devnet',
-          identity: {
-            name: 'RGN',
-            uri: 'https://yourapp.com',
-          },
-        });
-        
-        const signedTxs = await wallet.signAndSendTransactions({
-          transactions: [transaction],
+      // Use signTransaction from wallet adapter - handles MWA authorization automatically
+      const signedTx = await signTransaction(transaction);
+      const signature = await connection.sendRawTransaction(signedTx.serialize(), {
+        skipPreflight: false,
+        maxRetries: 3,
+        preflightCommitment: 'confirmed',
       });
-
-      return signedTxs[0];
-    });
 
       console.log('Confirming Transaction..');
 
