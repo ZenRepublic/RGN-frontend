@@ -8,12 +8,12 @@ import {
 let connectedPublicKey: PublicKey | null = null;
 
 export async function connectWallet(desktopPublicKey?: PublicKey): Promise<PublicKey> {
-  if (isSaga()) {
-    // MWA path
-    connectedPublicKey = await mwaAuthorize('devnet');
-    return connectedPublicKey;
-    throw new Error('MWA wallet not connected');
-  }
+//   if (isSaga()) {
+//     // MWA path
+//     connectedPublicKey = await mwaAuthorize('devnet');
+//     return connectedPublicKey;
+//     throw new Error('MWA wallet not connected');
+//   }
 
   // Desktop path: optionally set pubkey if provided (wallet-adapter handles actual connect via UI)
   if (desktopPublicKey) {
@@ -37,12 +37,12 @@ export async function signAndSendTransaction(
   connection?: Connection,
   signTransaction?: <T extends Transaction | VersionedTransaction>(tx: T) => Promise<T>
 ): Promise<string> {
-  if (isSaga()) {
-    if (!connectedPublicKey) {
-      throw new Error('MWA wallet not connected');
-    }
-    return mwaSignAndSend(tx);
-  }
+//   if (isSaga()) {
+//     if (!connectedPublicKey) {
+//       throw new Error('MWA wallet not connected');
+//     }
+//     return mwaSignAndSend(tx);
+//   }
 
   // Classic Desktop/Wallet Browser path
   if (!connection || !signTransaction) {
