@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SpeedInsights } from "@vercel/speed-insights/react"
+import { ConnectWalletButton } from '@/components/ConnectWalletButton'; 
 import { SIMULATIONS } from './simulations';
 import { SimulationFormData } from './types/simulation';
 import CheckoutModal from './components/CheckoutModal';
@@ -55,7 +56,6 @@ function App() {
   return (
     <div className="app">
       <header>
-        <img src="/BannerWithLogo.png" alt="RGN Banner" className="banner" />
         <div className="social-links">
           <a href="https://x.com/RGN_Forever" target="_blank" rel="noopener noreferrer" aria-label="Follow us on X">
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -76,6 +76,8 @@ function App() {
           </a> */}
          
         </div>
+          <ConnectWalletButton />
+        <img src="/BannerWithLogo.png" alt="RGN Banner" className="banner" />
         <h1 style={{ textAlign: 'left' }}>Onchain Brainrot Broadcast</h1>
         <p style={{ textAlign: 'left' }}>Stop consuming brainrot - it's time to own it... <br /> <br /> Select a channel, set your actors, and receive an organically recorded NFT with a short-form video you can share anywhere to interact with your internet friends and increase your mindshare!</p>
       </header>

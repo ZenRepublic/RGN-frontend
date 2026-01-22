@@ -1,12 +1,9 @@
 import { useState, useEffect, useRef, ChangeEvent } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import ImageUpload, { CroppedImageData, blobToBase64 } from '@/components/ImageUpload';
 import { SimulationProps } from '../types/simulation';
 import { useIsInAppWalletBrowser } from '@/utils/walletUtils';
 import { ConnectWalletButton } from '@/components/ConnectWalletButton'; 
-import { getConnectedPublicKey } from '@/wallet/wallet';  
-import { useUnifiedWallet } from '@/hooks/useUnifiedWallet'; 
+import { useWallet } from '@solana/wallet-adapter-react';
 import './DioDudes.css';
 
 const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
@@ -41,8 +38,7 @@ const INCLUDES = [
 ];
 
 export default function DioDudes({ onFormDataChange, onError, onCheckout, disabled }: SimulationProps) {
-  // const { connected, publicKey } = useWallet();
-  const { connected, publicKey } = useUnifiedWallet();
+  const { connected, publicKey } = useWallet();
 
   const inWalletBrowser = useIsInAppWalletBrowser();
   const [videoError, setVideoError] = useState(false);

@@ -384,6 +384,20 @@ select:focus {
   fill: var(--white);
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;           /* ← important if you want full width */
+  gap: 16px;             /* minimum space between socials and button */
+  flex-wrap: wrap;       /* optional: allows wrapping on very narrow screens */
+}
+
+/* Optional: prevent the button from shrinking too much */
+.header-actions > :last-child {
+  flex-shrink: 0;
+}
+
 /* Powered by footer */
 .powered-by {
   display: flex;

@@ -28,6 +28,7 @@ import OrderSuccess from './pages/OrderSuccess';
 
 import './index.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
+import { WalletGuard } from '@/wallet/walletGuard';
 
 /**
  * ---------------------------------------------------------
@@ -77,6 +78,7 @@ function WalletContextProvider({ children }: WalletContextProviderProps) {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect={true}>
         <WalletModalProvider>
+          {/* <WalletGuard /> */}
           {children}
         </WalletModalProvider>
       </WalletProvider>
@@ -89,6 +91,7 @@ function WalletContextProvider({ children }: WalletContextProviderProps) {
  * App bootstrap
  * ---------------------------------------------------------
  */
+
 const container = document.getElementById('root');
 
 if (!container) {
