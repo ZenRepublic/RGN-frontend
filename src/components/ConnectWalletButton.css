@@ -1,0 +1,53 @@
+.wallet-connect-button {
+  font-family: 'Masicu', sans-serif !important;
+  font-weight: 500;
+  font-size: 15px;                    /* slightly smaller than general buttons */
+  padding: 10px 20px;                 /* more compact than full-width buttons */
+  min-width: 140px;                   /* prevents too much shrinking */
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  color: var(--black);
+  background: var(--yellow);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  width: auto !important;             /* never full-width */
+}
+
+.wallet-connect-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Hover states */
+.wallet-connect-button:hover:not(:disabled) {
+  background: #e6d62c;                /* same as your .primary:hover */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(254, 238, 49, 0.35);
+}
+
+.wallet-connect-button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Connected state - green → red on hover */
+.wallet-connect-button--connected {
+  background: var(--white);                /* green-500 - or pick your preferred green */
+  color: var(--black);
+}
+
+.wallet-connect-button--connected:hover:not(:disabled) {
+  background: var(--red);             /* red when hovering to disconnect */
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(255, 47, 31, 0.4);
+}
+
+/* Optional: smaller font on very small screens */
+@media (max-width: 480px) {
+  .wallet-connect-button {
+    font-size: 14px;
+    padding: 9px 18px;
+    min-width: 120px;
+  }
+}

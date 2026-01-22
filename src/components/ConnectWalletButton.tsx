@@ -3,6 +3,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-standard-mobile';
 
+import './ConnectWalletButton.css';
+
 export function ConnectWalletButton() {
   const {
     wallet,
@@ -20,7 +22,7 @@ export function ConnectWalletButton() {
 
   const defaultText = useMemo(() => {
     if (connecting) return 'Connecting...';
-    if (!connected) return 'Connect Wallet';
+    if (!connected) return 'Connect';
 
     const pk = wallet?.adapter.publicKey?.toBase58() ?? '';
     return pk ? `${pk.slice(0, 4)}..${pk.slice(-4)}` : 'Connected';
@@ -49,20 +51,21 @@ export function ConnectWalletButton() {
     setModalVisible(true);
   }, [connected, disconnect, connect, wallet, wallets, select, setModalVisible]);
 
+   const buttonClass = `
+    wallet-connect-button
+    ${connected 
+      ? 'wallet-connect-button--connected' 
+      : 'wallet-connect-button--disconnected'}
+    ${connecting ? 'opacity-55 cursor-not-allowed' : ''}
+  `;
+
   return (
     <button
       onClick={handleClick}
       disabled={connecting}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`
-        px-4 py-2 rounded-lg font-medium min-w-[140px] text-center
-        transition-colors duration-150
-        ${connected
-          ? 'bg-green-600 hover:bg-red-600 active:bg-red-700'
-          : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'}
-        text-white disabled:opacity-50 disabled:cursor-not-allowed
-      `}
+      className={buttonClass.trim()}
     >
       {displayedText}
     </button>

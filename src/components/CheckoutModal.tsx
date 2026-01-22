@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Transaction } from '@solana/web3.js';
 import { SimulationFormData } from '@/types/simulation';
 import { clearDioDudesCache } from '@/simulations';
@@ -223,7 +222,6 @@ export default function CheckoutModal({
             <div className="checkout-header">
               <h2>Order Details</h2>
               <div className="checkout-header-right">
-                <WalletMultiButton />
                 <button
                   type="button"
                   className="checkout-close"
