@@ -137,6 +137,11 @@ export default function CheckoutModal({
       const txBytes = Uint8Array.from(atob(txBase64), c => c.charCodeAt(0));
       const transaction = Transaction.from(txBytes);
 
+      // Refresh blockhash for MWA compatibility - mobile wallets are strict about blockhash freshness
+      const { blockhash } = await connection.getLatestBlockhash('confirmed');
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = publicKey;
+
       console.log('Signing and Sending Transaction..');
 
       const signature = await sendTransaction(transaction, connection, {
@@ -148,9 +153,9 @@ export default function CheckoutModal({
       console.log('Confirming Transaction..');
 
       // Wait for transaction to be confirmed on-chain before verifying with backend
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+      const latestBlock = await connection.getLatestBlockhash('confirmed');
       const confirmation = await connection.confirmTransaction(
-        { signature, blockhash, lastValidBlockHeight },
+        { signature, blockhash: latestBlock.blockhash, lastValidBlockHeight: latestBlock.lastValidBlockHeight },
         'confirmed'
       );
       if (confirmation.value.err) {
