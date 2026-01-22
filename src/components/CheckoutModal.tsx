@@ -147,8 +147,17 @@ export default function CheckoutModal({
       // });
 
       const signature = await transact(async wallet => {
-      const signedTxs = await wallet.signAndSendTransactions({
-        transactions: [transaction],
+
+        await wallet.authorize({
+          cluster: 'devnet',
+          identity: {
+            name: 'RGN',
+            uri: 'https://yourapp.com',
+          },
+        });
+        
+        const signedTxs = await wallet.signAndSendTransactions({
+          transactions: [transaction],
       });
 
       return signedTxs[0];
