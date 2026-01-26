@@ -25,6 +25,7 @@ import {
 
 import App from './App';
 import OrderSuccess from './pages/OrderSuccess';
+import { SOLANA_NETWORK, SOLANA_CHAIN } from './config/network';
 
 import './index.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -42,7 +43,7 @@ registerMwa({
     icon: '/logo.png', // must exist in /public
   },
   authorizationCache: createDefaultAuthorizationCache(),
-  chains: ['solana:devnet'],
+  chains: [SOLANA_CHAIN],
   chainSelector: createDefaultChainSelector(),
   onWalletNotFound: createDefaultWalletNotFoundHandler(),
 });
@@ -57,7 +58,7 @@ function WalletContextProvider({ children }: WalletContextProviderProps) {
    * You may replace with a private RPC later.
    */
   const endpoint = useMemo(
-    () => clusterApiUrl('devnet'),
+    () => clusterApiUrl(SOLANA_NETWORK),
     []
   );
 

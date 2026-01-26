@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import ImageUpload, { CroppedImageData, blobToBase64 } from '@/components/ImageUpload';
 import { SimulationProps } from '../types/simulation';
 import { useIsInAppWalletBrowser } from '@/utils/walletUtils';
-import { ConnectWalletButton } from '@/components/ConnectWalletButton'; 
+import { ConnectWalletButton } from '@/components/ConnectWalletButton';
+import SimulationDisplay from '@/components/SimulationDisplay';
 import { useWallet } from '@solana/wallet-adapter-react';
 import './DioDudes.css';
 
@@ -10,15 +11,7 @@ const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ1
 const FIGHTERS_CACHE_KEY = 'rgn-diodudes-fighters';
 
 // Hardcoded collection ID for DioDudes simulations
-const COLLECTION_ID = '9VMfraMtZao8d27ScRx6qvqGTzW2Md9vQv5YZyAopPQx'; 
-const HELIUS_API_KEY = import.meta.env.VITE_HELIUS_API_KEY || '';
-
-interface MplCoreAsset {
-  orderId: string; // e.g., "OMF561" extracted from name
-  name: string;
-  image: string;
-  animationUrl: string | null;
-}
+const COLLECTION_ID = '9VMfraMtZao8d27ScRx6qvqGTzW2Md9vQv5YZyAopPQx';
 
 interface Fighter {
   name: string;
@@ -43,14 +36,6 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
   const inWalletBrowser = useIsInAppWalletBrowser();
   const [videoError, setVideoError] = useState(false);
   const [activeTab, setActiveTab] = useState<'new-order' | 'your-sims'>('your-sims');
-
-  // Your Sims state
-  const [ownedAssets, setOwnedAssets] = useState<MplCoreAsset[]>([]);
-  const [loadingNfts, setLoadingNfts] = useState(false);
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  const [showCopyToast, setShowCopyToast] = useState(false);
-
-
 
   // Form state - only cache names (blobs can't be serialized to localStorage)
   const [fighters, setFighters] = useState<Fighter[]>(() => {
@@ -113,61 +98,6 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
     }
   }, [fighters, onFormDataChange]);
 
-  // Fetch owned NFTs once when wallet connects (not on tab switch)
-  useEffect(() => {
-    if (!connected || !publicKey) {
-      return;
-    }
-
-    const fetchOwnedNfts = async () => {
-      setLoadingNfts(true);
-      try {
-        const response = await fetch(`https://devnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            jsonrpc: '2.0',
-            id: 'my-id',
-            method: 'searchAssets',
-            params: {
-              ownerAddress: publicKey.toBase58(),
-              grouping: ['collection', COLLECTION_ID],
-              page: 1,
-              limit: 100,
-            },
-          }),
-        });
-
-        const data = await response.json();
-        const items = data?.result?.items || [];
-        console.log(data);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const assets: MplCoreAsset[] = items.map((item: any) => {
-          const name = item.content?.metadata?.name || 'Unnamed';
-          // Extract order ID from name like "Dio Dudes #OMF561" -> "OMF561"
-          const hashIndex = name.indexOf('#');
-          const orderId = hashIndex !== -1 ? name.substring(hashIndex + 1) : name;
-
-          return {
-            orderId,
-            name,
-            image: item.content?.links?.image || '',
-            animationUrl: item.content?.links?.animation_url || null,
-          };
-        });
-
-        setOwnedAssets(assets);
-      } catch (err) {
-        console.error('Failed to fetch NFTs:', err);
-        onError('Failed to load your simulations');
-      } finally {
-        setLoadingNfts(false);
-      }
-    };
-
-    fetchOwnedNfts();
-  }, [connected, publicKey, onError]);
-
   const updateFighterName = (index: number, value: string) => {
     const filteredValue = value.replace(/[^a-zA-Z0-9_ ]/g, '');
 
@@ -202,64 +132,6 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
       };
       return updated;
     });
-  };
-
-  const handleDownload = async (asset: MplCoreAsset) => {
-    if (!asset.animationUrl) return;
-
-    const ua = navigator.userAgent.toLowerCase();
-    const isAndroid = /android/.test(ua);
-    const isIOS = /iphone|ipad|ipod/.test(ua);
-
-    // Android: copy link to clipboard (Phantom blocks downloads/external browser)
-    if (isAndroid) {
-      try {
-        await navigator.clipboard.writeText(asset.animationUrl);
-        setShowCopyToast(true);
-        setTimeout(() => setShowCopyToast(false), 3000);
-      } catch {
-        // Fallback for older browsers
-        prompt('Copy this link:', asset.animationUrl);
-      }
-      return;
-    }
-
-    setDownloadingId(asset.orderId);
-    const fileName = `${asset.name}.mp4`;
-
-    try {
-      const response = await fetch(asset.animationUrl);
-      const blob = await response.blob();
-
-      // iOS: use Share API (works in Phantom's in-app browser)
-      if (isIOS && navigator.share && navigator.canShare) {
-        const file = new File([blob], fileName, { type: 'video/mp4' });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: asset.name,
-          });
-          setDownloadingId(null);
-          return;
-        }
-      }
-
-      // Desktop: classic blob download
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Download failed:', err);
-      // Fallback: open in new tab
-      window.open(asset.animationUrl, '_blank');
-    } finally {
-      setDownloadingId(null);
-    }
   };
 
   return (
@@ -307,53 +179,7 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
       </div>
 
       {activeTab === 'your-sims' && (
-        <div className="your-sims-section">
-          {!connected || !publicKey ? (
-            <div className="sims-wallet-prompt">
-              <h2>Connect Your Wallet to Proceed</h2>
-              <div className="...">
-                <ConnectWalletButton />
-                {/* other nav items */}
-              </div>
-            </div>
-          ) : loadingNfts ? (
-            <div className="sims-loading">Loading your simulations...</div>
-          ) : ownedAssets.length === 0 ? (
-            <div className="sims-empty">No simulations found for this collection.</div>
-          ) : (
-            <div className="sims-grid">
-              {ownedAssets.map((asset) => (
-                <div key={asset.orderId} className="sim-card">
-                  <div className="sim-card-header">
-                    <span className="sim-card-id">#{asset.orderId}</span>
-                  </div>
-                  <img
-                    src={asset.image}
-                    alt={asset.name}
-                    className="sim-card-image"
-                  />
-                  <div className="sim-card-footer">
-                    {asset.animationUrl ? (
-                      <button
-                        onClick={() => handleDownload(asset)}
-                        disabled={downloadingId === asset.orderId}
-                        className="sim-card-download-btn"
-                      >
-                        {downloadingId === asset.orderId ? (
-                          <span className="spinner" />
-                        ) : (
-                          'Download'
-                        )}
-                      </button>
-                    ) : (
-                      <div className="sim-card-pending">Processing...</div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <SimulationDisplay collectionId={COLLECTION_ID} onError={onError} />
       )}
 
       {activeTab === 'new-order' && (
@@ -408,14 +234,6 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
           >
             Go To Checkout
           </button>
-        </div>
-      )}
-
-      {/* Copy link toast for Android */}
-      {showCopyToast && (
-        <div className="copy-toast">
-          <p>Link copied to clipboard. Paste it in your mobile browser to download.</p>
-          <div className="copy-toast-bar" />
         </div>
       )}
     </>

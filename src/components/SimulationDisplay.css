@@ -1,0 +1,151 @@
+/* Simulation Display Component */
+.sim-display {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.sim-display-wallet-prompt {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.sim-display-wallet-prompt h2 {
+  color: var(--white);
+  margin-bottom: 16px;
+}
+
+.sim-display-wallet-button {
+  display: flex;
+  justify-content: center;
+}
+
+.sim-display-loading,
+.sim-display-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--yellow);
+}
+
+/* Grid - 2 columns */
+.sim-display-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.sim-display-card {
+  background: #1a1a2e;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.sim-display-card-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid #333;
+}
+
+.sim-display-card-id {
+  color: var(--white);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.sim-display-card-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+.sim-display-card-footer {
+  padding: 6px;
+  border-top: 1px solid #333;
+}
+
+.sim-display-card-download-btn {
+  width: 100%;
+  background: var(--yellow);
+  color: var(--black);
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sim-display-card-download-btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.sim-display-card-download-btn:disabled {
+  cursor: wait;
+}
+
+.sim-display-card-download-btn .spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-top-color: var(--black);
+  border-radius: 50%;
+  animation: sim-display-spin 0.8s linear infinite;
+}
+
+.sim-display-card-pending {
+  width: 100%;
+  padding: 10px;
+  color: var(--gray);
+  font-size: 14px;
+  font-style: italic;
+  text-align: center;
+}
+
+@keyframes sim-display-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Copy link toast */
+.sim-display-copy-toast {
+  position: fixed;
+  bottom: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a2e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 360px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.sim-display-copy-toast p {
+  color: var(--white);
+  font-size: 16px;
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.sim-display-copy-toast-bar {
+  height: 4px;
+  background: var(--yellow);
+  border-radius: 2px;
+  animation: sim-display-toast-countdown 3s linear forwards;
+}
+
+@keyframes sim-display-toast-countdown {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
