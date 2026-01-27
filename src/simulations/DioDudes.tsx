@@ -4,6 +4,7 @@ import { SimulationProps } from '../types/simulation';
 import { useIsInAppWalletBrowser } from '@/utils/walletUtils';
 import { ConnectWalletButton } from '@/components/ConnectWalletButton';
 import SimulationDisplay from '@/components/SimulationDisplay';
+import TournamentDisplay from '@/components/TournamentDisplay';
 import { useWallet } from '@solana/wallet-adapter-react';
 import './DioDudes.css';
 
@@ -161,6 +162,8 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
         )}
       </section>
 
+      <TournamentDisplay />
+
       {/* Tab navigation */}
       <div className="tab-buttons">
         <button 
@@ -170,7 +173,7 @@ export default function DioDudes({ onFormDataChange, onError, onCheckout, disabl
           Your Sims
         </button>
 
-        <button 
+        <button
           className={`tab-button ${activeTab === 'new-order' ? 'active' : ''}`}
           onClick={() => setActiveTab('new-order')}
         >

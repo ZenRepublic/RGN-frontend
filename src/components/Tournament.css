@@ -1,0 +1,62 @@
+.tournament-details {
+  color: var(--color-text-secondary, #888);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.tournament-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tournament-stage-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.tournament-stage-name {
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  min-width: 120px;
+  text-align: center;
+}
+
+.tournament-arrow {
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem;
+  border: 1px solid var(--color-border, #333);
+  background: var(--color-bg-secondary, #1a1a1a);
+  color: var(--color-text, #fff);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.tournament-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.tournament-arrow:not(:disabled):hover {
+  background: var(--color-bg-hover, #2a2a2a);
+}
+
+.tournament-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tournament-match {
+  padding: 0.75rem 1rem;
+  background: var(--color-bg-secondary, #1a1a1a);
+  border: 1px solid var(--color-border, #333);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  word-break: break-all;
+}
