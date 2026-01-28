@@ -18,4 +18,4 @@ export const SIMULATIONS: SimulationConfig[] = [
 ];
 
 // Re-export cache clearing functions
-export { clearDioDudesCache } from './DioDudes';
+export { clearDioDudesCache } from './DioDudesOrderForm';

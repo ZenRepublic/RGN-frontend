@@ -18,10 +18,7 @@ export interface SimulationFormData {
 
 // Props passed to each simulation component
 export interface SimulationProps {
-  onFormDataChange: (data: SimulationFormData | null) => void;
   onError: (message: string) => void;
-  onCheckout: () => void;
-  disabled?: boolean;
 }
 
 // Configuration for registering a simulation

@@ -1,25 +1,21 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { ConnectWalletButton } from './ConnectWalletButton';
-import { HELIUS_RPC_URL } from '@/config/network';
+import { fetchSimulationAssets, MplSimulationAsset } from '@/utils/simulationAssets';
 import './SimulationDisplay.css';
-
-interface MplCoreAsset {
-  orderId: string;
-  name: string;
-  image: string;
-  animationUrl: string | null;
-}
 
 interface SimulationDisplayProps {
   collectionId: string;
+  orderUrl?: string;
   onError?: (message: string) => void;
 }
 
-export default function SimulationDisplay({ collectionId, onError }: SimulationDisplayProps) {
+export default function SimulationDisplay({ collectionId, orderUrl, onError }: SimulationDisplayProps) {
+  const navigate = useNavigate();
   const { connected, publicKey } = useWallet();
 
-  const [ownedAssets, setOwnedAssets] = useState<MplCoreAsset[]>([]);
+  const [ownedAssets, setOwnedAssets] = useState<MplSimulationAsset[]>([]);
   const [loadingNfts, setLoadingNfts] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [showCopyToast, setShowCopyToast] = useState(false);
@@ -40,47 +36,10 @@ export default function SimulationDisplay({ collectionId, onError }: SimulationD
     const fetchOwnedNfts = async () => {
       setLoadingNfts(true);
       try {
-        const response = await fetch(HELIUS_RPC_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache',
-          },
-          cache: 'no-store',
-          body: JSON.stringify({
-            jsonrpc: '2.0',
-            id: 'my-id',
-            method: 'searchAssets',
-            params: {
-              ownerAddress: publicKey.toBase58(),
-              grouping: ['collection', collectionId],
-              page: 1,
-              limit: 100,
-            },
-          }),
+        const assets = await fetchSimulationAssets({
+          ownerAddress: publicKey.toBase58(),
+          collectionId,
         });
-
-        const data = await response.json();
-        const items = data?.result?.items || [];
-
-        // Filter out burned assets and map to our format
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const assets: MplCoreAsset[] = items
-          .filter((item: any) => !item.burnt)
-          .map((item: any) => {
-          const name = item.content?.metadata?.name || 'Unnamed';
-          // Extract order ID from name like "Dio Dudes #OMF561" -> "OMF561"
-          const hashIndex = name.indexOf('#');
-          const orderId = hashIndex !== -1 ? name.substring(hashIndex + 1) : name;
-
-          return {
-            orderId,
-            name,
-            image: item.content?.links?.image || '',
-            animationUrl: item.content?.links?.animation_url || null,
-          };
-        });
-
         setOwnedAssets(assets);
       } catch (err) {
         console.error('Failed to fetch NFTs:', err);
@@ -93,7 +52,7 @@ export default function SimulationDisplay({ collectionId, onError }: SimulationD
     fetchOwnedNfts();
   }, [connected, publicKey, collectionId, onError]);
 
-  const handleDownload = async (asset: MplCoreAsset) => {
+  const handleDownload = async (asset: MplSimulationAsset) => {
     if (!asset.animationUrl) return;
 
     const ua = navigator.userAgent.toLowerCase();
@@ -154,6 +113,17 @@ export default function SimulationDisplay({ collectionId, onError }: SimulationD
   return (
     <>
       <div className="sim-display">
+        {orderUrl && (
+          <div className="sim-display-header">
+            <button
+              className="sim-display-new-order-btn"
+              onClick={() => navigate(orderUrl)}
+            >
+              + New Order
+            </button>
+          </div>
+        )}
+
         {!connected || !publicKey ? (
           <div className="sim-display-wallet-prompt">
             <h2>Connect Your Wallet to Proceed</h2>
@@ -168,7 +138,7 @@ export default function SimulationDisplay({ collectionId, onError }: SimulationD
         ) : (
           <div className="sim-display-grid">
             {ownedAssets.map((asset) => (
-              <div key={asset.orderId} className="sim-display-card">
+              <div key={asset.id} className="sim-display-card">
                 <div className="sim-display-card-header">
                   <span className="sim-display-card-id">#{asset.orderId}</span>
                 </div>

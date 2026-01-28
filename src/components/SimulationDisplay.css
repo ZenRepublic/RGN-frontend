@@ -5,6 +5,30 @@
   padding: 20px;
 }
 
+.sim-display-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+button.sim-display-new-order-btn {
+  width: auto;
+  padding: 14px 24px;
+  background: var(--yellow);
+  color: var(--black);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.sim-display-new-order-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
 .sim-display-wallet-prompt {
   text-align: center;
   padding: 40px 20px;

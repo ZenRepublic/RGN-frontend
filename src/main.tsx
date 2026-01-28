@@ -25,6 +25,8 @@ import {
 
 import App from './App';
 import OrderSuccess from './pages/OrderSuccess';
+import SimulationView from './pages/SimulationView';
+import DioDudesOrderForm from './simulations/DioDudesOrderForm';
 import { SOLANA_NETWORK, SOLANA_CHAIN } from './config/network';
 
 import './index.css';
@@ -104,6 +106,8 @@ createRoot(container).render(
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/simulation/:orderId" element={<SimulationView />} />
+          <Route path="/diodudes/order" element={<DioDudesOrderForm />} />
         </Routes>
       </WalletContextProvider>
     </BrowserRouter>

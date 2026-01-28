@@ -76,35 +76,6 @@ export default function CheckoutModal({
   };
 
   const handlePayAndOrder = async () => {
-    const allowPurchase = import.meta.env.VITE_ALLOW_PURCHASE === 'true';
-    const whitelistIdsRaw = import.meta.env.VITE_WHITELIST_IDS || '';
-
-    let whitelistIds: string[] = [];
-    if (whitelistIdsRaw) {
-      try {
-        whitelistIds = JSON.parse(whitelistIdsRaw) as string[];
-      } catch {
-        whitelistIds = whitelistIdsRaw
-          .split(',')
-          .map((id: string) => id.trim().toLowerCase())
-          .filter(Boolean);
-      }
-    }
-
-    const currentPubkey = publicKey?.toBase58()?.toLowerCase();
-
-    const isAdmin = currentPubkey && whitelistIds.includes(currentPubkey);
-    const canProceed = allowPurchase || isAdmin;
-
-    if (!canProceed) {
-      if (isAdmin) {
-        console.log('Admin detected — purchase allowed despite global flag');
-      } else {
-        setError('Purchases are currently disabled. Contact admin if needed.');
-        return;
-      }
-    }
-
     if (!connected || !publicKey || !signTransaction) {
       setError('Please connect your wallet first');
       return;

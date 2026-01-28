@@ -36,7 +36,6 @@ export default function TournamentDisplay() {
 
   return (
     <section className="tournament-section">
-      <h2>Tournaments</h2>
       <p className="tournament-description">
         Top fighters face one another in brutal, single elimination competitions. Every match could be their last, so support them by voting for your favorite and increasing their power!
       </p>

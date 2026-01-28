@@ -98,7 +98,7 @@
   cursor: pointer;
   font-size: 24px;
   font-weight: 500;
-  opacity: 0.8;
+  opacity: 1.0;
   color: var(--white);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
@@ -109,6 +109,11 @@
 .tab-button.active {
   opacity: 1.0;
   border-bottom: 5px solid var(--yellow);
-  color: var(--yellow );
+  color: var(--yellow);
+}
+
+.tab-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
