@@ -4,7 +4,11 @@ import './TournamentDisplay.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
-export default function TournamentDisplay() {
+interface TournamentDisplayProps {
+  onLoadComplete?: () => void;
+}
+
+export default function TournamentDisplay({ onLoadComplete }: TournamentDisplayProps) {
   const [tournaments, setTournaments] = useState<TournamentData[]>([]);
   const [selectedTournamentId, setSelectedTournamentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,10 +30,12 @@ export default function TournamentDisplay() {
         setError(err instanceof Error ? err.message : 'Failed to load tournaments');
       } finally {
         setLoading(false);
+        onLoadComplete?.();
       }
     };
 
     fetchTournaments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const selectedTournament = tournaments.find(t => t._id === selectedTournamentId);

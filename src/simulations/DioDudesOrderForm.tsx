@@ -4,6 +4,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import ImageUpload, { CroppedImageData, blobToBase64 } from '@/components/ImageUpload';
 import { ConnectWalletButton } from '@/components/ConnectWalletButton';
 import CheckoutModal from '@/components/CheckoutModal';
+import TimeslotPicker from '@/components/TimeslotPicker';
 import { SimulationFormData } from '@/types/simulation';
 import './DioDudesOrderForm.css';
 
@@ -41,6 +42,7 @@ export default function DioDudesOrderForm() {
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null);
   const [formData, setFormData] = useState<SimulationFormData | null>(null);
+  const [startTime, setStartTime] = useState<string | null>(null);
 
   const [fighters, setFighters] = useState<Fighter[]>(() => {
     const saved = localStorage.getItem(FIGHTERS_CACHE_KEY);
@@ -92,9 +94,9 @@ export default function DioDudesOrderForm() {
     );
   }, [fighters]);
 
-  // Update form data when fighters change
+  // Update form data when fighters or startTime change
   useEffect(() => {
-    const isValid = fighters.every(f => f.name.trim() !== '' && f.imageBlob !== null);
+    const isValid = fighters.every(f => f.name.trim() !== '' && f.imageBlob !== null) && startTime !== null;
 
     if (isValid) {
       Promise.all(fighters.map(f => blobToBase64(f.imageBlob!)))
@@ -108,13 +110,14 @@ export default function DioDudesOrderForm() {
               name: f.name,
               imagePreview: f.imagePreview
             })),
-            includes: INCLUDES
+            includes: INCLUDES,
+            startTime
           });
         });
     } else {
       setFormData(null);
     }
-  }, [fighters]);
+  }, [fighters, startTime]);
 
   const updateFighterName = (index: number, value: string) => {
     const filteredValue = value.replace(/[^a-zA-Z0-9_ ]/g, '');
@@ -205,12 +208,17 @@ export default function DioDudesOrderForm() {
             </section>
           ))}
 
+          <section className="section">
+            <h2>Select Start Time</h2>
+            <TimeslotPicker onSelect={setStartTime} />
+          </section>
+
           {error && <div className="order-form-error">{error}</div>}
 
           <button
             type="button"
             className="primary checkout-btn"
-            disabled={!fighters.every(f => f.name.trim() !== '' && f.imageBlob !== null)}
+            disabled={!fighters.every(f => f.name.trim() !== '' && f.imageBlob !== null) || !startTime}
             onClick={() => setShowCheckoutModal(true)}
           >
             Go To Checkout

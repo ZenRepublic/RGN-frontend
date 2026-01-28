@@ -135,7 +135,8 @@ export default function CheckoutModal({
         body: JSON.stringify({
           txSignature: signature,
           assetAddress,
-          fighters: formData.fighters
+          fighters: formData.fighters,
+          startTime: formData.startTime
         })
       });
 
@@ -210,6 +211,18 @@ export default function CheckoutModal({
 
             <div className="checkout-content">
               <div className="checkout-summary">
+                {formData.startTime && (
+                  <div className="checkout-start-time">
+                    {new Date(formData.startTime).toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric'
+                    }).toUpperCase()}, {new Date(formData.startTime).toLocaleTimeString(undefined, {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    }).replace(' ', '')}
+                  </div>
+                )}
                 <div className="checkout-preview">
                   {formData.preview.map((item, index) => (
                     <React.Fragment key={index}>

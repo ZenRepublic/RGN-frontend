@@ -21,7 +21,7 @@ function App() {
         <div className="header-row">
           <div className="social-links">
             <a
-              href="https://x.com/RGN_Forever"
+              href="https://x.com/RGN_Brainrot"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Follow us on X"

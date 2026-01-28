@@ -1,0 +1,18 @@
+.match-loader-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.match-loader-loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-secondary, #888);
+}
+
+.match-loader-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-secondary, #888);
+}

@@ -58,3 +58,64 @@
   border-radius: 8px;
   color: var(--color-text-secondary, #888);
 }
+
+.simulation-view-download-btn {
+  width: 100%;
+  max-width: 640px;
+  padding: 1rem;
+  background: var(--yellow);
+  color: var(--black);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.simulation-view-download-btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.simulation-view-download-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Copy link toast for Android */
+.simulation-view-copy-toast {
+  position: fixed;
+  bottom: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a2e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 360px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.simulation-view-copy-toast p {
+  color: var(--white);
+  font-size: 16px;
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.simulation-view-copy-toast-bar {
+  height: 4px;
+  background: var(--yellow);
+  border-radius: 2px;
+  animation: simulation-view-toast-countdown 3s linear forwards;
+}
+
+@keyframes simulation-view-toast-countdown {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}

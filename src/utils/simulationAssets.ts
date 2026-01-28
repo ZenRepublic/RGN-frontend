@@ -3,15 +3,14 @@ import { HELIUS_RPC_URL } from '@/config/network';
 export interface Fighter {
   name: string;
   imageUrl: string;
-  personality: string;
-  style: string;
+  aura: number;
 }
 
 export interface MatchData {
+  orderId: string;
   fighters: Fighter[];
   status: string;
-  createdAt: string;
-  completedAt: string;
+  startTime: string;
 }
 
 export interface MplSimulationAsset {
@@ -35,7 +34,7 @@ interface BaseAsset {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseHeliusItems(items: any[]): BaseAsset[] {
   return items
-    .filter((item) => item && !item.burnt)
+    .filter((item) => item)
     .map((item) => {
       const name = item.content?.metadata?.name || 'Unnamed';
       // Extract order ID from name like "Dio Dudes #OMF561" -> "OMF561"
@@ -143,6 +142,7 @@ export async function fetchSimulationAssets({
       params: {
         ownerAddress,
         grouping: ['collection', collectionId],
+        burnt: false,
         page,
         limit,
       },
@@ -151,6 +151,7 @@ export async function fetchSimulationAssets({
 
   const data = await response.json();
   const items = data?.result?.items || [];
+  console.log(items);
   const baseAssets = parseHeliusItems(items);
 
   return enrichWithMatchData(baseAssets, includeMatchData);

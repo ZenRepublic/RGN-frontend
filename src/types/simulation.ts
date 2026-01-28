@@ -14,6 +14,8 @@ export interface SimulationFormData {
   }>;
   // What the simulation includes (shown in checkout)
   includes: string[];
+  // Scheduled start time (UTC ISO string)
+  startTime?: string;
 }
 
 // Props passed to each simulation component

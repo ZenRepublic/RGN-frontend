@@ -1,6 +1,4 @@
 .tournament-details {
-  color: var(--color-text-secondary, #888);
-  font-size: 0.95rem;
   margin: 0;
 }
 
@@ -14,15 +12,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 0;
+  width: fit-content;
+  margin: 0 auto;
 }
 
 .tournament-stage-name {
-  font-size: 1.1rem;
-  font-weight: 500;
   text-transform: capitalize;
   min-width: 120px;
   text-align: center;
+  margin-bottom: 0;
+  padding: 0 1rem;
+  color: var(--yellow);
 }
 
 .tournament-arrow {
@@ -56,100 +57,4 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-}
-
-.tournament-match {
-  display: flex;
-  flex-direction: column;
-  width: 70%;
-  background: var(--color-bg-secondary, #1a1a1a);
-  border: 1px solid var(--color-border, #333);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.tournament-match-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-}
-
-.tournament-match-fighter {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
-}
-
-.tournament-match-fighter--left {
-  align-items: flex-start;
-}
-
-.tournament-match-fighter--right {
-  align-items: flex-end;
-}
-
-.tournament-match-fighter-name {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-text, #fff);
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tournament-match-fighter--left .tournament-match-fighter-name {
-  text-align: left;
-}
-
-.tournament-match-fighter--right .tournament-match-fighter-name {
-  text-align: right;
-}
-
-.tournament-match-fighter-img {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 2px solid var(--color-border, #333);
-}
-
-.tournament-match-fighter-placeholder {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  background: var(--color-bg-tertiary, #2a2a2a);
-  border: 2px dashed var(--color-border, #333);
-}
-
-.tournament-match-vs {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--color-accent, #ff6b6b);
-  text-transform: uppercase;
-  padding: 0 1rem;
-}
-
-.tournament-match-view-btn {
-  width: 100%;
-  padding: 0.75rem;
-  background: var(--color-bg-tertiary, #2a2a2a);
-  border: none;
-  border-top: 1px solid var(--color-border, #333);
-  color: var(--color-text, #fff);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.tournament-match-view-btn:hover:not(:disabled) {
-  background: var(--color-bg-hover, #3a3a3a);
-}
-
-.tournament-match-view-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }

@@ -80,6 +80,16 @@
   padding: 16px;
 }
 
+.checkout-start-time {
+  text-align: center;
+  font-family: 'Masicu', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--blue-main);
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
 .checkout-preview {
   display: flex;
   justify-content: center;

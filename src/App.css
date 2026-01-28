@@ -47,28 +47,6 @@ header .banner {
   margin-bottom: 16px;
 }
 
-header h1 {
-  color: var(--white);
-  text-align: 'left';
-  margin-bottom: 8px;
-  text-shadow:
-    -1px -1px 0 var(--black),
-    1px -1px 0 var(--black),
-    -1px 1px 0 var(--black),
-    1px 1px 0 var(--black),
-    0 0 10px rgba(0, 0, 0, 0.8);
-}
-
-header p {
-  color: var(--white);
-  text-align: 'left';
-  text-shadow:
-    -1px -1px 0 var(--black),
-    1px -1px 0 var(--black),
-    -1px 1px 0 var(--black),
-    1px 1px 0 var(--black),
-    0 0 8px rgba(0, 0, 0, 0.8);
-}
 
 /* Tab group */
 .tab-group {

@@ -30,6 +30,7 @@ export default function DioDudes({ onError }: SimulationProps) {
   const inWalletBrowser = useIsInAppWalletBrowser();
   const [videoError, setVideoError] = useState(false);
   const [activeTab, setActiveTab] = useState<'tournaments' | 'my-sims'>('tournaments');
+  const [isTabLoading, setIsTabLoading] = useState(false);
 
   const isWhitelisted = useMemo(() => {
     if (!connected || !publicKey) return false;
@@ -37,13 +38,24 @@ export default function DioDudes({ onError }: SimulationProps) {
     return whitelistIds.includes(publicKey.toBase58().toLowerCase());
   }, [connected, publicKey]);
 
+  const handleTabChange = (tab: 'tournaments' | 'my-sims') => {
+    // Hide video while new tab loads (releases GPU resources)
+    setIsTabLoading(true);
+    setActiveTab(tab);
+  };
+
+  const handleTabLoaded = () => {
+    // Show video again after tab finishes loading
+    setIsTabLoading(false);
+  };
+
   return (
     <>
       <section className="about-section">
         <p>
           1v1 Physics-based Boxing Fight of RL-trained Agents. Create the match of the ages, in which the victor will be forever inscribed on the blockchain!
         </p>
-        {!inWalletBrowser && (
+        {!inWalletBrowser && !isTabLoading && (
           <div className="video-container">
             {!videoError ? (
               <video
@@ -68,14 +80,14 @@ export default function DioDudes({ onError }: SimulationProps) {
       <div className="tab-buttons">
         <button
           className={`tab-button ${activeTab === 'tournaments' ? 'active' : ''}`}
-          onClick={() => setActiveTab('tournaments')}
+          onClick={() => handleTabChange('tournaments')}
         >
           Tournaments
         </button>
 
         <button
           className={`tab-button ${activeTab === 'my-sims' ? 'active' : ''}`}
-          onClick={() => setActiveTab('my-sims')}
+          onClick={() => handleTabChange('my-sims')}
           disabled={!isWhitelisted}
         >
           My Sims
@@ -83,7 +95,7 @@ export default function DioDudes({ onError }: SimulationProps) {
       </div>
 
       {activeTab === 'tournaments' && (
-        <TournamentDisplay />
+        <TournamentDisplay onLoadComplete={handleTabLoaded} />
       )}
 
       {activeTab === 'my-sims' && (
@@ -91,6 +103,7 @@ export default function DioDudes({ onError }: SimulationProps) {
           collectionId={COLLECTION_ID}
           orderUrl="/diodudes/order"
           onError={onError}
+          onLoadComplete={handleTabLoaded}
         />
       )}
     </>
