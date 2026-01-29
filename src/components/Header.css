@@ -1,0 +1,130 @@
+.sticky-header {
+  position: fixed;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 600px;
+  z-index: 1000;
+  background: var(--blue-main);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 3px solid var(--blue-secondary);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(80, 65, 231, 0.3);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+.sticky-header.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.sticky-header.hidden {
+  transform: translateX(-50%) translateY(-120%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sticky-header .header-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+  margin-bottom: 0;
+}
+
+.sticky-header .header-row > * {
+  flex: 0 0 auto;
+}
+
+.sticky-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sticky-header .header-logo-link {
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.sticky-header .header-logo-link:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.sticky-header .header-logo {
+  height: 45px;
+  width: auto;
+}
+
+.sticky-header .social-links {
+  display: flex;
+  gap: 16px;
+}
+
+.sticky-header .social-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.sticky-header .social-links a:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+.sticky-header .social-links svg {
+  width: 28px;
+  height: 28px;
+  fill: var(--white);
+}
+
+.sticky-header .header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sticky-header .buy-token-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  background: var(--yellow);
+  color: var(--black);
+  font-family: 'Masicu', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 8px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: all 0.18s ease;
+}
+
+.sticky-header .buy-token-btn:hover:not(.disabled) {
+  background: #e6d62c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(254, 238, 49, 0.35);
+}
+
+.sticky-header .buy-token-btn:active:not(.disabled) {
+  transform: scale(0.97);
+}
+
+.sticky-header .buy-token-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}

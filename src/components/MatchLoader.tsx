@@ -3,16 +3,13 @@ import MatchDisplay from './MatchDisplay';
 import {
   fetchSimulationAssetsByIds,
   fetchSimulationAssets,
+  fetchSimulationAssetsByCollection,
   MplSimulationAsset,
 } from '@/utils/simulationAssets';
 import './MatchLoader.css';
 
 // Re-export types for convenience
 export type { MplSimulationAsset, MatchData, Fighter } from '@/utils/simulationAssets';
-
-// Caches
-const idAssetsCache = new Map<string, Map<string, MplSimulationAsset>>();
-const ownerAssetsCache = new Map<string, MplSimulationAsset[]>();
 
 // Component props
 interface BaseProps {
@@ -35,7 +32,12 @@ interface ByOwnerProps extends BaseProps {
   collectionId: string;
 }
 
-type MatchLoaderProps = ByIdsProps | ByOwnerProps;
+interface ByCollectionProps extends BaseProps {
+  mode: 'collection';
+  collectionId: string;
+}
+
+type MatchLoaderProps = ByIdsProps | ByOwnerProps | ByCollectionProps;
 
 export default function MatchLoader(props: MatchLoaderProps) {
   const [assets, setAssets] = useState<MplSimulationAsset[]>([]);
@@ -47,92 +49,64 @@ export default function MatchLoader(props: MatchLoaderProps) {
 
   const currentKey = props.mode === 'ids'
     ? props.cacheKey
+    : props.mode === 'collection'
+    ? `collection-${props.collectionId}`
     : `${props.ownerAddress}-${props.collectionId}`;
 
   useEffect(() => {
     fetchKeyRef.current = currentKey;
 
-    if (props.mode === 'ids') {
-      const { assetIds, cacheKey, onError, onLoadComplete } = props;
+    const fetchData = async () => {
+      setLoading(true);
 
-      // Check cache
-      const cached = idAssetsCache.get(cacheKey);
-      if (cached) {
-        setAssetMap(cached);
-        onLoadComplete?.();
-        return;
-      }
+      try {
+        if (props.mode === 'ids') {
+          const { assetIds, cacheKey } = props;
 
-      if (assetIds.length === 0) {
-        onLoadComplete?.();
-        return;
-      }
+          if (assetIds.length === 0) {
+            return;
+          }
 
-      const fetchAssets = async () => {
-        setLoading(true);
-        try {
-          const fetchedAssets = await fetchSimulationAssetsByIds(assetIds);
+          const result = await fetchSimulationAssetsByIds({ assetIds, cacheKey });
 
           // Only update if this is still the current fetch
-          if (fetchKeyRef.current !== cacheKey) return;
+          if (fetchKeyRef.current !== currentKey) return;
 
-          const map = new Map<string, MplSimulationAsset>();
-          fetchedAssets.forEach((asset, index) => {
-            map.set(assetIds[index], asset);
-          });
-          setAssetMap(map);
-          idAssetsCache.set(cacheKey, map);
-        } catch (err) {
-          console.error('Failed to fetch assets:', err);
-          onError?.('Failed to load matches');
-        } finally {
-          if (fetchKeyRef.current === cacheKey) {
-            setLoading(false);
-          }
-          onLoadComplete?.();
-        }
-      };
+          setAssetMap(result.assetMap);
+        } else if (props.mode === 'collection') {
+          const { collectionId } = props;
 
-      fetchAssets();
-    } else {
-      const { ownerAddress, collectionId, onError, onLoadComplete } = props;
-      const cacheKey = `${ownerAddress}-${collectionId}`;
+          const fetchedAssets = await fetchSimulationAssetsByCollection(collectionId);
 
-      // Check cache
-      const cached = ownerAssetsCache.get(cacheKey);
-      if (cached) {
-        setAssets(cached);
-        onLoadComplete?.();
-        return;
-      }
+          if (fetchKeyRef.current !== currentKey) return;
 
-      const fetchAssets = async () => {
-        setLoading(true);
-        try {
+          setAssets(fetchedAssets);
+        } else {
+          // mode === 'owner'
+          const { ownerAddress, collectionId } = props;
+
           const fetchedAssets = await fetchSimulationAssets({
             ownerAddress,
             collectionId,
             includeMatchData: true,
           });
 
-          // Only update if this is still the current fetch
-          if (fetchKeyRef.current !== cacheKey) return;
+          if (fetchKeyRef.current !== currentKey) return;
 
           setAssets(fetchedAssets);
-          ownerAssetsCache.set(cacheKey, fetchedAssets);
-        } catch (err) {
-          console.error('Failed to fetch assets:', err);
-          onError?.('Failed to load simulations');
-        } finally {
-          if (fetchKeyRef.current === cacheKey) {
-            setLoading(false);
-          }
-          onLoadComplete?.();
         }
-      };
+      } catch (err) {
+        console.error('Failed to fetch assets:', err);
+        props.onError?.('Failed to load data');
+      } finally {
+        if (fetchKeyRef.current === currentKey) {
+          setLoading(false);
+        }
+        props.onLoadComplete?.();
+      }
+    };
 
-      fetchAssets();
-    }
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentKey]);
 
@@ -158,7 +132,7 @@ export default function MatchLoader(props: MatchLoaderProps) {
     );
   }
 
-  // mode === 'owner'
+  // mode === 'owner' or 'collection'
   if (assets.length === 0) {
     return <div className="match-loader-empty">{emptyText}</div>;
   }

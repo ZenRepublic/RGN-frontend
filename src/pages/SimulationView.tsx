@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Header } from '@/components/Header';
 import { MplSimulationAsset } from '@/utils/simulationAssets';
 import './SimulationView.css';
 
@@ -108,6 +109,7 @@ export default function SimulationView() {
 
   return (
     <div className="simulation-view-page">
+      <Header />
       <div className="simulation-view-container">
         <button onClick={handleBack} className="simulation-view-back">
           ← Back

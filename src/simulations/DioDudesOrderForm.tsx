@@ -164,7 +164,7 @@ export default function DioDudesOrderForm() {
           ← Back
         </button>
 
-        <h1 className="order-form-title">New Order</h1>
+        <h1 className="order-form-title">Simulation Creator</h1>
 
         <div className="order-form">
           {(!connected || !publicKey) && (

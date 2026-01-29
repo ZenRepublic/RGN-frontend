@@ -3,13 +3,29 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { SimulationProps } from '../types/simulation';
 import { useIsInAppWalletBrowser } from '@/utils/walletUtils';
 import SimulationDisplay from '@/components/SimulationDisplay';
-import TournamentDisplay from '@/components/TournamentDisplay';
+import MatchLoader from '@/components/MatchLoader';
 import './DioDudes.css';
 
 const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
 
 // Hardcoded collection ID for DioDudes simulations
 const COLLECTION_ID = '9VMfraMtZao8d27ScRx6qvqGTzW2Md9vQv5YZyAopPQx';
+
+interface HistoryDisplayProps {
+  onLoadComplete?: () => void;
+}
+
+function HistoryDisplay({ onLoadComplete }: HistoryDisplayProps) {
+  return (
+    <MatchLoader
+      mode="collection"
+      collectionId={COLLECTION_ID}
+      onLoadComplete={onLoadComplete}
+      loadingText="Loading match history..."
+      emptyText="No matches found."
+    />
+  );
+}
 
 function getWhitelistIds(): string[] {
   const whitelistIdsRaw = import.meta.env.VITE_WHITELIST_IDS || '';
@@ -29,7 +45,7 @@ export default function DioDudes({ onError }: SimulationProps) {
   const { connected, publicKey } = useWallet();
   const inWalletBrowser = useIsInAppWalletBrowser();
   const [videoError, setVideoError] = useState(false);
-  const [activeTab, setActiveTab] = useState<'tournaments' | 'my-sims'>('tournaments');
+  const [activeTab, setActiveTab] = useState<'history' | 'my-sims'>('history');
   const [isTabLoading, setIsTabLoading] = useState(false);
 
   const isWhitelisted = useMemo(() => {
@@ -38,7 +54,7 @@ export default function DioDudes({ onError }: SimulationProps) {
     return whitelistIds.includes(publicKey.toBase58().toLowerCase());
   }, [connected, publicKey]);
 
-  const handleTabChange = (tab: 'tournaments' | 'my-sims') => {
+  const handleTabChange = (tab: 'history' | 'my-sims') => {
     // Hide video while new tab loads (releases GPU resources)
     setIsTabLoading(true);
     setActiveTab(tab);
@@ -53,7 +69,7 @@ export default function DioDudes({ onError }: SimulationProps) {
     <>
       <section className="about-section">
         <p>
-          1v1 Physics-based Boxing Fight of RL-trained Agents. Create the match of the ages, in which the victor will be forever inscribed on the blockchain!
+          1v1 Boxing match between AI agents, trained to kick their opponent's ass with physics-based punches!
         </p>
         {!inWalletBrowser && !isTabLoading && (
           <div className="video-container">
@@ -79,10 +95,10 @@ export default function DioDudes({ onError }: SimulationProps) {
       {/* Tab navigation */}
       <div className="tab-buttons">
         <button
-          className={`tab-button ${activeTab === 'tournaments' ? 'active' : ''}`}
-          onClick={() => handleTabChange('tournaments')}
+          className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
+          onClick={() => handleTabChange('history')}
         >
-          Tournaments
+          History
         </button>
 
         <button
@@ -94,8 +110,8 @@ export default function DioDudes({ onError }: SimulationProps) {
         </button>
       </div>
 
-      {activeTab === 'tournaments' && (
-        <TournamentDisplay onLoadComplete={handleTabLoaded} />
+      {activeTab === 'history' && (
+        <HistoryDisplay onLoadComplete={handleTabLoaded} />
       )}
 
       {activeTab === 'my-sims' && (

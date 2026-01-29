@@ -22,6 +22,30 @@ export interface MplSimulationAsset {
   matchData: MatchData | null;
 }
 
+// Single source of truth for assets (by asset ID)
+const assetCache = new Map<string, MplSimulationAsset>();
+
+// Query cache stores just IDs (pointers to assetCache)
+const queryCache = new Map<string, string[]>();
+
+function getAssetsFromCache(ids: string[]): MplSimulationAsset[] {
+  return ids.map(id => assetCache.get(id)).filter((a): a is MplSimulationAsset => a !== null);
+}
+
+function cacheAssets(assets: MplSimulationAsset[]): void {
+  assets.forEach(asset => assetCache.set(asset.id, asset));
+}
+
+function filterAndSortAssets(assets: MplSimulationAsset[]): MplSimulationAsset[] {
+  return assets
+    .filter(asset => asset.matchData?.startTime)
+    .sort((a, b) => {
+      const timeA = new Date(a.matchData!.startTime).getTime();
+      const timeB = new Date(b.matchData!.startTime).getTime();
+      return timeB - timeA; // Descending (most recent first)
+    });
+}
+
 interface BaseAsset {
   id: string;
   orderId: string;
@@ -65,6 +89,12 @@ async function enrichWithMatchData(
 
   return Promise.all(
     baseAssets.map(async ({ jsonUri, ...asset }) => {
+      // Check if we already have this asset enriched in cache
+      const cached = assetCache.get(asset.id);
+      if (cached?.matchData) {
+        return cached;
+      }
+
       let matchData: MatchData | null = null;
 
       if (jsonUri) {
@@ -93,11 +123,35 @@ interface FetchSimulationAssetsOptions {
   limit?: number;
 }
 
-export async function fetchSimulationAssetsByIds(
-  assetIds: string[],
-  includeMatchData = true
-): Promise<MplSimulationAsset[]> {
-  if (assetIds.length === 0) return [];
+interface FetchByIdsOptions {
+  assetIds: string[];
+  cacheKey: string;
+  includeMatchData?: boolean;
+}
+
+interface FetchByIdsResult {
+  assets: MplSimulationAsset[];
+  assetMap: Map<string, MplSimulationAsset>;
+}
+
+export async function fetchSimulationAssetsByIds({
+  assetIds,
+  cacheKey,
+  includeMatchData = true,
+}: FetchByIdsOptions): Promise<FetchByIdsResult> {
+  if (assetIds.length === 0) return { assets: [], assetMap: new Map() };
+
+  // Check query cache
+  const cachedIds = queryCache.get(cacheKey);
+  if (cachedIds) {
+    const assets = getAssetsFromCache(cachedIds);
+    const assetMap = new Map<string, MplSimulationAsset>();
+    cachedIds.forEach(id => {
+      const asset = assetCache.get(id);
+      if (asset) assetMap.set(id, asset);
+    });
+    return { assets, assetMap };
+  }
 
   const response = await fetch(HELIUS_RPC_URL, {
     method: 'POST',
@@ -117,8 +171,65 @@ export async function fetchSimulationAssetsByIds(
   const data = await response.json();
   const items = data?.result || [];
   const baseAssets = parseHeliusItems(items);
+  const enrichedAssets = await enrichWithMatchData(baseAssets, includeMatchData);
+  const assets = filterAndSortAssets(enrichedAssets);
 
-  return enrichWithMatchData(baseAssets, includeMatchData);
+  // Cache assets and query result
+  cacheAssets(assets);
+  queryCache.set(cacheKey, assets.map(a => a.id));
+
+  // Build map
+  const assetMap = new Map<string, MplSimulationAsset>();
+  assets.forEach(asset => {
+    assetMap.set(asset.id, asset);
+  });
+
+  return { assets, assetMap };
+}
+
+export async function fetchSimulationAssetsByCollection(
+  collectionId: string,
+  includeMatchData = true
+): Promise<MplSimulationAsset[]> {
+  const cacheKey = `collection:${collectionId}`;
+
+  // Check query cache
+  const cachedIds = queryCache.get(cacheKey);
+  if (cachedIds) {
+    return getAssetsFromCache(cachedIds);
+  }
+
+  const response = await fetch(HELIUS_RPC_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+    },
+    cache: 'no-store',
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'fetch-collection-assets',
+      method: 'searchAssets',
+      params: {
+        grouping: ['collection', collectionId],
+        burnt: false,
+        page: 1,
+        limit: 100,
+      },
+    }),
+  });
+
+  const data = await response.json();
+  const items = data?.result?.items || [];
+  const baseAssets = parseHeliusItems(items);
+  const enrichedAssets = await enrichWithMatchData(baseAssets, includeMatchData);
+  const assets = filterAndSortAssets(enrichedAssets);
+
+  // Cache assets and query result
+  cacheAssets(assets);
+  queryCache.set(cacheKey, assets.map(a => a.id));
+
+  return assets;
 }
 
 export async function fetchSimulationAssets({
@@ -128,6 +239,14 @@ export async function fetchSimulationAssets({
   page = 1,
   limit = 100,
 }: FetchSimulationAssetsOptions): Promise<MplSimulationAsset[]> {
+  const cacheKey = `owner:${ownerAddress}:${collectionId}`;
+
+  // Check query cache
+  const cachedIds = queryCache.get(cacheKey);
+  if (cachedIds) {
+    return getAssetsFromCache(cachedIds);
+  }
+
   const response = await fetch(HELIUS_RPC_URL, {
     method: 'POST',
     headers: {
@@ -151,8 +270,13 @@ export async function fetchSimulationAssets({
 
   const data = await response.json();
   const items = data?.result?.items || [];
-  console.log(items);
   const baseAssets = parseHeliusItems(items);
+  const enrichedAssets = await enrichWithMatchData(baseAssets, includeMatchData);
+  const assets = filterAndSortAssets(enrichedAssets);
 
-  return enrichWithMatchData(baseAssets, includeMatchData);
+  // Cache assets and query result
+  cacheAssets(assets);
+  queryCache.set(cacheKey, assets.map(a => a.id));
+
+  return assets;
 }

@@ -2,6 +2,7 @@
   width: 100%;
   position: relative;
   z-index: 1;
+  padding-top: 72px;
 }
 
 /* Animated diagonal stripes background */
