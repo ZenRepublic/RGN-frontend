@@ -117,13 +117,6 @@ export default function SimulationView() {
           ← Back
         </button>
 
-        <h1 className="simulation-view-section-header">Match Overview</h1>
-
-        <div className="simulation-view-section-row">
-          <p className="simulation-view-order-id">#{asset.orderId}</p>
-          <AssetInspector assetAddress={asset.id} />
-        </div>
-
         {asset.image && (
           <img
             className="simulation-view-image"
@@ -132,11 +125,16 @@ export default function SimulationView() {
           />
         )}
 
+        <div className="simulation-view-section-row">
+          <p className="simulation-view-order-id">#{asset.orderId}</p>
+          <AssetInspector assetAddress={asset.id} />
+        </div>
+
+        <h1 className="simulation-view-section-header">Match Overview</h1>
+
         {asset.matchData?.fighters?.map((fighter, index) => (
           <ActorDisplay key={index} fighter={fighter} fighterId={index + 1} />
         ))}
-
-        <h2 className="simulation-view-section-header">Watch It Here!</h2>
 
         {asset.animationUrl ? (
           <>
