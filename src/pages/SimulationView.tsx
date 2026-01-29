@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
+import { AssetInspector } from '@/components/AssetInspector';
+import { ActorDisplay } from '@/components/ActorDisplay';
 import { MplSimulationAsset } from '@/utils/simulationAssets';
 import './SimulationView.css';
 
@@ -111,14 +113,16 @@ export default function SimulationView() {
     <div className="simulation-view-page">
       <Header />
       <div className="simulation-view-container">
-        <div className="simulation-view-header-row">
-          <button onClick={handleBack} className="back">
-            ← Back
-          </button>
-          <h1 className="simulation-view-title">#{asset.orderId}</h1>
-        </div>
+        <button onClick={handleBack} className="back full-width">
+          ← Back
+        </button>
 
         <h1 className="simulation-view-section-header">Match Overview</h1>
+
+        <div className="simulation-view-section-row">
+          <p className="simulation-view-order-id">#{asset.orderId}</p>
+          <AssetInspector assetAddress={asset.id} />
+        </div>
 
         {asset.image && (
           <img
@@ -127,6 +131,10 @@ export default function SimulationView() {
             alt={asset.name}
           />
         )}
+
+        {asset.matchData?.fighters?.map((fighter, index) => (
+          <ActorDisplay key={index} fighter={fighter} fighterId={index + 1} />
+        ))}
 
         <h2 className="simulation-view-section-header">Watch It Here!</h2>
 

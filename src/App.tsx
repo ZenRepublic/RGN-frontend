@@ -70,7 +70,7 @@ function App() {
 
       <footer className="powered-by">
         <span>Powered by</span>
-        <img src="/mplx_logo.png" alt="Metaplex" />
+        <img src="/Logos/mplx_logo.png" alt="Metaplex" />
       </footer>
       <SpeedInsights />
     </div>

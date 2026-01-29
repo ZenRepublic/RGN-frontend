@@ -1,0 +1,43 @@
+.actor-display {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 640px;
+  background: var(--color-bg-secondary, #1a1a1a);
+  border: 1px solid var(--color-border, #333);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.actor-display-header {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--color-border, #333);
+  background: var(--color-bg-tertiary, #2a2a2a);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text, #fff);
+}
+
+.actor-display-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.actor-display-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid var(--color-border, #333);
+}
+
+.actor-display-name {
+  font-family: 'Xirod', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text, #fff);
+}

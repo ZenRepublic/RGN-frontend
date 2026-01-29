@@ -1,0 +1,20 @@
+.asset-inspector-btn {
+  width: 56px;
+  height: 56px;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.asset-inspector-btn:hover {
+  opacity: 0.8;
+}
+
+.asset-inspector-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

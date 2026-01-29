@@ -16,24 +16,23 @@
   margin: 0 auto;
 }
 
-.simulation-view-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.simulation-view-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--color-text, #fff);
-  margin: 0;
-}
-
 .simulation-view-image {
   width: 100%;
   max-width: 640px;
   border-radius: 8px;
+}
+
+.simulation-view-section-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 640px;
+  margin-top: -1rem;
+}
+
+.simulation-view-order-id {
+  margin: 0;
 }
 
 .simulation-view-section-header {
