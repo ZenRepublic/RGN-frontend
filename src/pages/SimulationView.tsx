@@ -111,11 +111,24 @@ export default function SimulationView() {
     <div className="simulation-view-page">
       <Header />
       <div className="simulation-view-container">
-        <button onClick={handleBack} className="simulation-view-back">
-          ← Back
-        </button>
+        <div className="simulation-view-header-row">
+          <button onClick={handleBack} className="back">
+            ← Back
+          </button>
+          <h1 className="simulation-view-title">#{asset.orderId}</h1>
+        </div>
 
-        <h1 className="simulation-view-title">#{asset.orderId}</h1>
+        <h1 className="simulation-view-section-header">Match Overview</h1>
+
+        {asset.image && (
+          <img
+            className="simulation-view-image"
+            src={asset.image}
+            alt={asset.name}
+          />
+        )}
+
+        <h2 className="simulation-view-section-header">Watch It Here!</h2>
 
         {asset.animationUrl ? (
           <>
@@ -123,7 +136,7 @@ export default function SimulationView() {
               className="simulation-view-video"
               src={asset.animationUrl}
               controls
-              autoPlay
+              // autoPlay
               loop
             />
             <button
@@ -140,6 +153,10 @@ export default function SimulationView() {
           </div>
         )}
       </div>
+
+      <p className="simulation-view-share-text">
+        Feel free to share the match on your socials, and tag <span className="highlight">@RGN_Brainrot</span> if you want us to interact!
+      </p>
 
       {/* Copy link toast for Android */}
       {showCopyToast && (

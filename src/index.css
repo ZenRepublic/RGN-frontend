@@ -37,6 +37,35 @@ body {
   color: var(--white);
   min-height: 100vh;
   padding: 16px;
+  position: relative;
+}
+
+/* Animated diagonal stripes background - global */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  z-index: -1;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--blue-main) 0px,
+    var(--blue-main) 50px,
+    var(--blue-secondary) 50px,
+    var(--blue-secondary) 100px
+  );
+  animation: diagonalScroll 50s linear infinite;
+}
+
+@keyframes diagonalScroll {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-50%, -50%);
+  }
 }
 
 #root {
@@ -83,6 +112,10 @@ p {
     0 0 8px rgba(0, 0, 0, 0.8);
 }
 
+.highlight {
+  color: var(--yellow);
+}
+
 /* Button styles */
 button {
   font-family: 'Xirod', sans-serif;
@@ -112,6 +145,18 @@ button.primary:hover:not(:disabled) {
 
 button.primary:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+button.back {
+  width: fit-content;
+  padding: 0.75rem 1.25rem;
+  background: var(--red);
+  color: var(--white);
+  border-radius: 4px;
+}
+
+button.back:hover:not(:disabled) {
+  opacity: 0.85;
 }
 
 /* Input styles */

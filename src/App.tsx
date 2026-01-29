@@ -44,7 +44,7 @@ function App() {
           </a>
         </div>
         <h1>Unleash The Brainrot!</h1>
-        <p>RGN is the world's first onchain brainrot broadcast network. <br /><br /> Put your favorite characters in our channels and watch them compete for eternal glory on Solana!</p>
+        <p>RGN is the world's first  <span className="highlight">onchain brainrot</span> broadcast network. <br /><br /> Select one of available channels, drop your favorite characters in and watch them compete for eternal glory on Solana!</p>
       </header>
 
       <div className="tab-group">

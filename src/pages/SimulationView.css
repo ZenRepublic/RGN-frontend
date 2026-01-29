@@ -2,37 +2,25 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
   padding: 2rem;
   padding-top: 80px;
-  background: var(--color-bg, #0a0a0a);
 }
 
 .simulation-view-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  flex: 1;
   gap: 1.5rem;
   width: 100%;
   max-width: 800px;
+  margin: 0 auto;
 }
 
-.simulation-view-back {
-  align-self: flex-start;
-  padding: 0.5rem 1rem;
-  background: var(--color-bg-secondary, #1a1a1a);
-  border: 1px solid var(--color-border, #333);
-  border-radius: 4px;
-  color: var(--color-text, #fff);
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.simulation-view-back:hover {
-  background: var(--color-bg-hover, #2a2a2a);
+.simulation-view-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .simulation-view-title {
@@ -40,6 +28,20 @@
   font-weight: 600;
   color: var(--color-text, #fff);
   margin: 0;
+}
+
+.simulation-view-image {
+  width: 100%;
+  max-width: 640px;
+  border-radius: 8px;
+}
+
+.simulation-view-section-header {
+  width: 100%;
+  max-width: 640px;
+  color: var(--color-text, #fff);
+  margin: 0;
+  text-align: left;
 }
 
 .simulation-view-video {
@@ -83,6 +85,12 @@
 .simulation-view-download-btn:disabled {
   opacity: 0.6;
   cursor: wait;
+}
+
+.simulation-view-share-text {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: var(--color-text, #fff);
 }
 
 /* Copy link toast for Android */
