@@ -64,32 +64,6 @@
   width: auto;
 }
 
-.sticky-header .social-links {
-  display: flex;
-  gap: 16px;
-}
-
-.sticky-header .social-links a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  transition: transform 0.2s, opacity 0.2s;
-}
-
-.sticky-header .social-links a:hover {
-  transform: scale(1.1);
-  opacity: 0.8;
-}
-
-.sticky-header .social-links svg {
-  width: 28px;
-  height: 28px;
-  fill: var(--white);
-}
-
 .sticky-header .header-right {
   display: flex;
   align-items: center;
