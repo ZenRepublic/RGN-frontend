@@ -9,15 +9,13 @@ interface ActorDisplayProps {
 export function ActorDisplay({ fighter, fighterId }: ActorDisplayProps) {
   return (
     <div className="actor-display">
-      <div className="actor-display-header">
-        <span>Fighter {fighterId}</span>
-      </div>
-      <div className="actor-display-content">
-        <img
-          src={fighter.imageUrl}
-          alt={fighter.name}
-          className="actor-display-img"
-        />
+      <img
+        src={fighter.imageUrl}
+        alt={fighter.name}
+        className="actor-display-img"
+      />
+      <div className="actor-display-info">
+        <span className="actor-display-id">Fighter {fighterId}</span>
         <span className="actor-display-name">{fighter.name}</span>
       </div>
     </div>
