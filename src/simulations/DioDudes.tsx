@@ -14,7 +14,7 @@ const getNetwork = (): 'mainnet' | 'devnet' =>
 
 // DioDudes collection addresses
 const COLLECTION_ADDRESSES = {
-    devnet: '9VMfraMtZao8d27ScRx6qvqGTzW2Md9vQv5YZyAopPQx',
+    devnet: '5Lu2U98R63iXJoboeLQePZKZprkt2qbn45XvpYGNSawP',
     mainnet: '4aMAUG3ASp7tGxDGcrYREC3MkeqMbmWx4Q1dWqRP7HX9'
 };
 
