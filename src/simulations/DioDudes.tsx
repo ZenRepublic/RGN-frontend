@@ -10,7 +10,7 @@ const DEMO_VIDEO_URL = 'https://arweave.net/l6NCKjO5cvPkm7w_3BU9bAseJIPJ4sj9v1xO
 
 // Get network from environment
 const getNetwork = (): 'mainnet' | 'devnet' =>
-    (process.env.SOL_NETWORK as 'mainnet' | 'devnet') || 'devnet';
+    (import.meta.env.VITE_SOL_NETWORK as 'mainnet' | 'devnet') || 'devnet';
 
 // DioDudes collection addresses
 const COLLECTION_ADDRESSES = {

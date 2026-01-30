@@ -8,7 +8,6 @@ import {
 } from '@solana/wallet-adapter-react';
 
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { clusterApiUrl } from '@solana/web3.js';
 
 import {
   registerMwa,
@@ -27,7 +26,7 @@ import App from './App';
 import OrderSuccess from './pages/OrderSuccess';
 import SimulationView from './pages/SimulationView';
 import DioDudesOrderForm from './simulations/DioDudesOrderForm';
-import { SOLANA_NETWORK, SOLANA_CHAIN } from './config/network';
+import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 
 import './index.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -55,14 +54,7 @@ interface WalletContextProviderProps {
 }
 
 function WalletContextProvider({ children }: WalletContextProviderProps) {
-  /**
-   * Mainnet endpoint
-   * You may replace with a private RPC later.
-   */
-  const endpoint = useMemo(
-    () => clusterApiUrl(SOLANA_NETWORK),
-    []
-  );
+  const endpoint = HELIUS_RPC_URL;
 
   /**
    * Desktop adapters only.
