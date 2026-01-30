@@ -53,6 +53,11 @@ async function resizeImageForCropper(
 
     const { naturalWidth, naturalHeight } = img;
 
+    // Minimum dimension validation
+    if (naturalWidth < 512 || naturalHeight < 512) {
+      throw new Error('Image must be at least 512x512 pixels');
+    }
+
     const scale = Math.min(
       maxSize / naturalWidth,
       maxSize / naturalHeight,
@@ -202,7 +207,8 @@ export default function ImageUpload({
       setCropModalOpen(true);
     } catch (err) {
       console.error('Failed to process image:', err);
-      onError('Failed to process image. Please try a smaller image.');
+      const message = err instanceof Error ? err.message : 'Failed to process image. Please try again.';
+      onError(message);
     }
   };
 

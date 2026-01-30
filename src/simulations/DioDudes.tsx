@@ -8,8 +8,18 @@ import './DioDudes.css';
 
 const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
 
-// Hardcoded collection ID for DioDudes simulations
-const COLLECTION_ID = '9VMfraMtZao8d27ScRx6qvqGTzW2Md9vQv5YZyAopPQx';
+// Get network from environment
+const getNetwork = (): 'mainnet' | 'devnet' =>
+    (process.env.SOL_NETWORK as 'mainnet' | 'devnet') || 'devnet';
+
+// DioDudes collection addresses
+const COLLECTION_ADDRESSES = {
+    devnet: '9VMfraMtZao8d27ScRx6qvqGTzW2Md9vQv5YZyAopPQx',
+    mainnet: '4aMAUG3ASp7tGxDGcrYREC3MkeqMbmWx4Q1dWqRP7HX9'
+};
+
+const getCollectionAddress = () => COLLECTION_ADDRESSES[getNetwork()];
+
 
 interface HistoryDisplayProps {
   onLoadComplete?: () => void;
@@ -19,7 +29,7 @@ function HistoryDisplay({ onLoadComplete }: HistoryDisplayProps) {
   return (
     <MatchLoader
       mode="collection"
-      collectionId={COLLECTION_ID}
+      collectionId={getCollectionAddress()}
       onLoadComplete={onLoadComplete}
       loadingText="Loading match history..."
       emptyText="No matches found."
@@ -116,7 +126,7 @@ export default function DioDudes({ onError }: SimulationProps) {
 
       {activeTab === 'my-sims' && (
         <SimulationDisplay
-          collectionId={COLLECTION_ID}
+          collectionId={getCollectionAddress()}
           orderUrl="/diodudes/order"
           onError={onError}
           onLoadComplete={handleTabLoaded}
