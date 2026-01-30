@@ -6,7 +6,7 @@ import SimulationDisplay from '@/components/SimulationDisplay';
 import MatchLoader from '@/components/MatchLoader';
 import './DioDudes.css';
 
-const DEMO_VIDEO_URL = 'https://arweave.net/3WReLIrdjuqEnV1buT9CbYXRhhBJ5fEXQmQ19pUXS5o?ext=mp4';
+const DEMO_VIDEO_URL = 'https://arweave.net/l6NCKjO5cvPkm7w_3BU9bAseJIPJ4sj9v1xOCj65wZg?ext=mp4';
 
 // Get network from environment
 const getNetwork = (): 'mainnet' | 'devnet' =>
