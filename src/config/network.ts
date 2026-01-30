@@ -14,12 +14,18 @@ export const SOLANA_NETWORK: SolanaNetwork =
 // Chain identifier for Mobile Wallet Adapter
 export const SOLANA_CHAIN = `solana:${networkEnv}` as `solana:${string}`;
 
-// RPC URL via backend proxy (keeps API key private)
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+// Helius RPC URL based on network
+const HELIUS_API_KEY = import.meta.env.VITE_HELIUS_API_KEY || '';
 
 export const HELIUS_RPC_URL = networkEnv === 'mainnet'
-  ? `${API_URL}/mainnet-rpc`
-  : `${API_URL}/devnet-rpc`;
+  ? `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
+  : `https://devnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
+
+// TODO: RPC proxy (uncomment when CORS is fixed)
+// const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+// export const HELIUS_RPC_URL = networkEnv === 'mainnet'
+//   ? `${API_URL}/mainnet-rpc`
+//   : `${API_URL}/devnet-rpc`;
 
 // Helper to check if we're on mainnet
 export const IS_MAINNET = networkEnv === 'mainnet';
