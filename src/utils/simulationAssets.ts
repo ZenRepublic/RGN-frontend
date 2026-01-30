@@ -1,4 +1,4 @@
-import { HELIUS_RPC_URL } from '@/config/network';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
 export interface Fighter {
   name: string;
@@ -153,18 +153,14 @@ export async function fetchSimulationAssetsByIds({
     return { assets, assetMap };
   }
 
-  const response = await fetch(HELIUS_RPC_URL, {
+  const response = await fetch(`${API_URL}/rgn/fetch-orders`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      jsonrpc: '2.0',
-      id: 'fetch-assets-by-ids',
-      method: 'getAssetBatch',
-      params: {
-        ids: assetIds,
-      },
+      method: 'by_ids',
+      params: { ids: assetIds },
     }),
   });
 
@@ -199,7 +195,7 @@ export async function fetchSimulationAssetsByCollection(
     return getAssetsFromCache(cachedIds);
   }
 
-  const response = await fetch(HELIUS_RPC_URL, {
+  const response = await fetch(`${API_URL}/rgn/fetch-orders`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -207,15 +203,8 @@ export async function fetchSimulationAssetsByCollection(
     },
     cache: 'no-store',
     body: JSON.stringify({
-      jsonrpc: '2.0',
-      id: 'fetch-collection-assets',
-      method: 'searchAssets',
-      params: {
-        grouping: ['collection', collectionId],
-        burnt: false,
-        page: 1,
-        limit: 100,
-      },
+      method: 'by_collection',
+      params: { collectionId, page: 1, limit: 100 },
     }),
   });
 
@@ -247,7 +236,7 @@ export async function fetchSimulationAssets({
     return getAssetsFromCache(cachedIds);
   }
 
-  const response = await fetch(HELIUS_RPC_URL, {
+  const response = await fetch(`${API_URL}/rgn/fetch-orders`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -255,16 +244,8 @@ export async function fetchSimulationAssets({
     },
     cache: 'no-store',
     body: JSON.stringify({
-      jsonrpc: '2.0',
-      id: 'fetch-simulation-assets',
-      method: 'searchAssets',
-      params: {
-        ownerAddress,
-        grouping: ['collection', collectionId],
-        burnt: false,
-        page,
-        limit,
-      },
+      method: 'by_owner',
+      params: { ownerAddress, collectionId, page, limit },
     }),
   });
 

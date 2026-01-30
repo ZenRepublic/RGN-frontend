@@ -14,12 +14,5 @@ export const SOLANA_NETWORK: SolanaNetwork =
 // Chain identifier for Mobile Wallet Adapter
 export const SOLANA_CHAIN = `solana:${networkEnv}` as `solana:${string}`;
 
-// Helius RPC URL based on network
-const HELIUS_API_KEY = import.meta.env.VITE_HELIUS_API_KEY || '';
-
-export const HELIUS_RPC_URL = networkEnv === 'mainnet'
-  ? `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
-  : `https://devnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
-
 // Helper to check if we're on mainnet
 export const IS_MAINNET = networkEnv === 'mainnet';
