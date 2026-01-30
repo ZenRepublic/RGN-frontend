@@ -199,9 +199,7 @@ export async function fetchSimulationAssetsByCollection(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
     },
-    cache: 'no-store',
     body: JSON.stringify({
       method: 'by_collection',
       params: { collectionId, page: 1, limit: 100 },
@@ -240,9 +238,7 @@ export async function fetchSimulationAssets({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
     },
-    cache: 'no-store',
     body: JSON.stringify({
       method: 'by_owner',
       params: { ownerAddress, collectionId, page, limit },
