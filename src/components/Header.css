@@ -45,7 +45,7 @@
 .sticky-header .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
 }
 
 .sticky-header .header-logo-link {
@@ -70,35 +70,50 @@
   gap: 8px;
 }
 
-.sticky-header .buy-token-btn {
+.sticky-header .litepaper-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 14px;
-  background: var(--yellow);
-  color: var(--black);
-  font-family: 'Masicu', sans-serif;
-  font-size: 15px;
-  font-weight: 500;
-  border-radius: 8px;
-  text-decoration: none;
-  white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   transition: all 0.18s ease;
 }
 
-.sticky-header .buy-token-btn:hover:not(.disabled) {
-  background: #e6d62c;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(254, 238, 49, 0.35);
+.sticky-header .litepaper-btn:hover {
+  transform: scale(1.1);
+  opacity: 0.85;
 }
 
-.sticky-header .buy-token-btn:active:not(.disabled) {
-  transform: scale(0.97);
+.sticky-header .litepaper-btn:active {
+  transform: scale(0.95);
 }
 
-.sticky-header .buy-token-btn.disabled {
+.sticky-header .litepaper-icon {
+  height: 32px;
+  width: auto;
+}
+
+.sticky-header .pumpswap-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+}
+
+.sticky-header .pumpswap-btn:hover {
+  transform: scale(1.1);
+  opacity: 0.85;
+}
+
+.sticky-header .pumpswap-btn:active {
+  transform: scale(0.95);
+}
+
+.sticky-header .pumpswap-btn.disabled {
   opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+.sticky-header .pumpswap-icon {
+  height: 32px;
+  width: auto;
 }

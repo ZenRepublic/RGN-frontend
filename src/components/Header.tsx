@@ -4,7 +4,8 @@ import { ConnectWalletButton } from './ConnectWalletButton';
 import './Header.css';
 
 const TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS;
-const JUPITER_URL = `https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=${TOKEN_ADDRESS}`;
+const USDC_ADDRESS = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+const PUMPSWAP_URL = `https://swap.pump.fun/?output=${TOKEN_ADDRESS}&input=${USDC_ADDRESS}`;
 
 export function Header() {
   const [visible, setVisible] = useState(true);
@@ -36,19 +37,29 @@ export function Header() {
           <Link to="/" className="header-logo-link" aria-label="Go to home">
             <img src="/LogoTransparent.png" alt="RGN Logo" className="header-logo" />
           </Link>
+          <a
+            href="https://hackmd.io/@8M-xMt20QZyakYyaxdBBTA/SJrR9h2IZe"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="litepaper-btn"
+            aria-label="View Litepaper"
+          >
+            <img src="/Icons/LitepaperIcon.png" alt="Litepaper" className="litepaper-icon" />
+          </a>
+          <a
+            href={TOKEN_ADDRESS ? PUMPSWAP_URL : undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`pumpswap-btn ${!TOKEN_ADDRESS ? 'disabled' : ''}`}
+            onClick={e => !TOKEN_ADDRESS && e.preventDefault()}
+            aria-label="Buy on PumpSwap"
+            aria-disabled={!TOKEN_ADDRESS}
+          >
+            <img src="/Logos/pumpfun_logo.png" alt="PumpSwap" className="pumpswap-icon" />
+          </a>
         </div>
 
         <div className="header-right">
-          <a
-            href={TOKEN_ADDRESS ? JUPITER_URL : undefined}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`buy-token-btn ${!TOKEN_ADDRESS ? 'disabled' : ''}`}
-            onClick={e => !TOKEN_ADDRESS && e.preventDefault()}
-            aria-disabled={!TOKEN_ADDRESS}
-          >
-            Get $RGN
-          </a>
           <ConnectWalletButton />
         </div>
       </div>
