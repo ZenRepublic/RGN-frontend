@@ -1,0 +1,13 @@
+.voting-system {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 640px;
+}
+
+.voting-system-error {
+  color: #ef4444;
+  font-size: 0.85rem;
+  text-align: center;
+}

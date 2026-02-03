@@ -4,8 +4,8 @@ import { ConnectWalletButton } from './ConnectWalletButton';
 import './Header.css';
 
 const TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS;
-const USDC_ADDRESS = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
-const PUMPSWAP_URL = `https://swap.pump.fun/?output=${TOKEN_ADDRESS}&input=${USDC_ADDRESS}`;
+const SOL_ADDRESS = 'So11111111111111111111111111111111111111112';
+const PUMPSWAP_URL = `https://swap.pump.fun/?output=${TOKEN_ADDRESS}&input=${SOL_ADDRESS}`;
 
 export function Header() {
   const [visible, setVisible] = useState(true);

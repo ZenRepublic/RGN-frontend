@@ -191,6 +191,36 @@ select:focus {
   width: auto;
 }
 
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 32px 0 24px;
+}
+
+.divider-line {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--yellow) 40%,
+    var(--yellow) 60%,
+    transparent
+  );
+  opacity: 0.5;
+}
+
+.divider-text {
+  font-family: 'Xirod', sans-serif;
+  font-size: 0.8rem;
+  color: var(--yellow);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
 .checkout-btn {
   width: 100%;
   font-size: 14px;

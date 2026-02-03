@@ -1,0 +1,104 @@
+.quick-buy {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 24px;
+}
+
+.quick-buy-token {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.quick-buy-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.quick-buy-token-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.quick-buy-symbol {
+  font-family: 'Xirod', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.quick-buy-ca {
+  font-size: 0.8rem;
+  color: var(--gray);
+  font-family: monospace;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.quick-buy-ca:hover {
+  color: var(--yellow);
+}
+
+.quick-buy-hint {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--gray);
+  align-self: center;
+}
+
+.quick-buy-amounts {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quick-buy-amount-btn {
+  flex: 1;
+  padding: 0.6rem 0.5rem;
+  font-family: 'Masicu', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--white);
+  background: transparent;
+  border: 2px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  width: auto;
+}
+
+.quick-buy-amount-btn:hover:not(:disabled) {
+  border-color: var(--yellow);
+}
+
+.quick-buy-amount-btn.selected {
+  border-color: var(--yellow);
+  background: rgba(254, 238, 49, 0.1);
+  color: var(--yellow);
+}
+
+.quick-buy-action {
+  margin-top: 0.25rem;
+}
+
+.quick-buy-error {
+  font-size: 0.85rem;
+  color: var(--red);
+  text-align: center;
+}
+
+.quick-buy-tx {
+  font-size: 0.85rem;
+  color: var(--yellow);
+  text-align: center;
+  text-decoration: underline;
+}

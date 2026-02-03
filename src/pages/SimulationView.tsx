@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { AssetInspector } from '@/components/AssetInspector';
-import { ActorDisplay } from '@/components/ActorDisplay';
+import { VotingSystem } from '@/components/VotingSystem';
 import { MplSimulationAsset } from '@/utils/simulationAssets';
 import './SimulationView.css';
 
@@ -132,9 +132,13 @@ export default function SimulationView() {
 
         <h1 className="simulation-view-section-header">Match Overview</h1>
 
-        {asset.matchData?.fighters?.map((fighter, index) => (
-          <ActorDisplay key={index} fighter={fighter} fighterId={index + 1} />
-        ))}
+        {asset.matchData?.fighters && asset.matchData.startTime && (
+          <VotingSystem
+            orderId={asset.orderId}
+            fighters={asset.matchData.fighters}
+            startTime={asset.matchData.startTime}
+          />
+        )}
 
         {asset.animationUrl ? (
           <>

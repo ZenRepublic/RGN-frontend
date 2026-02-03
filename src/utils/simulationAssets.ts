@@ -153,7 +153,7 @@ export async function fetchSimulationAssetsByIds({
     return { assets, assetMap };
   }
 
-  const response = await fetch(`${API_URL}/rgn/fetch-orders`, {
+  const response = await fetch(`${API_URL}/rgn/episodes/fetch`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -195,7 +195,7 @@ export async function fetchSimulationAssetsByCollection(
     return getAssetsFromCache(cachedIds);
   }
 
-  const response = await fetch(`${API_URL}/rgn/fetch-orders`, {
+  const response = await fetch(`${API_URL}/rgn/episodes/fetch`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -234,7 +234,7 @@ export async function fetchSimulationAssets({
     return getAssetsFromCache(cachedIds);
   }
 
-  const response = await fetch(`${API_URL}/rgn/fetch-orders`, {
+  const response = await fetch(`${API_URL}/rgn/episodes/fetch`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
