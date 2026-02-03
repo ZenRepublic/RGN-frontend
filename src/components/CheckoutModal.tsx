@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { Transaction } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 import { SimulationFormData } from '@/types/simulation';
 import { clearDioDudesCache } from '@/simulations';
 import { storeOrderResult } from '@/pages/OrderSuccess';
-import { signAndSendTransaction } from '@/wallet/wallet'; // adjust path
 
 import './CheckoutModal.css';
 
@@ -59,8 +59,6 @@ export default function CheckoutModal({
   onError,
 }: CheckoutModalProps) {
   const navigate = useNavigate();
-  const { connection } = useConnection();
-  const wallet = useWallet();
   const { publicKey, signTransaction, connected } = useWallet();
 
   const [step, setStep] = useState<ModalStep>('details');
@@ -110,30 +108,20 @@ export default function CheckoutModal({
       const txBytes = Uint8Array.from(atob(txBase64), c => c.charCodeAt(0));
       const transaction = Transaction.from(txBytes);
 
-      console.log('Signing and Sending Transaction..');
-      const signature = await signAndSendTransaction(wallet, transaction, connection);
+      console.log('Signing transaction...');
+      const signed = await signTransaction(transaction);
+      const signedTransaction = Buffer.from(
+        signed.serialize({ requireAllSignatures: false, verifySignatures: false })
+      ).toString('base64');
 
-      console.log('Confirming Transaction..');
-
-      // Wait for transaction to be confirmed on-chain before verifying with backend
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
-      const confirmation = await connection.confirmTransaction(
-        { signature, blockhash, lastValidBlockHeight },
-        'confirmed'
-      );
-      if (confirmation.value.err) {
-        throw new Error('Transaction failed on-chain');
-      }
-
-      console.log('Transaction confirmed!');
-
+      console.log('Sending signed transaction to server...');
       setStep('confirming');
 
       const confirmResponse = await fetch(`${API_URL}/rgn/orders/confirm`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          txSignature: signature,
+          signedTransaction,
           assetAddress,
           fighters: formData.fighters,
           startTime: formData.startTime
