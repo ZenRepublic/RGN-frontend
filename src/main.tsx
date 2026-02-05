@@ -27,8 +27,8 @@ import {
 
 import App from './App';
 import OrderSuccess from './pages/OrderSuccess';
-import SimulationView from './pages/SimulationView';
-import DioDudesOrderForm from './simulations/DioDudesOrderForm';
+import EpisodeView from './pages/EpisodeView';
+import DioDudesOrderForm from './channels/DioDudesOrderForm';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 
 import './index.css';
@@ -101,7 +101,7 @@ createRoot(container).render(
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/order-success" element={<OrderSuccess />} />
-          <Route path="/simulation/:orderId" element={<SimulationView />} />
+          <Route path="/episode/:orderId" element={<EpisodeView />} />
           <Route path="/diodudes/order" element={<DioDudesOrderForm />} />
         </Routes>
       </WalletContextProvider>

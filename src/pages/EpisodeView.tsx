@@ -3,22 +3,22 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { AssetInspector } from '@/components/AssetInspector';
 import { VotingSystem } from '@/components/VotingSystem';
-import { MplSimulationAsset } from '@/utils/simulationAssets';
-import './SimulationView.css';
+import { MplEpisodeAsset } from '@/utils/episodeFetcher';
+import './EpisodeView.css';
 
-const SIMULATION_VIEW_KEY = 'rgn-simulation-view';
+const EPISODE_VIEW_KEY = 'rgn-episode-view';
 
 // Helper to store asset before navigating
-export function storeSimulationAsset(asset: MplSimulationAsset): void {
-  localStorage.setItem(SIMULATION_VIEW_KEY, JSON.stringify(asset));
+export function storeToCache(asset: MplEpisodeAsset): void {
+  localStorage.setItem(EPISODE_VIEW_KEY, JSON.stringify(asset));
 }
 
 // Helper to get stored asset
-function getStoredSimulationAsset(): MplSimulationAsset | null {
-  const stored = localStorage.getItem(SIMULATION_VIEW_KEY);
+function getFromCache(): MplEpisodeAsset | null {
+  const stored = localStorage.getItem(EPISODE_VIEW_KEY);
   if (stored) {
     try {
-      return JSON.parse(stored) as MplSimulationAsset;
+      return JSON.parse(stored) as MplEpisodeAsset;
     } catch {
       return null;
     }
@@ -26,15 +26,15 @@ function getStoredSimulationAsset(): MplSimulationAsset | null {
   return null;
 }
 
-export default function SimulationView() {
+export default function EpisodeView() {
   const navigate = useNavigate();
   const { orderId } = useParams<{ orderId: string }>();
-  const [asset, setAsset] = useState<MplSimulationAsset | null>(null);
+  const [asset, setAsset] = useState<MplEpisodeAsset | null>(null);
   const [downloading, setDownloading] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
 
   useEffect(() => {
-    const stored = getStoredSimulationAsset();
+    const stored = getFromCache();
     if (stored && stored.orderId === orderId) {
       setAsset(stored);
     } else {
@@ -110,47 +110,47 @@ export default function SimulationView() {
   }
 
   return (
-    <div className="simulation-view-page">
+    <div className="episode-view-page">
       <Header />
-      <div className="simulation-view-container">
+      <div className="episode-view-container">
         <button onClick={handleBack} className="back full-width">
           ← Back
         </button>
 
+        <h1 className="episode-view-section-header">Episode Overview</h1>
+
         {asset.image && (
           <img
-            className="simulation-view-image"
+            className="episode-view-image"
             src={asset.image}
             alt={asset.name}
           />
         )}
 
-        <div className="simulation-view-section-row">
-          <p className="simulation-view-order-id">#{asset.orderId}</p>
+        <div className="episode-view-section-row">
+          <p className="episode-view-order-id">#{asset.orderId}</p>
           <AssetInspector assetAddress={asset.id} />
         </div>
 
-        <h1 className="simulation-view-section-header">Match Overview</h1>
-
-        {asset.matchData?.fighters && asset.matchData.startTime && (
+        {asset.episodeData?.actors && asset.episodeData.startTime && (
           <VotingSystem
             orderId={asset.orderId}
-            fighters={asset.matchData.fighters}
-            startTime={asset.matchData.startTime}
+            actors={asset.episodeData.actors}
+            startTime={asset.episodeData.startTime}
           />
         )}
 
         {asset.animationUrl ? (
           <>
             <video
-              className="simulation-view-video"
+              className="episode-view-video"
               src={asset.animationUrl}
               controls
               // autoPlay
               loop
             />
             <button
-              className="simulation-view-download-btn"
+              className="episode-view-download-btn"
               onClick={handleDownload}
               disabled={downloading}
             >
@@ -158,21 +158,21 @@ export default function SimulationView() {
             </button>
           </>
         ) : (
-          <div className="simulation-view-pending">
+          <div className="episode-view-pending">
             <p>Video is still processing...</p>
           </div>
         )}
       </div>
 
-      <p className="simulation-view-share-text">
+      <p className="episode-view-share-text">
         Feel free to share the match on your socials, and tag <span className="highlight">@RGN_Brainrot</span> if you want us to interact!
       </p>
 
       {/* Copy link toast for Android */}
       {showCopyToast && (
-        <div className="simulation-view-copy-toast">
+        <div className="episode-view-copy-toast">
           <p>Link copied to clipboard. Paste it in your mobile browser to download.</p>
-          <div className="simulation-view-copy-toast-bar" />
+          <div className="episode-view-copy-toast-bar" />
         </div>
       )}
     </div>

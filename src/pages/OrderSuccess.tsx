@@ -72,7 +72,7 @@ export default function OrderSuccess() {
       <div className="success-container">
         {orderResult.nftImageUrl && (
           <div className="success-nft-preview">
-            <img src={orderResult.nftImageUrl} alt="Your Battle NFT" className="success-nft-image" />
+            <img src={orderResult.nftImageUrl} alt="Your Episode NFT" className="success-nft-image" />
           </div>
         )}
 
@@ -84,7 +84,7 @@ export default function OrderSuccess() {
           </div>
         ) : (
           <p className="success-message">
-            Your Order Asset has been minted and sent to your wallet. Once the battle is done simulating, the NFT will be updated with the video.
+            Your Episode NFT has been minted and sent to your wallet. Once it is done simulating, the NFT will be updated with the video.
           </p>
         )}
 

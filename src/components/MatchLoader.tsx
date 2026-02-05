@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import MatchDisplay from './MatchDisplay';
 import {
-  fetchSimulationAssetsByIds,
-  fetchSimulationAssets,
-  fetchSimulationAssetsByCollection,
-  MplSimulationAsset,
-} from '@/utils/simulationAssets';
+  fetchEpisodesByIds,
+  fetchEpisodes,
+  fetchEpisodesByCollection,
+  fetchEpisodesByDate,
+  MplEpisodeAsset,
+} from '@/utils/episodeFetcher';
 import './MatchLoader.css';
 
 // Re-export types for convenience
-export type { MplSimulationAsset, MatchData, Fighter } from '@/utils/simulationAssets';
+export type { MplEpisodeAsset, EpisodeData, Actor } from '@/utils/episodeFetcher';
 
 // Component props
 interface BaseProps {
@@ -37,11 +38,17 @@ interface ByCollectionProps extends BaseProps {
   collectionId: string;
 }
 
-type MatchLoaderProps = ByIdsProps | ByOwnerProps | ByCollectionProps;
+interface ByDateProps extends BaseProps {
+  mode: 'date';
+  timestamp: number;
+  collectionId: string;
+}
+
+type MatchLoaderProps = ByIdsProps | ByOwnerProps | ByCollectionProps | ByDateProps;
 
 export default function MatchLoader(props: MatchLoaderProps) {
-  const [assets, setAssets] = useState<MplSimulationAsset[]>([]);
-  const [assetMap, setAssetMap] = useState<Map<string, MplSimulationAsset>>(new Map());
+  const [assets, setAssets] = useState<MplEpisodeAsset[]>([]);
+  const [assetMap, setAssetMap] = useState<Map<string, MplEpisodeAsset>>(new Map());
   const [loading, setLoading] = useState(false);
 
   // Track the current fetch key to prevent stale updates
@@ -51,7 +58,11 @@ export default function MatchLoader(props: MatchLoaderProps) {
     ? props.cacheKey
     : props.mode === 'collection'
     ? `collection-${props.collectionId}`
-    : `${props.ownerAddress}-${props.collectionId}`;
+    : props.mode === 'date'
+    ? `date-${props.timestamp}-${props.collectionId}`
+    : props.mode === 'owner'
+    ? `${props.ownerAddress}-${props.collectionId}`
+    : '';
 
   useEffect(() => {
     fetchKeyRef.current = currentKey;
@@ -67,7 +78,7 @@ export default function MatchLoader(props: MatchLoaderProps) {
             return;
           }
 
-          const result = await fetchSimulationAssetsByIds({ assetIds, cacheKey });
+          const result = await fetchEpisodesByIds({ assetIds, cacheKey });
 
           // Only update if this is still the current fetch
           if (fetchKeyRef.current !== currentKey) return;
@@ -76,7 +87,23 @@ export default function MatchLoader(props: MatchLoaderProps) {
         } else if (props.mode === 'collection') {
           const { collectionId } = props;
 
-          const fetchedAssets = await fetchSimulationAssetsByCollection(collectionId);
+          const fetchedAssets = await fetchEpisodesByCollection(collectionId);
+
+          if (fetchKeyRef.current !== currentKey) return;
+
+          setAssets(fetchedAssets);
+        } else if (props.mode === 'date') {
+          const { timestamp, collectionId } = props;
+
+          console.log('MatchLoader: Fetching episodes for date mode - timestamp:', timestamp, 'date:', new Date(timestamp).toISOString(), 'collectionId:', collectionId);
+
+          const fetchedAssets = await fetchEpisodesByDate({
+            timestamp,
+            collectionId,
+            includeEpisodeData: true,
+          });
+
+          console.log('MatchLoader: Fetched', fetchedAssets.length, 'episodes');
 
           if (fetchKeyRef.current !== currentKey) return;
 
@@ -85,10 +112,10 @@ export default function MatchLoader(props: MatchLoaderProps) {
           // mode === 'owner'
           const { ownerAddress, collectionId } = props;
 
-          const fetchedAssets = await fetchSimulationAssets({
+          const fetchedAssets = await fetchEpisodes({
             ownerAddress,
             collectionId,
-            includeMatchData: true,
+            includeEpisodeData: true,
           });
 
           if (fetchKeyRef.current !== currentKey) return;

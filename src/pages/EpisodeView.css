@@ -1,4 +1,4 @@
-.simulation-view-page {
+.episode-view-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -6,7 +6,7 @@
   padding-top: 80px;
 }
 
-.simulation-view-container {
+.episode-view-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -16,13 +16,13 @@
   margin: 0 auto;
 }
 
-.simulation-view-image {
+.episode-view-image {
   width: 100%;
   max-width: 640px;
   border-radius: 8px;
 }
 
-.simulation-view-section-row {
+.episode-view-section-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,11 +31,11 @@
   margin-top: -1rem;
 }
 
-.simulation-view-order-id {
+.episode-view-order-id {
   margin: 0;
 }
 
-.simulation-view-section-header {
+.episode-view-section-header {
   width: 100%;
   max-width: 640px;
   color: var(--color-text, #fff);
@@ -43,14 +43,14 @@
   text-align: left;
 }
 
-.simulation-view-video {
+.episode-view-video {
   width: 100%;
   max-width: 640px;
   border-radius: 8px;
   background: #000;
 }
 
-.simulation-view-pending {
+.episode-view-pending {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -63,7 +63,7 @@
   color: var(--color-text-secondary, #888);
 }
 
-.simulation-view-download-btn {
+.episode-view-download-btn {
   width: 100%;
   max-width: 640px;
   padding: 1rem;
@@ -77,23 +77,23 @@
   transition: opacity 0.2s;
 }
 
-.simulation-view-download-btn:hover:not(:disabled) {
+.episode-view-download-btn:hover:not(:disabled) {
   opacity: 0.85;
 }
 
-.simulation-view-download-btn:disabled {
+.episode-view-download-btn:disabled {
   opacity: 0.6;
   cursor: wait;
 }
 
-.simulation-view-share-text {
+.episode-view-share-text {
   margin-top: 1.5rem;
   text-align: center;
   color: var(--color-text, #fff);
 }
 
 /* Copy link toast for Android */
-.simulation-view-copy-toast {
+.episode-view-copy-toast {
   position: fixed;
   bottom: 35px;
   left: 50%;
@@ -107,21 +107,21 @@
   overflow: hidden;
 }
 
-.simulation-view-copy-toast p {
+.episode-view-copy-toast p {
   color: var(--white);
   font-size: 16px;
   margin: 0 0 12px 0;
   text-align: center;
 }
 
-.simulation-view-copy-toast-bar {
+.episode-view-copy-toast-bar {
   height: 4px;
   background: var(--yellow);
   border-radius: 2px;
-  animation: simulation-view-toast-countdown 3s linear forwards;
+  animation: episode-view-toast-countdown 3s linear forwards;
 }
 
-@keyframes simulation-view-toast-countdown {
+@keyframes episode-view-toast-countdown {
   from {
     width: 100%;
   }

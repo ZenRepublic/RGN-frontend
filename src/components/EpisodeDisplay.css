@@ -1,17 +1,17 @@
-/* Simulation Display Component */
-.sim-display {
+/* Episode Display Component */
+.episode-display {
   background: var(--card-bg);
   border-radius: 12px;
   padding: 20px;
 }
 
-.sim-display-header {
+.episode-display-header {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 16px;
 }
 
-button.sim-display-new-order-btn {
+button.episode-display-new-order-btn {
   width: auto;
   padding: 14px 24px;
   background: var(--yellow);
@@ -24,71 +24,71 @@ button.sim-display-new-order-btn {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.sim-display-new-order-btn:hover {
+.episode-display-new-order-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
 }
 
-.sim-display-wallet-prompt {
+.episode-display-wallet-prompt {
   text-align: center;
   padding: 40px 20px;
 }
 
-.sim-display-wallet-prompt h2 {
+.episode-display-wallet-prompt h2 {
   color: var(--white);
   margin-bottom: 16px;
 }
 
-.sim-display-wallet-button {
+.episode-display-wallet-button {
   display: flex;
   justify-content: center;
 }
 
-.sim-display-loading,
-.sim-display-empty {
+.episode-display-loading,
+.siepisodem-display-empty {
   text-align: center;
   padding: 40px 20px;
   color: var(--yellow);
 }
 
 /* Grid - 2 columns */
-.sim-display-grid {
+.episode-display-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
-.sim-display-card {
+.episode-display-card {
   background: #1a1a2e;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid #333;
 }
 
-.sim-display-card-header {
+.episode-display-card-header {
   padding: 10px 12px;
   border-bottom: 1px solid #333;
 }
 
-.sim-display-card-id {
+.episode-display-card-id {
   color: var(--white);
   font-weight: 600;
   font-size: 14px;
 }
 
-.sim-display-card-image {
+.episode-display-card-image {
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
   display: block;
 }
 
-.sim-display-card-footer {
+.episode-display-card-footer {
   padding: 6px;
   border-top: 1px solid #333;
 }
 
-.sim-display-card-view-btn {
+.episode-display-card-view-btn {
   width: 100%;
   background: var(--yellow);
   color: var(--black);
@@ -101,11 +101,11 @@ button.sim-display-new-order-btn {
   transition: opacity 0.2s;
 }
 
-.sim-display-card-view-btn:hover {
+.episode-display-card-view-btn:hover {
   opacity: 0.85;
 }
 
-.sim-display-card-pending {
+.episode-display-card-pending {
   width: 100%;
   padding: 10px;
   color: var(--gray);

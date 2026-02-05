@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { SimulationProps } from '../types/simulation';
+import { ChannelProps } from './channel';
 import { useIsInAppWalletBrowser } from '@/utils/walletUtils';
-import SimulationDisplay from '@/components/SimulationDisplay';
-import MatchLoader from '@/components/MatchLoader';
+import EpisodeDisplay from '@/components/EpisodeDisplay';
+import EpisodeSchedule from '@/components/EpisodeSchedule';
 import './DioDudes.css';
 
 const DEMO_VIDEO_URL = 'https://arweave.net/l6NCKjO5cvPkm7w_3BU9bAseJIPJ4sj9v1xOCj65wZg?ext=mp4';
@@ -21,21 +21,6 @@ const COLLECTION_ADDRESSES = {
 const getCollectionAddress = () => COLLECTION_ADDRESSES[getNetwork()];
 
 
-interface HistoryDisplayProps {
-  onLoadComplete?: () => void;
-}
-
-function HistoryDisplay({ onLoadComplete }: HistoryDisplayProps) {
-  return (
-    <MatchLoader
-      mode="collection"
-      collectionId={getCollectionAddress()}
-      onLoadComplete={onLoadComplete}
-      loadingText="Loading match history..."
-      emptyText="No matches found."
-    />
-  );
-}
 
 function getWhitelistIds(): string[] {
   const whitelistIdsRaw = import.meta.env.VITE_WHITELIST_IDS || '';
@@ -51,11 +36,11 @@ function getWhitelistIds(): string[] {
   }
 }
 
-export default function DioDudes({ onError }: SimulationProps) {
+export default function DioDudes({ onError }: ChannelProps) {
   const { connected, publicKey } = useWallet();
   const inWalletBrowser = useIsInAppWalletBrowser();
   const [videoError, setVideoError] = useState(false);
-  const [activeTab, setActiveTab] = useState<'history' | 'my-sims'>('history');
+  const [activeTab, setActiveTab] = useState<'schedule' | 'my-sims'>('schedule');
   const [isTabLoading, setIsTabLoading] = useState(false);
 
   const isWhitelisted = useMemo(() => {
@@ -64,7 +49,7 @@ export default function DioDudes({ onError }: SimulationProps) {
     return whitelistIds.includes(publicKey.toBase58().toLowerCase());
   }, [connected, publicKey]);
 
-  const handleTabChange = (tab: 'history' | 'my-sims') => {
+  const handleTabChange = (tab: 'schedule' | 'my-sims') => {
     // Hide video while new tab loads (releases GPU resources)
     setIsTabLoading(true);
     setActiveTab(tab);
@@ -105,10 +90,10 @@ export default function DioDudes({ onError }: SimulationProps) {
       {/* Tab navigation */}
       <div className="tab-buttons">
         <button
-          className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
-          onClick={() => handleTabChange('history')}
+          className={`tab-button ${activeTab === 'schedule' ? 'active' : ''}`}
+          onClick={() => handleTabChange('schedule')}
         >
-          History
+          Schedule
         </button>
 
         <button
@@ -120,12 +105,15 @@ export default function DioDudes({ onError }: SimulationProps) {
         </button>
       </div>
 
-      {activeTab === 'history' && (
-        <HistoryDisplay onLoadComplete={handleTabLoaded} />
+      {activeTab === 'schedule' && (
+        <EpisodeSchedule
+          collectionId={getCollectionAddress()}
+          onError={onError}
+        />
       )}
 
       {activeTab === 'my-sims' && (
-        <SimulationDisplay
+        <EpisodeDisplay
           collectionId={getCollectionAddress()}
           orderUrl="/diodudes/order"
           onError={onError}

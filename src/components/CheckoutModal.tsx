@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Transaction } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import { SimulationFormData } from '@/types/simulation';
-import { clearDioDudesCache } from '@/simulations';
+import { EpisodeOrderFormData } from '@/channels/channel';
 import { storeOrderResult } from '@/pages/OrderSuccess';
 
 import './CheckoutModal.css';
@@ -43,9 +42,8 @@ type ModalStep = 'details' | 'processing' | 'confirming';
 
 interface CheckoutModalProps {
   isOpen: boolean;
-  formData: SimulationFormData;
+  formData: EpisodeOrderFormData;
   paymentInfo: PaymentInfo | null;
-  activeSimulationId: string;
   onClose: () => void;
   onError: (message: string) => void;
 }
@@ -54,7 +52,6 @@ export default function CheckoutModal({
   isOpen,
   formData,
   paymentInfo,
-  activeSimulationId,
   onClose,
   onError,
 }: CheckoutModalProps) {
@@ -123,7 +120,7 @@ export default function CheckoutModal({
         body: JSON.stringify({
           signedTransaction,
           assetAddress,
-          fighters: formData.fighters,
+          actors: formData.actors,
           startTime: formData.startTime
         })
       });
@@ -143,11 +140,6 @@ export default function CheckoutModal({
 
       if (!confirmResponse.ok) {
         throw new Error(data.error || 'Failed to confirm order');
-      }
-
-      // Clear simulation-specific cache
-      if (activeSimulationId === 'dio-dudes') {
-        clearDioDudesCache();
       }
 
       storeOrderResult(data as OrderResult);

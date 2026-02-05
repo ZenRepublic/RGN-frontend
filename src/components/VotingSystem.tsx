@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Fighter } from '@/utils/simulationAssets';
+import { Actor } from '@/utils/episodeFetcher';
 import { ActorVoteEntry } from '@/components/ActorVoteEntry';
 import './VotingSystem.css';
 
@@ -8,11 +8,11 @@ const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replac
 
 interface VotingSystemProps {
   orderId: string;
-  fighters: Fighter[];
+  actors: Actor[];
   startTime: string;
 }
 
-export function VotingSystem({ orderId, fighters, startTime }: VotingSystemProps) {
+export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) {
   const { publicKey, connected } = useWallet();
   const [voting, setVoting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export function VotingSystem({ orderId, fighters, startTime }: VotingSystemProps
 
         if (response.ok) {
           if (data.hasVoted) {
-            setVotedIndex(data.votedFighterIndex);
+            setVotedIndex(data.votedActorIndex);
           }
           if (data.voteCounts) {
             setVoteCounts(data.voteCounts);
@@ -100,11 +100,11 @@ export function VotingSystem({ orderId, fighters, startTime }: VotingSystemProps
 
   return (
     <div className="voting-system">
-      {fighters.map((fighter, index) => (
+      {actors.map((actor, index) => (
         <ActorVoteEntry
           key={index}
-          fighter={fighter}
-          fighterId={index + 1}
+          actor={actor}
+          actorId={index + 1}
           canVote={canVote && votedIndex === null && !voting}
           votedFor={votedIndex === index}
           voteCount={voteCounts?.[index]}

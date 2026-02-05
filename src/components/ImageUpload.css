@@ -1,5 +1,5 @@
 /* Image upload container */
-.fighter-image-container {
+.upload-image-container {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -7,7 +7,7 @@
   gap: 8px;
 }
 
-.fighter-image {
+.upload-image {
   width: 100px;
   height: 100px;
   border-radius: 50%;
@@ -37,7 +37,7 @@
 }
 
 /* Crop Modal Overlay */
-.fighter-image-container ~ .modal-overlay,
+.upload-image-container ~ .modal-overlay,
 .modal-overlay:has(.crop-modal) {
   position: fixed;
   top: 0;
@@ -157,7 +157,7 @@
 
 /* Responsive */
 @media (min-width: 768px) {
-  .fighter-image {
+  .upload-image {
     width: 120px;
     height: 120px;
   }

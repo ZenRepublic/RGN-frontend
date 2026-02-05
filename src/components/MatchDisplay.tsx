@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { MplSimulationAsset } from '@/utils/simulationAssets';
-import { storeSimulationAsset } from '@/pages/SimulationView';
+import { MplEpisodeAsset } from '@/utils/episodeFetcher';
+import { storeToCache } from '@/pages/EpisodeView';
 import './MatchDisplay.css';
 
 interface MatchDisplayProps {
-  asset: MplSimulationAsset | undefined;
+  asset: MplEpisodeAsset | undefined;
 }
 
 function formatStartTime(startTime: string | undefined): string {
@@ -30,19 +30,19 @@ function formatStartTime(startTime: string | undefined): string {
 export default function MatchDisplay({ asset }: MatchDisplayProps) {
   const navigate = useNavigate();
 
-  const matchData = asset?.matchData;
-  const fighters = matchData?.fighters || [];
-  const fighter1 = fighters[0];
-  const fighter2 = fighters[1];
+  const episodeData = asset?.episodeData;
+  const actors = episodeData?.actors || [];
+  const actor1 = actors[0];
+  const actor2 = actors[1];
 
   const handleView = () => {
     if (asset) {
-      storeSimulationAsset(asset);
-      navigate(`/simulation/${asset.orderId}`);
+      storeToCache(asset);
+      navigate(`/episode/${asset.orderId}`);
     }
   };
 
-  const formattedTime = formatStartTime(matchData?.startTime);
+  const formattedTime = formatStartTime(episodeData?.startTime);
 
   return (
     <div className="match-display">
@@ -52,18 +52,18 @@ export default function MatchDisplay({ asset }: MatchDisplayProps) {
       </div>
 
       <div className="match-display-content">
-        <div className="match-display-fighter match-display-fighter--left">
-          {fighter1 ? (
+        <div className="match-display-actor match-display-actor--left">
+          {actor1 ? (
             <>
-              <span className="match-display-fighter-name">{fighter1.name}</span>
+              <span className="match-display-actor-name">{actor1.name}</span>
               <img
-                src={fighter1.imageUrl}
-                alt={fighter1.name}
-                className="match-display-fighter-img"
+                src={actor1.imageUrl}
+                alt={actor1.name}
+                className="match-display-actor-img"
               />
             </>
           ) : (
-            <div className="match-display-fighter-placeholder" />
+            <div className="match-display-actor-placeholder" />
           )}
         </div>
 
@@ -74,22 +74,22 @@ export default function MatchDisplay({ asset }: MatchDisplayProps) {
             onClick={handleView}
             disabled={!asset}
           >
-            View Match
+            View Episode
           </button>
         </div>
 
-        <div className="match-display-fighter match-display-fighter--right">
-          {fighter2 ? (
+        <div className="match-display-actor match-display-actor--right">
+          {actor2 ? (
             <>
-              <span className="match-display-fighter-name">{fighter2.name}</span>
+              <span className="match-display-actor-name">{actor2.name}</span>
               <img
-                src={fighter2.imageUrl}
-                alt={fighter2.name}
-                className="match-display-fighter-img"
+                src={actor2.imageUrl}
+                alt={actor2.name}
+                className="match-display-actor-img"
               />
             </>
           ) : (
-            <div className="match-display-fighter-placeholder" />
+            <div className="match-display-actor-placeholder" />
           )}
         </div>
       </div>

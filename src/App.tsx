@@ -2,15 +2,15 @@ import { useState, useCallback } from 'react';
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { Header } from '@/components/Header';
 import { QuickBuy } from '@/components/QuickBuy';
-import { SIMULATIONS } from './simulations';
+import { CHANNELS } from './channels';
 import './App.css';
 
 function App() {
-  const [activeSimulationId, setActiveSimulationId] = useState(SIMULATIONS[0]?.id || '');
+  const [activeChannelId, setActiveChannelId] = useState(CHANNELS[0]?.id || '');
   const [error, setError] = useState('');
 
-  const activeSimulation = SIMULATIONS.find(s => s.id === activeSimulationId);
-  const ActiveSimulationComponent = activeSimulation?.component;
+  const activeChannel = CHANNELS.find(s => s.id === activeChannelId);
+  const ActiveChannelComponent = activeChannel?.component;
 
   const handleError = useCallback((message: string) => {
     setError(message);
@@ -49,22 +49,22 @@ function App() {
       </header>
 
       <div className="tab-group">
-        {SIMULATIONS.map(sim => (
+        {CHANNELS.map(channel => (
           <button
-            key={sim.id}
-            className={`tab-btn ${activeSimulationId === sim.id ? 'active' : ''}`}
-            disabled={sim.disabled}
-            onClick={() => !sim.disabled && setActiveSimulationId(sim.id)}
+            key={channel.id}
+            className={`tab-btn ${activeChannelId === channel.id ? 'active' : ''}`}
+            disabled={channel.disabled}
+            onClick={() => !channel.disabled && setActiveChannelId(channel.id)}
           >
-            {sim.name}
+            {channel.name}
           </button>
         ))}
         <button className="tab-btn" disabled>More Soon...</button>
       </div>
 
-      {ActiveSimulationComponent && (
+      {ActiveChannelComponent && (
         <>
-          <ActiveSimulationComponent onError={handleError} />
+          <ActiveChannelComponent onError={handleError} />
           {error && <div className="error">{error}</div>}
         </>
       )}

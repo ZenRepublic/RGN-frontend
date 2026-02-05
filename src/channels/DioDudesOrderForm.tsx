@@ -5,11 +5,10 @@ import ImageUpload, { CroppedImageData, blobToBase64 } from '@/components/ImageU
 import { ConnectWalletButton } from '@/components/ConnectWalletButton';
 import CheckoutModal from '@/components/CheckoutModal';
 import TimeslotPicker from '@/components/TimeslotPicker';
-import { SimulationFormData } from '@/types/simulation';
+import { EpisodeOrderFormData } from '@/channels/channel';
 import './DioDudesOrderForm.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
-const FIGHTERS_CACHE_KEY = 'rgn-diodudes-fighters';
 
 interface PaymentInfo {
   success: boolean;
@@ -17,20 +16,20 @@ interface PaymentInfo {
   wallet: string;
 }
 
-interface Fighter {
+interface ActorData {
   name: string;
   imageBlob: Blob | null;
   imagePreview: string;
 }
 
-const DEFAULT_FIGHTERS: Fighter[] = [
-  { name: '', imageBlob: null, imagePreview: '/mystery-fighter.png' },
-  { name: '', imageBlob: null, imagePreview: '/mystery-fighter.png' }
+const DEFAULT_ACTORS: ActorData[] = [
+  { name: '', imageBlob: null, imagePreview: '/mystery-actor.png' },
+  { name: '', imageBlob: null, imagePreview: '/mystery-actor.png' }
 ];
 
 const INCLUDES = [
   'Custom AI Battle Video',
-  'NFT with your fighters',
+  'NFT with your Actors',
   'Permanent on-chain storage'
 ];
 
@@ -41,25 +40,10 @@ export default function DioDudesOrderForm() {
   const [error, setError] = useState('');
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null);
-  const [formData, setFormData] = useState<SimulationFormData | null>(null);
+  const [formData, setFormData] = useState<EpisodeOrderFormData | null>(null);
   const [startTime, setStartTime] = useState<string | null>(null);
 
-  const [fighters, setFighters] = useState<Fighter[]>(() => {
-    const saved = localStorage.getItem(FIGHTERS_CACHE_KEY);
-    if (saved) {
-      try {
-        const cached = JSON.parse(saved) as { name: string }[];
-        return cached.map((c, i) => ({
-          name: c.name || '',
-          imageBlob: null,
-          imagePreview: DEFAULT_FIGHTERS[i]?.imagePreview || '/mystery-fighter.png'
-        }));
-      } catch {
-        return DEFAULT_FIGHTERS;
-      }
-    }
-    return DEFAULT_FIGHTERS;
-  });
+  const [actors, setActors] = useState<ActorData[]>(DEFAULT_ACTORS);
 
   const objectUrlsRef = useRef<string[]>([]);
 
@@ -86,29 +70,21 @@ export default function DioDudesOrderForm() {
     fetchPaymentInfo();
   }, []);
 
-  // Save only names to localStorage
+  // Update form data when actors or startTime change
   useEffect(() => {
-    localStorage.setItem(
-      FIGHTERS_CACHE_KEY,
-      JSON.stringify(fighters.map(f => ({ name: f.name })))
-    );
-  }, [fighters]);
-
-  // Update form data when fighters or startTime change
-  useEffect(() => {
-    const isValid = fighters.every(f => f.name.trim() !== '' && f.imageBlob !== null) && startTime !== null;
+    const isValid = actors.every(a => a.name.trim() !== '' && a.imageBlob !== null) && startTime !== null;
 
     if (isValid) {
-      Promise.all(fighters.map(f => blobToBase64(f.imageBlob!)))
+      Promise.all(actors.map(a => blobToBase64(a.imageBlob!)))
         .then(base64Images => {
           setFormData({
-            fighters: fighters.map((f, i) => ({
-              name: f.name,
+            actors: actors.map((a, i) => ({
+              name: a.name,
               imageUrl: base64Images[i]
             })),
-            preview: fighters.map(f => ({
-              name: f.name,
-              imagePreview: f.imagePreview
+            preview: actors.map(a => ({
+              name: a.name,
+              imagePreview: a.imagePreview
             })),
             includes: INCLUDES,
             startTime
@@ -117,27 +93,27 @@ export default function DioDudesOrderForm() {
     } else {
       setFormData(null);
     }
-  }, [fighters, startTime]);
+  }, [actors, startTime]);
 
-  const updateFighterName = (index: number, value: string) => {
+  const updateActorName = (index: number, value: string) => {
     const filteredValue = value.replace(/[^a-zA-Z0-9_ ]/g, '');
 
     if (filteredValue.length > 12) {
-      setError('Fighter name must be 12 characters or less');
+      setError('Name must be 12 characters or less');
       return;
     }
 
-    setFighters(prev => {
+    setActors(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], name: filteredValue };
       return updated;
     });
   };
 
-  const handleFighterImageChange = (index: number, croppedImageData: CroppedImageData) => {
+  const handleImageChange = (index: number, croppedImageData: CroppedImageData) => {
     objectUrlsRef.current.push(croppedImageData.objectUrl);
 
-    setFighters(prev => {
+    setActors(prev => {
       const updated = [...prev];
       const oldPreview = updated[index].imagePreview;
       if (oldPreview && oldPreview.startsWith('blob:')) {
@@ -164,7 +140,7 @@ export default function DioDudesOrderForm() {
           ← Back
         </button>
 
-        <h1 className="order-form-title">Simulation Creator</h1>
+        <h1 className="order-form-title">Episode Creator</h1>
 
         <div className="order-form">
           {(!connected || !publicKey) && (
@@ -178,18 +154,18 @@ export default function DioDudesOrderForm() {
             </div>
           )}
 
-          {fighters.map((fighter, index) => (
-            <section key={index} className="section fighter-section">
+          {actors.map((actor, index) => (
+            <section key={index} className="section actor-section">
               <h2>Actor {index + 1}</h2>
-              <div className="fighter-content">
+              <div className="actor-content">
                 <ImageUpload
-                  imagePreview={fighter.imagePreview}
-                  hasImage={fighter.imageBlob !== null}
-                  onImageChange={(croppedImageData) => handleFighterImageChange(index, croppedImageData)}
+                  imagePreview={actor.imagePreview}
+                  hasImage={actor.imageBlob !== null}
+                  onImageChange={(croppedImageData) => handleImageChange(index, croppedImageData)}
                   onError={setError}
                   inputId={`diodudes-f${index}-image`}
                 />
-                <div className="fighter-fields">
+                <div className="actor-fields">
                   <div className="field">
                     <label htmlFor={`diodudes-f${index}-name`}>Enter Name:</label>
                     <input
@@ -197,8 +173,8 @@ export default function DioDudesOrderForm() {
                       type="text"
                       required
                       maxLength={12}
-                      value={fighter.name}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => updateFighterName(index, e.target.value)}
+                      value={actor.name}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => updateActorName(index, e.target.value)}
                       placeholder="*Up to 12 Characters"
                       disabled={showCheckoutModal}
                     />
@@ -218,7 +194,7 @@ export default function DioDudesOrderForm() {
           <button
             type="button"
             className="primary checkout-btn"
-            disabled={!fighters.every(f => f.name.trim() !== '' && f.imageBlob !== null) || !startTime}
+            disabled={!actors.every(a => a.name.trim() !== '' && a.imageBlob !== null) || !startTime}
             onClick={() => setShowCheckoutModal(true)}
           >
             Go To Checkout
@@ -231,16 +207,10 @@ export default function DioDudesOrderForm() {
           isOpen={showCheckoutModal}
           formData={formData}
           paymentInfo={paymentInfo}
-          activeSimulationId="dio-dudes"
           onClose={() => setShowCheckoutModal(false)}
           onError={setError}
         />
       )}
     </div>
   );
-}
-
-// Clear cached form data (called after successful order)
-export function clearDioDudesCache() {
-  localStorage.removeItem(FIGHTERS_CACHE_KEY);
 }

@@ -257,11 +257,11 @@ export default function ImageUpload({
 
   return (
     <>
-      <div className="fighter-image-container">
+      <div className="upload-image-container">
         <img
           src={imagePreview}
-          alt="Fighter"
-          className="fighter-image"
+          alt="Image"
+          className="upload-image"
         />
         <label htmlFor={inputId} className="upload-button">
           {hasImage ? 'Change' : 'Upload'}

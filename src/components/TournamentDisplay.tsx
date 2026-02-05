@@ -43,7 +43,7 @@ export default function TournamentDisplay({ onLoadComplete }: TournamentDisplayP
   return (
     <section className="tournament-section">
       <p className="tournament-description">
-        Top fighters face one another in brutal, single elimination competitions. Every match could be their last, so support them by voting for your favorite and increasing their AURA!
+        Top Actors face one another in brutal, single elimination competitions. Every match could be their last, so help them claim victory by casting a vote for your favorite!
       </p>
 
       {loading ? (

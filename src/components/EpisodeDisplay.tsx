@@ -2,37 +2,37 @@ import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { ConnectWalletButton } from './ConnectWalletButton';
 import MatchLoader from './MatchLoader';
-import './SimulationDisplay.css';
+import './EpisodeDisplay.css';
 
-interface SimulationDisplayProps {
+interface EpisodeDisplayProps {
   collectionId: string;
   orderUrl?: string;
   onError?: (message: string) => void;
   onLoadComplete?: () => void;
 }
 
-export default function SimulationDisplay({ collectionId, orderUrl, onError, onLoadComplete }: SimulationDisplayProps) {
+export default function EpisodeDisplay({ collectionId, orderUrl, onError, onLoadComplete }: EpisodeDisplayProps) {
   const navigate = useNavigate();
   const { connected, publicKey } = useWallet();
 
   return (
     <>
-      <div className="sim-display">
+      <div className="episode-display">
         {orderUrl && (
-          <div className="sim-display-header">
+          <div className="episode-display-header">
             <button
-              className="sim-display-new-order-btn"
+              className="episode-display-new-order-btn"
               onClick={() => navigate(orderUrl)}
             >
-              + New Order
+              + Create New
             </button>
           </div>
         )}
 
         {!connected || !publicKey ? (
-          <div className="sim-display-wallet-prompt">
+          <div className="episode-display-wallet-prompt">
             <h2>Connect Your Wallet to Proceed</h2>
-            <div className="sim-display-wallet-button">
+            <div className="episode-display-wallet-button">
               <ConnectWalletButton />
             </div>
           </div>
@@ -43,8 +43,8 @@ export default function SimulationDisplay({ collectionId, orderUrl, onError, onL
             collectionId={collectionId}
             onError={onError}
             onLoadComplete={onLoadComplete}
-            loadingText="Loading your simulations..."
-            emptyText="No simulations found for this collection."
+            loadingText="Loading your Episodes..."
+            emptyText="No Episodes found for this collection."
           />
         )}
       </div>
