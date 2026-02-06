@@ -16,3 +16,18 @@
   padding: 2rem;
   color: var(--color-text-secondary, #888);
 }
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .match-loader-grid {
+    gap: 0.65rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .match-loader-loading,
+  .match-loader-empty {
+    padding: 1.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+}

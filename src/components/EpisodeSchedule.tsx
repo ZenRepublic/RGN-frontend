@@ -31,7 +31,6 @@ export default function EpisodeSchedule({ collectionId, onError }: EpisodeSchedu
         endDate.setDate(today.getDate() + 7);
         endDate.setHours(23, 59, 59, 999);
 
-        console.log('EpisodeSchedule: Fetching episodes for range:', startDate.toISOString(), 'to', endDate.toISOString());
 
         const episodes = await fetchEpisodesByDateRange({
           startTimestamp: startDate.getTime(),
@@ -40,7 +39,6 @@ export default function EpisodeSchedule({ collectionId, onError }: EpisodeSchedu
           includeEpisodeData: true,
         });
 
-        console.log('EpisodeSchedule: Fetched', episodes.length, 'episodes total');
         setAllEpisodes(episodes);
       } catch (error) {
         console.error('EpisodeSchedule: Failed to fetch episodes:', error);
@@ -54,7 +52,6 @@ export default function EpisodeSchedule({ collectionId, onError }: EpisodeSchedu
   }, [collectionId]);
 
   const handleDateSelect = (timestamp: number) => {
-    console.log('EpisodeSchedule: Date selected:', new Date(timestamp).toISOString());
     setSelectedTimestamp(timestamp);
   };
 
@@ -73,7 +70,6 @@ export default function EpisodeSchedule({ collectionId, onError }: EpisodeSchedu
     );
   });
 
-  console.log('EpisodeSchedule: Filtered', selectedDayEpisodes.length, 'episodes for selected day');
 
   return (
     <div className="episode-schedule">

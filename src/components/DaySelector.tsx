@@ -82,7 +82,6 @@ const DaySelector: React.FC<DaySelectorProps> = ({ onDateSelect }) => {
       return;
     }
     const timestamp = date.getTime();
-    console.log('DaySelector: Date clicked:', formatDate(date), 'timestamp:', timestamp);
     setSelectedDate(timestamp);
     onDateSelect(timestamp);
 

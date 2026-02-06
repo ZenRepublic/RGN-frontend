@@ -75,12 +75,14 @@ export default function DioDudesOrderForm() {
     const isValid = actors.every(a => a.name.trim() !== '' && a.imageBlob !== null) && startTime !== null;
 
     if (isValid) {
+      console.log('Creating formData with actors:', actors.length);
       Promise.all(actors.map(a => blobToBase64(a.imageBlob!)))
         .then(base64Images => {
-          setFormData({
+          console.log('Base64 conversion successful, images:', base64Images.length);
+          const formDataToSet = {
             actors: actors.map((a, i) => ({
               name: a.name,
-              imageUrl: base64Images[i]
+              imageBuffer: base64Images[i]
             })),
             preview: actors.map(a => ({
               name: a.name,
@@ -88,7 +90,14 @@ export default function DioDudesOrderForm() {
             })),
             includes: INCLUDES,
             startTime
-          });
+          };
+          console.log('FormData actors array length:', formDataToSet.actors.length);
+          setFormData(formDataToSet);
+        })
+        .catch(err => {
+          console.error('Failed to convert images to base64:', err);
+          setError('Failed to process images. Please try again.');
+          setFormData(null);
         });
     } else {
       setFormData(null);

@@ -120,7 +120,7 @@ export default function CheckoutModal({
         body: JSON.stringify({
           signedTransaction,
           assetAddress,
-          actors: formData.actors,
+          actorData: formData.actors,
           startTime: formData.startTime
         })
       });

@@ -136,3 +136,79 @@
     transform: translateY(3px);
   }
 }
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .episode-schedule {
+    padding: 10px 0;
+  }
+
+  .tv-container {
+    border-width: 6px;
+    border-radius: 8px;
+    padding: 10px;
+    height: 500px;
+    box-shadow:
+      inset 0 0 20px rgba(0, 0, 0, 0.6),
+      inset 0 3px 8px rgba(255, 255, 255, 0.05),
+      0 6px 25px rgba(0, 0, 0, 0.9);
+  }
+
+  .tv-container::after {
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    height: 2px;
+  }
+
+  .tv-screen {
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow:
+      inset 0 0 40px rgba(100, 150, 255, 0.12),
+      0 0 15px rgba(150, 180, 255, 0.25);
+  }
+
+  @keyframes screen-glow {
+    0% {
+      box-shadow:
+        inset 0 0 30px rgba(80, 130, 255, 0.06),
+        0 0 10px rgba(130, 160, 255, 0.18);
+    }
+    15% {
+      box-shadow:
+        inset 0 0 50px rgba(140, 190, 255, 0.18),
+        0 0 22px rgba(200, 220, 255, 0.35);
+    }
+    22% {
+      box-shadow:
+        inset 0 0 35px rgba(90, 140, 255, 0.08),
+        0 0 12px rgba(140, 170, 255, 0.2);
+    }
+    38% {
+      box-shadow:
+        inset 0 0 55px rgba(150, 200, 255, 0.2),
+        0 0 28px rgba(210, 230, 255, 0.4);
+    }
+    50% {
+      box-shadow:
+        inset 0 0 40px rgba(100, 150, 255, 0.1),
+        0 0 14px rgba(150, 180, 255, 0.22);
+    }
+    67% {
+      box-shadow:
+        inset 0 0 60px rgba(160, 210, 255, 0.22),
+        0 0 32px rgba(220, 240, 255, 0.45);
+    }
+    80% {
+      box-shadow:
+        inset 0 0 38px rgba(95, 145, 255, 0.09),
+        0 0 13px rgba(145, 175, 255, 0.21);
+    }
+    100% {
+      box-shadow:
+        inset 0 0 30px rgba(80, 130, 255, 0.06),
+        0 0 10px rgba(130, 160, 255, 0.18);
+    }
+  }
+}

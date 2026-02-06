@@ -5,7 +5,7 @@ export interface EpisodeOrderFormData {
   // Actors for the order API
   actors: Array<{
     name: string;
-    imageUrl: string;
+    imageBuffer: string;
   }>;
   // Preview data for checkout modal (can include more visual info)
   preview: Array<{
