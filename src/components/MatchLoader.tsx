@@ -44,7 +44,13 @@ interface ByDateProps extends BaseProps {
   collectionId: string;
 }
 
-type MatchLoaderProps = ByIdsProps | ByOwnerProps | ByCollectionProps | ByDateProps;
+interface ByAssetsProps extends BaseProps {
+  mode: 'assets';
+  assets: MplEpisodeAsset[];
+  loading?: boolean;
+}
+
+type MatchLoaderProps = ByIdsProps | ByOwnerProps | ByCollectionProps | ByDateProps | ByAssetsProps;
 
 export default function MatchLoader(props: MatchLoaderProps) {
   const [assets, setAssets] = useState<MplEpisodeAsset[]>([]);
@@ -64,7 +70,20 @@ export default function MatchLoader(props: MatchLoaderProps) {
     ? `${props.ownerAddress}-${props.collectionId}`
     : '';
 
+  // Separate effect for 'assets' mode to properly react to prop changes
   useEffect(() => {
+    if (props.mode === 'assets') {
+      setAssets(props.assets);
+      setLoading(props.loading ?? false);
+    }
+  }, [props.mode === 'assets' ? props.assets : null, props.mode === 'assets' ? props.loading : null]);
+
+  useEffect(() => {
+    // Skip if in 'assets' mode - handled by separate effect above
+    if (props.mode === 'assets') {
+      return;
+    }
+
     fetchKeyRef.current = currentKey;
 
     const fetchData = async () => {
@@ -108,8 +127,7 @@ export default function MatchLoader(props: MatchLoaderProps) {
           if (fetchKeyRef.current !== currentKey) return;
 
           setAssets(fetchedAssets);
-        } else {
-          // mode === 'owner'
+        } else if (props.mode === 'owner') {
           const { ownerAddress, collectionId } = props;
 
           const fetchedAssets = await fetchEpisodes({
@@ -159,7 +177,7 @@ export default function MatchLoader(props: MatchLoaderProps) {
     );
   }
 
-  // mode === 'owner' or 'collection'
+  // mode === 'owner', 'collection', 'date', or 'assets'
   if (assets.length === 0) {
     return <div className="match-loader-empty">{emptyText}</div>;
   }

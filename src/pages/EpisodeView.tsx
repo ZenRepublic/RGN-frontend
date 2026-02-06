@@ -119,6 +119,11 @@ export default function EpisodeView() {
 
         <h1 className="episode-view-section-header">Episode Overview</h1>
 
+        <div className="episode-view-section-row">
+          <p className="episode-view-order-id">#{asset.orderId}</p>
+          <AssetInspector assetAddress={asset.id} />
+        </div>
+
         {asset.image && (
           <img
             className="episode-view-image"
@@ -126,11 +131,6 @@ export default function EpisodeView() {
             alt={asset.name}
           />
         )}
-
-        <div className="episode-view-section-row">
-          <p className="episode-view-order-id">#{asset.orderId}</p>
-          <AssetInspector assetAddress={asset.id} />
-        </div>
 
         {asset.episodeData?.actors && asset.episodeData.startTime && (
           <VotingSystem
@@ -158,15 +158,20 @@ export default function EpisodeView() {
             </button>
           </>
         ) : (
-          <div className="episode-view-pending">
-            <p>Video is still processing...</p>
-          </div>
+          // Only show "processing" message if voting has ended (startTime is in the past)
+          asset.episodeData?.startTime && new Date(asset.episodeData.startTime).getTime() < Date.now() && (
+            <div className="episode-view-pending">
+              <p>Video is still processing...</p>
+            </div>
+          )
         )}
       </div>
 
-      <p className="episode-view-share-text">
-        Feel free to share the match on your socials, and tag <span className="highlight">@RGN_Brainrot</span> if you want us to interact!
-      </p>
+      {asset.animationUrl && (
+        <p className="episode-view-share-text">
+          Feel free to share the match on your socials, and tag <span className="highlight">@RGN_Brainrot</span> if you want us to interact!
+        </p>
+      )}
 
       {/* Copy link toast for Android */}
       {showCopyToast && (

@@ -19,8 +19,35 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
   const [votedIndex, setVotedIndex] = useState<number | null>(null);
   const [voteCounts, setVoteCounts] = useState<number[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [timeRemaining, setTimeRemaining] = useState<number>(0);
 
-  const canVote = new Date(startTime).getTime() > Date.now();
+  const votingActive = new Date(startTime).getTime() > Date.now();
+
+  // Update countdown timer every second
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = Date.now();
+      const target = new Date(startTime).getTime();
+      const remaining = Math.max(0, target - now);
+      setTimeRemaining(remaining);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(interval);
+  }, [startTime]);
+
+  // Auto-clear error after 4 seconds
+  useEffect(() => {
+    if (error) {
+      const timeout = setTimeout(() => {
+        setError(null);
+      }, 4000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [error]);
 
   // Check if the user has already voted on this order and get current vote counts
   useEffect(() => {
@@ -96,22 +123,49 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
     }
   };
 
+  const formatCountdown = (milliseconds: number): string => {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${hours}h ${minutes.toString().padStart(2, '0')}min ${seconds.toString().padStart(2, '0')}sec`;
+  };
+
   if (loading) return null;
 
   return (
     <div className="voting-system">
+      {votingActive && (
+        <div className="voting-system-header">
+          <h2 className="voting-system-title">Vote and Win!</h2>
+          <p className="voting-system-description">
+            Give your favorite actor an edge by voting for them. If they win, you have a chance of winning some $RGN
+          </p>
+        </div>
+      )}
+
       {actors.map((actor, index) => (
         <ActorVoteEntry
           key={index}
           actor={actor}
           actorId={index + 1}
-          canVote={canVote && votedIndex === null && !voting}
+          canVote={votingActive && votedIndex === null && !voting}
           votedFor={votedIndex === index}
           voteCount={voteCounts?.[index]}
           onVote={() => handleVote(index)}
         />
       ))}
+
       {error && <p className="voting-system-error">{error}</p>}
+
+      {votingActive && timeRemaining > 0 && (
+        <div className="voting-countdown">
+          <div className="voting-countdown-label">Voting Ends In</div>
+          <div className="voting-countdown-timer">{formatCountdown(timeRemaining)}</div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -27,6 +27,21 @@ function formatStartTime(startTime: string | undefined): string {
   return `${datePart}, ${timePart}`;
 }
 
+function getEpisodeStatus(startTime: string | undefined): { text: string; type: 'voting' | 'completed' } {
+  if (!startTime) return { text: 'Voting Open', type: 'voting' };
+
+  const startDate = new Date(startTime);
+  const now = new Date();
+
+  if (isNaN(startDate.getTime())) return { text: 'Voting Open', type: 'voting' };
+
+  if (startDate > now) {
+    return { text: 'Voting Open', type: 'voting' };
+  } else {
+    return { text: 'Completed', type: 'completed' };
+  }
+}
+
 export default function MatchDisplay({ asset }: MatchDisplayProps) {
   const navigate = useNavigate();
 
@@ -43,12 +58,16 @@ export default function MatchDisplay({ asset }: MatchDisplayProps) {
   };
 
   const formattedTime = formatStartTime(episodeData?.startTime);
+  const status = getEpisodeStatus(episodeData?.startTime);
 
   return (
     <div className="match-display">
       <div className="match-display-header">
         <span className="match-display-time">{formattedTime}</span>
-        <span className="match-display-order-id">#{asset?.orderId}</span>
+        <span className={`match-display-status match-display-status--${status.type}`}>
+          <span className="match-display-status-dot"></span>
+          {status.text}
+        </span>
       </div>
 
       <div className="match-display-content">

@@ -6,13 +6,21 @@
 }
 
 .match-loader-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  height: 100%;
   padding: 2rem;
   color: var(--color-text-secondary, #888);
 }
 
 .match-loader-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  height: 100%;
   padding: 2rem;
   color: var(--color-text-secondary, #888);
 }

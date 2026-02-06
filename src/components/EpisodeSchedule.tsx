@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import DaySelector from './DaySelector';
-import MatchDisplay from './MatchDisplay';
+import MatchLoader from './MatchLoader';
 import { fetchEpisodesByDateRange, MplEpisodeAsset } from '@/utils/episodeFetcher';
 import './EpisodeSchedule.css';
 
@@ -78,17 +78,14 @@ export default function EpisodeSchedule({ collectionId, onError }: EpisodeSchedu
       <div className="episode-schedule-content">
         <div className="tv-container">
           <div className="tv-screen">
-            {loading ? (
-              <div className="match-loader-loading">Loading episodes...</div>
-            ) : selectedDayEpisodes.length === 0 ? (
-              <div className="match-loader-empty">No episodes scheduled for this day yet...</div>
-            ) : (
-              <div className="match-loader-grid">
-                {selectedDayEpisodes.map((episode) => (
-                  <MatchDisplay key={episode.id} asset={episode} />
-                ))}
-              </div>
-            )}
+            <MatchLoader
+              mode="assets"
+              assets={selectedDayEpisodes}
+              loading={loading}
+              loadingText="Loading episodes..."
+              emptyText="No episodes scheduled for this day yet..."
+              onError={onError}
+            />
           </div>
         </div>
       </div>
