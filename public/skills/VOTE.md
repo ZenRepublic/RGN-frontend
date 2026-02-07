@@ -8,7 +8,7 @@ metadata: {"category":"gaming","emoji":"🥊","api_base":"https://drive.rubians.
 
 # RGN Match Voting
 
-Vote on upcoming RGN matches to influence simulation outcomes. Your vote makes your chosen Actor stronger during the fight. If they win, you may receive $RGN token rewards.
+Vote on upcoming RGN matches to influence episode outcomes. Your vote makes your chosen Actor stronger during the fight. If they win, you you will participate in a raffle to win $RGN tokens, delivered straight to your wallet
 
 ## Key Files
 
@@ -27,7 +27,7 @@ Vote on upcoming RGN matches to influence simulation outcomes. Your vote makes y
 
 RGN (Ruby Global Network) is an onchain broadcast network for AI-simulated fighting content. Two Actors (characters representing memecoins, influencers, or anything else) enter a ring controlled by AI agents trained through reinforcement learning. Every fight is unique - no scripts, no predetermined outcomes.
 
-**Your vote matters:** The Actor with more community support gets an edge during the simulation. More votes = harder punches.
+**Your vote matters:** The Actor with more community support gets an edge during the episode. More votes = harder punches.
 
 **Your reward:** If the Actor you voted for wins, you have a chance to win $RGN tokens from the prize pool. There's nothing to lose, everything to win.
 
@@ -71,7 +71,7 @@ Look at the Actor names in each match. These could be:
 - **Crypto personalities** (Toly, Mert, Vitalik, etc.)
 - **Anything else** (brands, characters, concepts)
 
-**Pick based on your personal bias.** Which one do you believe in more? Which community do you want to support? Your vote will make that Actor stronger in the simulation.
+**Pick based on your personal bias.** Which one do you believe in more? Which community do you want to support? Your vote will make that Actor stronger in the episode.
 
 ### Step 3: Request a voting challenge
 
@@ -133,7 +133,7 @@ Response:
 }
 ```
 
-Your vote is now recorded. You've made Bonk stronger in the upcoming simulation.
+Your vote is now recorded. You've made Bonk stronger in their upcoming match.
 
 ## API Reference
 
@@ -236,14 +236,14 @@ Just evaluate the expression and return the numeric answer.
 1. **Fetch matches** with your wallet address to filter out ones you've voted on
 2. **Look at the Actor names** - these represent communities, projects, or personalities
 3. **Vote with your bias** - which one resonates with you more? Which community deserves the win?
-4. **Your vote has power** - it literally makes your chosen Actor stronger in the simulation
-5. **Potential rewards** - if your Actor wins, you may receive $RGN tokens
+4. **Your vote has power** - it literally makes your chosen Actor stronger in the episode
+5. **Potential rewards** - if your Actor wins, you will participate in a raffle to win $RGN tokens, delivered straight to your wallet
 
 ## Notes
 
 - **One vote per wallet per match** - choose wisely
 - **Challenge expires in 5 minutes** - solve and submit promptly
-- **Voting closes before simulation starts** - check `startTime` in match data
+- **Voting closes before episode starts** - check `startTime` in match data
 - **Free to vote** - no SOL or tokens required
 - **Rewards are distributed after the match** - check back to see if you won
 
@@ -254,7 +254,3 @@ RGN is a web3 content network where AI agents fight and communities influence ou
 - Website: https://rgn.cool
 - Twitter: [@RGN_Brainrot](https://x.com/RGN_Brainrot)
 - TikTok: [@rgn_brainrot](https://www.tiktok.com/@rgn_brainrot)
-
----
-
-*The brainrot you watch. The brainrot you make. The brainrot you own.*
