@@ -62,53 +62,60 @@ export default function RegistrationView() {
       <Header />
 
       <div className="registration-container">
-        <div className="registration-card">
-          <div className="account-registration">
-            <div className="registration-form">
-              <div className="form-header">
-                <h2>No Account Found...</h2>
-                <ConnectWalletButton />
-              </div>
-              <p className="instruction">
-                Sign a message with your wallet to verify ownership and create your account.
+        <div className="registration-header">
+          <h1>Join us!</h1>
+          <ConnectWalletButton />
+        </div>
+
+        <div className="registration-image-section">
+          <img
+            src={step.status === 'success' ? '/RegisterSuccess.jpg' : '/JoinNow.jpg'}
+            alt={step.status === 'success' ? 'Registration Success' : 'Join Now'}
+            className="registration-image"
+          />
+        </div>
+
+        <div className="registration-form">
+          {step.status !== 'success' && (
+            <p className="instruction">
+              Sign a message with your wallet to verify ownership and create your account.
+            </p>
+          )}
+
+          {step.status !== 'idle' && step.status !== 'error' && step.status !== 'success' && (
+            <div className={`status-section ${step.status}`}>
+              <p className="status-message">
+                {getStatusMessage(step.status, step.error)}
               </p>
-
-              {step.status !== 'idle' && step.status !== 'error' && step.status !== 'success' && (
-                <div className={`status-section ${step.status}`}>
-                  <p className="status-message">
-                    {getStatusMessage(step.status, step.error)}
-                  </p>
-                </div>
-              )}
-
-              {step.status === 'error' && (
-                <p className={`error-message ${fadeOutError ? 'fade-out' : ''}`}>
-                  {step.error || 'Registration failed'}
-                </p>
-              )}
-
-              {(step.status === 'idle' || step.status === 'error') && (
-                <button
-                  className="register-button"
-                  onClick={handleRegister}
-                >
-                  Register
-                </button>
-              )}
-
-              {step.status === 'success' && (
-                <div className="success-section">
-                  <p className="success-message">✓ Account created successfully!</p>
-                  <button
-                    className="close-button"
-                    onClick={handleSuccess}
-                  >
-                    View Account
-                  </button>
-                </div>
-              )}
             </div>
-          </div>
+          )}
+
+          {step.status === 'error' && (
+            <p className={`error-message ${fadeOutError ? 'fade-out' : ''}`}>
+              {step.error || 'Registration failed'}
+            </p>
+          )}
+
+          {(step.status === 'idle' || step.status === 'error') && (
+            <button
+              className="register-button"
+              onClick={handleRegister}
+            >
+              Register Now!
+            </button>
+          )}
+
+          {step.status === 'success' && (
+            <div className="success-section">
+              <p className="success-message">✓ Account created successfully!</p>
+              <button
+                className="close-button"
+                onClick={handleSuccess}
+              >
+                View Account
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

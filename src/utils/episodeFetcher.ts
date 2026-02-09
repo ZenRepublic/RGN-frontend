@@ -278,20 +278,15 @@ export async function fetchEpisodesByDate({
 }: FetchEpisodesByDateOptions): Promise<MplEpisodeAsset[]> {
   const cacheKey = `date:${timestamp}:${collectionId}`;
 
-  console.log('fetchEpisodesByDate: Called with timestamp:', timestamp, 'date:', new Date(timestamp).toISOString(), 'collectionId:', collectionId);
-
   // Check query cache
   const cachedIds = queryCache.get(cacheKey);
   if (cachedIds) {
-    console.log('fetchEpisodesByDate: Using cached data, found', cachedIds.length, 'episodes');
     return getAssetsFromCache(cachedIds);
   }
 
   // Step 1: Fetch orders from database by date
   const date = new Date(timestamp);
   const dateStr = date.toISOString();
-
-  console.log('fetchEpisodesByDate: Fetching orders from API:', `${API_URL}/rgn/orders/by-day/${dateStr}`);
 
   const response = await fetch(`${API_URL}/rgn/orders/by-day/${dateStr}`, {
     method: 'GET',
@@ -302,7 +297,6 @@ export async function fetchEpisodesByDate({
 
   const data = await response.json();
 
-  console.log('fetchEpisodesByDate: API response:', data);
 
   if (!data.success) {
     console.error('Failed to fetch orders by date:', data.error);
@@ -311,29 +305,21 @@ export async function fetchEpisodesByDate({
 
   const orders = data.orders || [];
 
-  console.log('fetchEpisodesByDate: Found', orders.length, 'orders');
-
   // Step 2: Extract NFT addresses from orders
   const nftAddresses = orders
     .map((order: any) => order.nftAddress)
     .filter((addr: string | undefined) => addr !== undefined && addr !== null);
 
-  console.log('fetchEpisodesByDate: Extracted', nftAddresses.length, 'NFT addresses:', nftAddresses);
-
   if (nftAddresses.length === 0) {
-    console.log('fetchEpisodesByDate: No NFT addresses found, returning empty array');
     return [];
   }
 
   // Step 3: Fetch full episode data from Helius using the NFT addresses
-  console.log('fetchEpisodesByDate: Fetching full episode data from Helius');
   const { assets } = await fetchEpisodesByIds({
     assetIds: nftAddresses,
     cacheKey,
     includeEpisodeData,
   });
-
-  console.log('fetchEpisodesByDate: Returning', assets.length, 'episodes');
 
   return assets;
 }
@@ -346,20 +332,15 @@ export async function fetchEpisodesByDateRange({
 }: FetchEpisodesByDateRangeOptions): Promise<MplEpisodeAsset[]> {
   const cacheKey = `dateRange:${startTimestamp}-${endTimestamp}:${collectionId}`;
 
-  console.log('fetchEpisodesByDateRange: Called with range:', new Date(startTimestamp).toISOString(), 'to', new Date(endTimestamp).toISOString());
-
   // Check query cache
   const cachedIds = queryCache.get(cacheKey);
   if (cachedIds) {
-    console.log('fetchEpisodesByDateRange: Using cached data, found', cachedIds.length, 'episodes');
     return getAssetsFromCache(cachedIds);
   }
 
   // Fetch orders from database by date range
   const startDate = new Date(startTimestamp).toISOString();
   const endDate = new Date(endTimestamp).toISOString();
-
-  console.log('fetchEpisodesByDateRange: Fetching orders from API:', `${API_URL}/rgn/orders/by-range?start=${startDate}&end=${endDate}`);
 
   const response = await fetch(`${API_URL}/rgn/orders/by-range?start=${startDate}&end=${endDate}`, {
     method: 'GET',
@@ -370,31 +351,23 @@ export async function fetchEpisodesByDateRange({
 
   const data = await response.json();
 
-  console.log('fetchEpisodesByDateRange: API response:', data);
-
   if (!data.success) {
-    console.error('Failed to fetch orders by date range:', data.error);
     return [];
   }
 
   const orders = data.orders || [];
 
-  console.log('fetchEpisodesByDateRange: Found', orders.length, 'orders');
 
   // Extract NFT addresses from orders
   const nftAddresses = orders
     .map((order: any) => order.nftAddress)
     .filter((addr: string | undefined) => addr !== undefined && addr !== null);
 
-  console.log('fetchEpisodesByDateRange: Extracted', nftAddresses.length, 'NFT addresses');
-
   if (nftAddresses.length === 0) {
-    console.log('fetchEpisodesByDateRange: No NFT addresses found, returning empty array');
     return [];
   }
 
   // Fetch full episode data from Helius using the NFT addresses
-  console.log('fetchEpisodesByDateRange: Fetching full episode data from Helius');
   const { assets } = await fetchEpisodesByIds({
     assetIds: nftAddresses,
     cacheKey,

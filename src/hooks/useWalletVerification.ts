@@ -22,7 +22,7 @@ export function useWalletVerification() {
     const walletAddress = publicKey.toBase58();
 
     // Step 1: Get challenge from server
-    const challengeRes = await fetch(`${API_URL}/verification/challenge`, {
+    const challengeRes = await fetch(`${API_URL}/rgn/verification/challenge`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ walletAddress }),
