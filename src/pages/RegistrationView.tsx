@@ -78,7 +78,7 @@ export default function RegistrationView() {
         <div className="registration-form">
           {step.status !== 'success' && (
             <p className="instruction">
-              Sign a message with your wallet to verify ownership and create your account.
+              Sign a message with your wallet to verify ownership and create your RGN account.
             </p>
           )}
 

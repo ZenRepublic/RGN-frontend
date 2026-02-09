@@ -3,6 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletVerification } from '@/hooks/useWalletVerification';
 import { Actor } from '@/utils/episodeFetcher';
 import { ActorVoteEntry } from '@/components/ActorVoteEntry';
+import { useAccountStatus } from '@/hooks/useAccountStatus';
 import './VotingSystem.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
@@ -15,6 +16,7 @@ interface VotingSystemProps {
 
 export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) {
   const { publicKey, connected } = useWallet();
+  const { hasAccount, loading: accountLoading } = useAccountStatus();
   const { verify } = useWalletVerification();
   const [voting, setVoting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +57,17 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
   useEffect(() => {
     if (!connected || !publicKey) {
       setLoading(false);
+      return;
+    }
+
+    // 👇 THIS is the part you’re asking about
+    if (accountLoading) {
+      setError('Checking account status...');
+      return;
+    }
+
+    if (!hasAccount) {
+      setError('You must create an account before voting');
       return;
     }
 
