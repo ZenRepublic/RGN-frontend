@@ -1,53 +1,117 @@
 import { useNavigate } from 'react-router-dom';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { ConnectWalletButton } from './ConnectWalletButton';
-import MatchLoader from './MatchLoader';
+import { MplEpisodeAsset } from '@/utils/episodeFetcher';
+import { storeToCache } from '@/pages/EpisodeView';
 import './EpisodeDisplay.css';
 
 interface EpisodeDisplayProps {
-  collectionId: string;
-  orderUrl?: string;
-  onError?: (message: string) => void;
-  onLoadComplete?: () => void;
+  asset: MplEpisodeAsset | undefined;
 }
 
-export default function EpisodeDisplay({ collectionId, orderUrl, onError, onLoadComplete }: EpisodeDisplayProps) {
+function formatStartTime(startTime: string | undefined): string {
+  if (!startTime) return '';
+
+  const date = new Date(startTime);
+  if (isNaN(date.getTime())) return '';
+
+  const datePart = date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric'
+  }).toUpperCase();
+
+  const timePart = date.toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  }).replace(' ', '');
+
+  return `${datePart}, ${timePart}`;
+}
+
+function getEpisodeStatus(startTime: string | undefined): { text: string; type: 'voting' | 'completed' } {
+  if (!startTime) return { text: 'Voting Open', type: 'voting' };
+
+  const startDate = new Date(startTime);
+  const now = new Date();
+
+  if (isNaN(startDate.getTime())) return { text: 'Voting Open', type: 'voting' };
+
+  if (startDate > now) {
+    return { text: 'Voting Open', type: 'voting' };
+  } else {
+    return { text: 'Completed', type: 'completed' };
+  }
+}
+
+export default function EpisodeDisplay({ asset }: EpisodeDisplayProps) {
   const navigate = useNavigate();
-  const { connected, publicKey } = useWallet();
+
+  const episodeData = asset?.episodeData;
+  const actors = episodeData?.actors || [];
+  const actor1 = actors[0];
+  const actor2 = actors[1];
+
+  const handleView = () => {
+    if (asset) {
+      storeToCache(asset);
+      navigate(`/episode/${asset.orderId}`);
+    }
+  };
+
+  const formattedTime = formatStartTime(episodeData?.startTime);
+  const status = getEpisodeStatus(episodeData?.startTime);
 
   return (
-    <>
-      <div className="episode-display">
-        {orderUrl && (
-          <div className="episode-display-header">
-            <button
-              className="episode-display-new-order-btn"
-              onClick={() => navigate(orderUrl)}
-            >
-              + Create New
-            </button>
-          </div>
-        )}
-
-        {!connected || !publicKey ? (
-          <div className="episode-display-wallet-prompt">
-            <h2>Connect Your Wallet to Proceed</h2>
-            <div className="episode-display-wallet-button">
-              <ConnectWalletButton />
-            </div>
-          </div>
-        ) : (
-          <MatchLoader
-            mode="owner"
-            ownerAddress={publicKey.toBase58()}
-            collectionId={collectionId}
-            onError={onError}
-            onLoadComplete={onLoadComplete}
-            loadingText="Loading your Episodes..."
-            emptyText="No Episodes found for this collection."
-          />
-        )}
+    <div className="match-display">
+      <div className="match-display-header">
+        <span className="match-display-time">{formattedTime}</span>
+        <span className={`match-display-status match-display-status--${status.type}`}>
+          <span className="match-display-status-dot"></span>
+          {status.text}
+        </span>
       </div>
-    </>
+
+      <div className="match-display-content">
+        <div className="match-display-actor match-display-actor--left">
+          {actor1 ? (
+            <>
+              <span className="match-display-actor-name">{actor1.name}</span>
+              <img
+                src={actor1.imageUrl}
+                alt={actor1.name}
+                className="match-display-actor-img"
+              />
+            </>
+          ) : (
+            <div className="match-display-actor-placeholder" />
+          )}
+        </div>
+
+        <div className="match-display-center">
+          <span className="match-display-vs">VS</span>
+          <button
+            className="match-display-view-btn"
+            onClick={handleView}
+            disabled={!asset}
+          >
+            View Episode
+          </button>
+        </div>
+
+        <div className="match-display-actor match-display-actor--right">
+          {actor2 ? (
+            <>
+              <span className="match-display-actor-name">{actor2.name}</span>
+              <img
+                src={actor2.imageUrl}
+                alt={actor2.name}
+                className="match-display-actor-img"
+              />
+            </>
+          ) : (
+            <div className="match-display-actor-placeholder" />
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

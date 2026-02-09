@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletVerification } from '@/hooks/useWalletVerification';
 import { Actor } from '@/utils/episodeFetcher';
 import { ActorVoteEntry } from '@/components/ActorVoteEntry';
 import './VotingSystem.css';
@@ -14,6 +15,7 @@ interface VotingSystemProps {
 
 export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) {
   const { publicKey, connected } = useWallet();
+  const { verify } = useWalletVerification();
   const [voting, setVoting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [votedIndex, setVotedIndex] = useState<number | null>(null);
@@ -95,13 +97,17 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
     setError(null);
 
     try {
+      // Get verification data (challenge, sign message, return signature)
+      const verificationData = await verify();
+
+      // Cast vote with all verification data
       const response = await fetch(`${API_URL}/rgn/episodes/vote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderId,
           actorIndex,
-          walletAddress: publicKey.toBase58(),
+          ...verificationData,
         }),
       });
 
@@ -116,8 +122,8 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
       if (data.voteCounts) {
         setVoteCounts(data.voteCounts);
       }
-    } catch {
-      setError('Failed to cast vote');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to cast vote');
     } finally {
       setVoting(false);
     }

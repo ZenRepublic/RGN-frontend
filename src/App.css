@@ -145,6 +145,37 @@ select:focus {
   flex: 0 0 auto;
 }
 
+.header-links {
+  display: flex;
+  justify-content: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-left: 16px;
+  width: 100%;
+}
+
+.header-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.header-links a:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+.header-links .litepaper-btn img {
+  height: 36px;
+  width: auto;
+}
+
+.header-links .pumpswap-btn img {
+  height: 36px;
+  width: auto;
+}
+
 .social-links {
   display: flex;
   justify-content: flex-start;

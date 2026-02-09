@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import MatchDisplay from './MatchDisplay';
+import EpisodeDisplay from './EpisodeDisplay';
 import {
   fetchEpisodesByIds,
   fetchEpisodes,
@@ -7,7 +7,7 @@ import {
   fetchEpisodesByDate,
   MplEpisodeAsset,
 } from '@/utils/episodeFetcher';
-import './MatchLoader.css';
+import './EpisodeLoader.css';
 
 // Re-export types for convenience
 export type { MplEpisodeAsset, EpisodeData, Actor } from '@/utils/episodeFetcher';
@@ -50,9 +50,9 @@ interface ByAssetsProps extends BaseProps {
   loading?: boolean;
 }
 
-type MatchLoaderProps = ByIdsProps | ByOwnerProps | ByCollectionProps | ByDateProps | ByAssetsProps;
+type EpisodeLoaderProps = ByIdsProps | ByOwnerProps | ByCollectionProps | ByDateProps | ByAssetsProps;
 
-export default function MatchLoader(props: MatchLoaderProps) {
+export default function EpisodeLoader(props: EpisodeLoaderProps) {
   const [assets, setAssets] = useState<MplEpisodeAsset[]>([]);
   const [assetMap, setAssetMap] = useState<Map<string, MplEpisodeAsset>>(new Map());
   const [loading, setLoading] = useState(false);
@@ -171,7 +171,7 @@ export default function MatchLoader(props: MatchLoaderProps) {
     return (
       <div className={gridClass}>
         {props.assetIds.map((id, index) => (
-          <MatchDisplay key={index} asset={assetMap.get(id)} />
+          <EpisodeDisplay key={index} asset={assetMap.get(id)} />
         ))}
       </div>
     );
@@ -185,7 +185,7 @@ export default function MatchLoader(props: MatchLoaderProps) {
   return (
     <div className={gridClass}>
       {assets.map((asset) => (
-        <MatchDisplay key={asset.id} asset={asset} />
+        <EpisodeDisplay key={asset.id} asset={asset} />
       ))}
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import MatchLoader from './MatchLoader';
+import EpisodeLoader from './EpisodeLoader';
 import './Tournament.css';
 
 interface TournamentStages {
@@ -69,7 +69,7 @@ export default function Tournament({ tournament }: TournamentProps) {
             </button>
           </div>
 
-          <MatchLoader
+          <EpisodeLoader
             mode="ids"
             assetIds={currentStage[1].matches}
             cacheKey={tournament._id}

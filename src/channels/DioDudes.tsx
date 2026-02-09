@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { ChannelProps } from './channel';
 import { useIsInAppWalletBrowser } from '@/utils/walletUtils';
-import EpisodeDisplay from '@/components/EpisodeDisplay';
 import EpisodeSchedule from '@/components/EpisodeSchedule';
 import './DioDudes.css';
 
@@ -40,8 +39,7 @@ export default function DioDudes({ onError }: ChannelProps) {
   const { connected, publicKey } = useWallet();
   const inWalletBrowser = useIsInAppWalletBrowser();
   const [videoError, setVideoError] = useState(false);
-  const [activeTab, setActiveTab] = useState<'schedule' | 'my-sims'>('schedule');
-  const [isTabLoading, setIsTabLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'schedule' | 'tournaments'>('schedule');
 
   const isWhitelisted = useMemo(() => {
     if (!connected || !publicKey) return false;
@@ -49,15 +47,8 @@ export default function DioDudes({ onError }: ChannelProps) {
     return whitelistIds.includes(publicKey.toBase58().toLowerCase());
   }, [connected, publicKey]);
 
-  const handleTabChange = (tab: 'schedule' | 'my-sims') => {
-    // Hide video while new tab loads (releases GPU resources)
-    setIsTabLoading(true);
+  const handleTabChange = (tab: 'schedule' | 'tournaments') => {
     setActiveTab(tab);
-  };
-
-  const handleTabLoaded = () => {
-    // Show video again after tab finishes loading
-    setIsTabLoading(false);
   };
 
   return (
@@ -66,7 +57,7 @@ export default function DioDudes({ onError }: ChannelProps) {
         <p>
           1v1 Boxing match between AI agents, trained to kick their opponent's ass with physics-based punches!
         </p>
-        {!inWalletBrowser && !isTabLoading && (
+        {!inWalletBrowser && (
           <div className="video-container">
             {!videoError ? (
               <video
@@ -97,11 +88,11 @@ export default function DioDudes({ onError }: ChannelProps) {
         </button>
 
         <button
-          className={`tab-button ${activeTab === 'my-sims' ? 'active' : ''}`}
-          onClick={() => handleTabChange('my-sims')}
+          className={`tab-button ${activeTab === 'tournaments' ? 'active' : ''}`}
+          onClick={() => handleTabChange('tournaments')}
           disabled={!isWhitelisted}
         >
-          My Sims
+          Tournaments
         </button>
       </div>
 
@@ -112,13 +103,10 @@ export default function DioDudes({ onError }: ChannelProps) {
         />
       )}
 
-      {activeTab === 'my-sims' && (
-        <EpisodeDisplay
-          collectionId={getCollectionAddress()}
-          orderUrl="/diodudes/order"
-          onError={onError}
-          onLoadComplete={handleTabLoaded}
-        />
+      {activeTab === 'tournaments' && (
+        <div className="tournaments-section">
+          <p>Tournaments coming soon...</p>
+        </div>
       )}
     </>
   );

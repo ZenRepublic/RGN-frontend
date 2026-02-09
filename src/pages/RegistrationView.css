@@ -1,0 +1,217 @@
+/* Page Layout */
+.registration-view {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+  color: #e5e7eb;
+}
+
+.registration-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.registration-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.registration-header .back-button {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: #10b981;
+  border: 1px solid #10b981;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  flex: 0 0 auto;
+}
+
+.registration-header .back-button:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.registration-header .back-button:active {
+  transform: scale(0.98);
+}
+
+.registration-card {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 0.5rem;
+  padding: 2rem;
+}
+
+@media (max-width: 640px) {
+  .registration-container {
+    padding: 1rem;
+  }
+
+  .registration-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .registration-card {
+    padding: 1.5rem;
+  }
+}
+
+.account-registration {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Registration Form */
+.registration-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.registration-form h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #10b981;
+}
+
+.instruction {
+  color: #9ca3af;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.status-section {
+  padding: 1rem;
+  border-radius: 0.375rem;
+  background: rgba(0, 0, 0, 0.2);
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-message {
+  margin: 0;
+  text-align: center;
+  color: #e5e7eb;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.status-message.error {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border-left: 3px solid #ef4444;
+}
+
+.status-message.success {
+  color: #10b981;
+}
+
+.register-button,
+.retry-button,
+.close-button {
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.register-button {
+  background: #10b981;
+  color: #000;
+}
+
+.register-button:hover:not(:disabled) {
+  background: #059669;
+  transform: scale(1.02);
+}
+
+.register-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.register-button:disabled,
+.register-button.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.retry-button {
+  background: transparent;
+  color: #10b981;
+  border: 1px solid #10b981;
+}
+
+.retry-button:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.retry-button:active {
+  transform: scale(0.98);
+}
+
+.success-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.success-message {
+  text-align: center;
+  color: #10b981;
+  font-weight: 600;
+  margin: 0;
+}
+
+.close-button {
+  background: #10b981;
+  color: #000;
+}
+
+.close-button:hover {
+  background: #059669;
+}
+
+.close-button:active {
+  transform: scale(0.98);
+}
+
+/* Error Message */
+.error-message {
+  color: #ef4444;
+  text-align: center;
+  font-size: 0.95rem;
+  margin: 0;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.error-message.fade-out {
+  opacity: 0;
+}

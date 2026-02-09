@@ -5,6 +5,10 @@ import { QuickBuy } from '@/components/QuickBuy';
 import { CHANNELS } from './channels';
 import './App.css';
 
+const TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS;
+const SOL_ADDRESS = 'So11111111111111111111111111111111111111112';
+const PUMPSWAP_URL = `https://swap.pump.fun/?output=${TOKEN_ADDRESS}&input=${SOL_ADDRESS}`;
+
 function App() {
   const [activeChannelId, setActiveChannelId] = useState(CHANNELS[0]?.id || '');
   const [error, setError] = useState('');
@@ -22,31 +26,32 @@ function App() {
 
       <header>
         <img src="/BannerWithLogo.png" alt="RGN Banner" className="banner" />
-        <div className="social-links">
+        <div className="header-links">
           <a
-            href="https://x.com/RGN_Brainrot"
+            href="https://hackmd.io/@8M-xMt20QZyakYyaxdBBTA/SJrR9h2IZe"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Follow us on X"
+            className="litepaper-btn"
+            aria-label="View Litepaper"
           >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-            </svg>
+            <img src="/Icons/LitepaperIcon.png" alt="Litepaper" className="litepaper-icon" />
           </a>
           <a
-            href="https://www.tiktok.com/@rgn_brainrot"
+            href={TOKEN_ADDRESS ? PUMPSWAP_URL : undefined}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Follow us on TikTok"
+            className={`pumpswap-btn ${!TOKEN_ADDRESS ? 'disabled' : ''}`}
+            onClick={e => !TOKEN_ADDRESS && e.preventDefault()}
+            aria-label="Buy on PumpSwap"
+            aria-disabled={!TOKEN_ADDRESS}
           >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
-            </svg>
+            <img src="/Logos/pumpfun_logo.png" alt="PumpSwap" className="pumpswap-icon" />
           </a>
         </div>
         <h1>Unleash The Brainrot!</h1>
         <p>RGN is the world's first  <span className="highlight">onchain brainrot</span> broadcast network. <br /><br /> Select one of available channels, drop your favorite characters in and watch them compete for eternal glory on Solana!</p>
       </header>
+      
 
       <div className="tab-group">
         {CHANNELS.map(channel => (

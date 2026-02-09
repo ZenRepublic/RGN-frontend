@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import DaySelector from './DaySelector';
-import MatchLoader from './MatchLoader';
+import EpisodeLoader from './EpisodeLoader';
 import { fetchEpisodesByDateRange, MplEpisodeAsset } from '@/utils/episodeFetcher';
 import './EpisodeSchedule.css';
 
@@ -78,7 +78,7 @@ export default function EpisodeSchedule({ collectionId, onError }: EpisodeSchedu
       <div className="episode-schedule-content">
         <div className="tv-container">
           <div className="tv-screen">
-            <MatchLoader
+            <EpisodeLoader
               mode="assets"
               assets={selectedDayEpisodes}
               loading={loading}
