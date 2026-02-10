@@ -32,6 +32,7 @@ import AccountView from './pages/AccountView';
 import RegistrationView from './pages/RegistrationView';
 import DioDudesOrderForm from './channels/DioDudesOrderForm';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
+import { AccountProvider } from './context/AccountContext';
 
 import './index.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -100,14 +101,16 @@ createRoot(container).render(
   <StrictMode>
     <BrowserRouter>
       <WalletContextProvider>
-        <Routes>
-          <Route path="/" element={<App />} />
-          <Route path="/order-success" element={<OrderSuccess />} />
-          <Route path="/episode/:orderId" element={<EpisodeView />} />
-          <Route path="/account" element={<AccountView />} />
-          <Route path="/registration" element={<RegistrationView />} />
-          <Route path="/diodudes/order" element={<DioDudesOrderForm />} />
-        </Routes>
+        <AccountProvider>
+          <Routes>
+            <Route path="/" element={<App />} />
+            <Route path="/order-success" element={<OrderSuccess />} />
+            <Route path="/episode/:orderId" element={<EpisodeView />} />
+            <Route path="/account" element={<AccountView />} />
+            <Route path="/registration" element={<RegistrationView />} />
+            <Route path="/diodudes/order" element={<DioDudesOrderForm />} />
+          </Routes>
+        </AccountProvider>
       </WalletContextProvider>
     </BrowserRouter>
   </StrictMode>

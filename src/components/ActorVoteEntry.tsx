@@ -6,11 +6,12 @@ interface ActorVoteEntryProps {
   actorId: number;
   canVote?: boolean;
   votedFor?: boolean;
+  showVotes?: boolean;
   voteCount?: number;
   onVote?: () => void;
 }
 
-export function ActorVoteEntry({ actor, actorId, canVote, votedFor, voteCount, onVote }: ActorVoteEntryProps) {
+export function ActorVoteEntry({ actor, actorId, canVote, votedFor, showVotes, voteCount, onVote }: ActorVoteEntryProps) {
   return (
     <div className={`actor-vote-entry${votedFor ? ' actor-vote-entry--voted' : ''}`}>
       <img
@@ -22,15 +23,15 @@ export function ActorVoteEntry({ actor, actorId, canVote, votedFor, voteCount, o
         <span className="actor-vote-entry-id">Actor {actorId}</span>
         <span className="actor-vote-entry-name">{actor.name}</span>
       </div>
-      {canVote ? (
-        <button className="actor-vote-entry-btn" onClick={onVote}>
-          Choose
-        </button>
-      ) : (
+      {showVotes ? (
         <div className="actor-vote-entry-votes">
           <span className="actor-vote-entry-votes-label">Total Votes</span>
           <span className="actor-vote-entry-votes-count">{voteCount ?? actor.votes}</span>
         </div>
+      ) : (
+        <button className="actor-vote-entry-btn" onClick={onVote} disabled={!canVote}>
+          Choose
+        </button>
       )}
     </div>
   );

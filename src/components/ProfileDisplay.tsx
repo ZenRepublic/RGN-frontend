@@ -6,6 +6,11 @@ interface ProfileDisplayProps {
     avatar: string | null;
     displayName: string;
     createdAt: string;
+    stats?: {
+      totalVotes: number;
+      correctVotes: number;
+      winRate: number;
+    };
   } | null;
 }
 
@@ -28,23 +33,41 @@ export function ProfileDisplay({ loading, account }: ProfileDisplayProps) {
       )}
 
       {!loading && account && (
-        <div className="profile-container">
-          <div className="profile-image-section">
-            <img
-              src={account.avatar || '/mystery-actor.png'}
-              alt={account.displayName}
-              className="profile-image"
-              onError={(e) => {
-                e.currentTarget.src = '/mystery-actor.png';
-              }}
-            />
+        <>
+          <div className="profile-top">
+            <div className="profile-image-section">
+              <img
+                src={account.avatar || '/mystery-actor.png'}
+                alt={account.displayName}
+                className="profile-image"
+                onError={(e) => {
+                  e.currentTarget.src = '/mystery-actor.png';
+                }}
+              />
+            </div>
+
+            <div className="profile-info-section">
+              <h2 className="profile-username">{account.displayName}</h2>
+              <p className="profile-joined">Joined {formatDate(account.createdAt)}</p>
+            </div>
           </div>
 
-          <div className="profile-info-section">
-            <h2 className="profile-username">{account.displayName}</h2>
-            <p className="profile-joined">Joined {formatDate(account.createdAt)}</p>
-          </div>
-        </div>
+          {account.stats && (
+            <>
+              <div className="profile-divider" />
+              <div className="profile-stats">
+                <div className="stat-column">
+                  <div className="stat-value">{Math.round(account.stats.winRate * 100)}%</div>
+                  <div className="stat-label">Win Rate</div>
+                </div>
+                <div className="stat-column">
+                  <div className="stat-value">{account.stats.totalVotes}</div>
+                  <div className="stat-label">Total Votes</div>
+                </div>
+              </div>
+            </>
+          )}
+        </>
       )}
     </div>
   );

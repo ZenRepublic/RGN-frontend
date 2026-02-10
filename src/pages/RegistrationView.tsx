@@ -4,12 +4,14 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Header } from '@/components/Header';
 import { ConnectWalletButton } from '@/components/ConnectWalletButton';
 import { useWalletRegistration } from '@/hooks/useWalletRegistration';
+import { useAccount } from '@/context/AccountContext';
 import './RegistrationView.css';
 
 export default function RegistrationView() {
   const navigate = useNavigate();
   const { connected } = useWallet();
   const { register, step, reset } = useWalletRegistration();
+  const { setAccount } = useAccount();
   const [fadeOutError, setFadeOutError] = useState(false);
 
   useEffect(() => {
@@ -17,6 +19,16 @@ export default function RegistrationView() {
       navigate('/', { replace: true });
     }
   }, [connected, navigate]);
+
+  // Navigate to account on successful registration
+  useEffect(() => {
+    if (step.status === 'success') {
+      if (step.account) {
+        setAccount(step.account);
+      }
+      navigate('/account', { replace: true });
+    }
+  }, [step.status, step.account, navigate, setAccount]);
 
   // Handle error timeout and fade out
   useEffect(() => {
@@ -39,11 +51,6 @@ export default function RegistrationView() {
       setFadeOutError(false);
     }
   }, [step.status, reset]);
-
-  const handleSuccess = () => {
-    reset();
-    navigate('/account', { replace: true });
-  };
 
   const handleRegister = () => {
     if (step.status === 'error') {
@@ -69,8 +76,8 @@ export default function RegistrationView() {
 
         <div className="registration-image-section">
           <img
-            src={step.status === 'success' ? '/RegisterSuccess.jpg' : '/JoinNow.jpg'}
-            alt={step.status === 'success' ? 'Registration Success' : 'Join Now'}
+            src="/JoinNow.jpg"
+            alt="Join Now"
             className="registration-image"
           />
         </div>
@@ -103,18 +110,6 @@ export default function RegistrationView() {
             >
               Register Now!
             </button>
-          )}
-
-          {step.status === 'success' && (
-            <div className="success-section">
-              <p className="success-message">✓ Account created successfully!</p>
-              <button
-                className="close-button"
-                onClick={handleSuccess}
-              >
-                View Account
-              </button>
-            </div>
           )}
         </div>
       </div>

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletVerification } from '@/hooks/useWalletVerification';
+import { useAccount } from '@/context/AccountContext';
 import { Actor } from '@/utils/episodeFetcher';
 import { ActorVoteEntry } from '@/components/ActorVoteEntry';
-import { useAccountStatus } from '@/hooks/useAccountStatus';
 import './VotingSystem.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
@@ -15,9 +15,9 @@ interface VotingSystemProps {
 }
 
 export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) {
-  const { publicKey, connected } = useWallet();
-  const { hasAccount, loading: accountLoading } = useAccountStatus();
+  const { publicKey } = useWallet();
   const { verify } = useWalletVerification();
+  const { hasAccount } = useAccount();
   const [voting, setVoting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [votedIndex, setVotedIndex] = useState<number | null>(null);
@@ -55,19 +55,8 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
 
   // Check if the user has already voted on this order and get current vote counts
   useEffect(() => {
-    if (!connected || !publicKey) {
+    if (!hasAccount || !publicKey) {
       setLoading(false);
-      return;
-    }
-
-    // 👇 THIS is the part you’re asking about
-    if (accountLoading) {
-      setError('Checking account status...');
-      return;
-    }
-
-    if (!hasAccount) {
-      setError('You must create an account before voting');
       return;
     }
 
@@ -98,11 +87,11 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
     };
 
     checkVoteStatus();
-  }, [orderId, publicKey, connected]);
+  }, [orderId, publicKey, hasAccount]);
 
   const handleVote = async (actorIndex: number) => {
-    if (!connected || !publicKey) {
-      setError('Connect your wallet to vote');
+    if (!hasAccount || !publicKey) {
+      setError('Create an account to vote');
       return;
     }
 
@@ -110,6 +99,7 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
     setError(null);
 
     try {
+      console.log(actorIndex);
       // Get verification data (challenge, sign message, return signature)
       const verificationData = await verify();
 
@@ -171,6 +161,7 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
           actorId={index + 1}
           canVote={votingActive && votedIndex === null && !voting}
           votedFor={votedIndex === index}
+          showVotes={votedIndex !== null || !votingActive}
           voteCount={voteCounts?.[index]}
           onVote={() => handleVote(index)}
         />
