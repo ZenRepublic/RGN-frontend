@@ -15,7 +15,7 @@
   font-family: 'Xirod', sans-serif;
   font-size: 22px;
   font-weight: 600;
-  color: var(--blue-secondary, #6E63E7);
+  color: var(--yellow, #FEEE31);
   margin: 0 0 12px 0;
   text-shadow:
     -1px -1px 0 var(--black, #050511),
@@ -178,7 +178,8 @@
   }
 
   .voting-countdown-timer {
-    font-size: 1.75rem;
-    letter-spacing: 2px;
+    font-size: 1.25rem;
+    letter-spacing: 1px;
+    white-space: nowrap;
   }
 }

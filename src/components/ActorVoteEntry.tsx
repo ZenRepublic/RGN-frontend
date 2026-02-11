@@ -20,17 +20,18 @@ export function ActorVoteEntry({ actor, actorId, canVote, votedFor, showVotes, v
         className="actor-vote-entry-img"
       />
       <div className="actor-vote-entry-info">
-        <span className="actor-vote-entry-id">Actor {actorId}</span>
-        <span className="actor-vote-entry-name">{actor.name}</span>
-      </div>
-      {showVotes ? (
-        <div className="actor-vote-entry-votes">
-          <span className="actor-vote-entry-votes-label">Total Votes</span>
-          <span className="actor-vote-entry-votes-count">{voteCount ?? actor.votes}</span>
+        <div className="actor-vote-entry-header">
+          <span className="actor-vote-entry-id">Actor {actorId}</span>
+          {showVotes && <span className="actor-vote-entry-votes-label">Total Votes</span>}
         </div>
-      ) : (
+        <div className="actor-vote-entry-footer">
+          <span className="actor-vote-entry-name">{actor.name}</span>
+          {showVotes && <span className="actor-vote-entry-votes-count">{voteCount ?? actor.votes}</span>}
+        </div>
+      </div>
+      {!showVotes && (
         <button className="actor-vote-entry-btn" onClick={onVote} disabled={!canVote}>
-          Choose
+          Select
         </button>
       )}
     </div>

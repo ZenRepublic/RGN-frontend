@@ -69,8 +69,6 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
         const response = await fetch(`${API_URL}/rgn/episodes/vote-status?${params}`);
         const data = await response.json();
 
-        console.log(data);
-
         if (response.ok) {
           if (data.hasVoted) {
             setVotedIndex(data.votedActorIndex);
@@ -99,7 +97,6 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
     setError(null);
 
     try {
-      console.log(actorIndex);
       // Get verification data (challenge, sign message, return signature)
       const verificationData = await verify();
 
@@ -147,7 +144,7 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
     <div className="voting-system">
       {votingActive && (
         <div className="voting-system-header">
-          <h2 className="voting-system-title">Vote and Win!</h2>
+          <h2 className="voting-system-title">Support your Favorite!</h2>
           <p className="voting-system-description">
             Give your favorite actor an edge by voting for them. If they win, you have a chance of winning some $RGN
           </p>

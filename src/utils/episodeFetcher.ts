@@ -65,6 +65,8 @@ function parseHeliusItems(items: any[]): BaseAsset[] {
       const hashIndex = name.indexOf('#');
       const orderId = hashIndex !== -1 ? name.substring(hashIndex + 1) : name;
 
+      console.log('Helius item for', orderId, ':', item); // ADD THIS
+
       return {
         id: item.id,
         orderId,

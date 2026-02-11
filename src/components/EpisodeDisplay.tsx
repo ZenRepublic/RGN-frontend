@@ -93,7 +93,7 @@ export default function EpisodeDisplay({ asset }: EpisodeDisplayProps) {
             onClick={handleView}
             disabled={!asset}
           >
-            View Episode
+            View
           </button>
         </div>
 
