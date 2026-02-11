@@ -6,6 +6,7 @@ import { ConnectWalletButton } from '@/components/ConnectWalletButton';
 import CheckoutModal from '@/components/CheckoutModal';
 import TimeslotPicker from '@/components/TimeslotPicker';
 import { EpisodeOrderFormData } from '@/channels/channel';
+import { getIdByNetwork } from '@/channels';
 import './DioDudesOrderForm.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
@@ -216,6 +217,7 @@ export default function DioDudesOrderForm() {
           isOpen={showCheckoutModal}
           formData={formData}
           paymentInfo={paymentInfo}
+          channelId={getIdByNetwork('Dio Dudes')}
           onClose={() => setShowCheckoutModal(false)}
           onError={setError}
         />

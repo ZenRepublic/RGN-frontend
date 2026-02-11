@@ -25,7 +25,10 @@ export interface ChannelProps {
 
 // Configuration for registering a Channel
 export interface ChannelConfig {
-  id: string;
+  ids: {
+    devnet: string;
+    mainnet: string;
+  };
   name: string;
   disabled?: boolean;
   component: ComponentType<ChannelProps>;

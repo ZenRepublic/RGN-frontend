@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import EpisodeDisplay from './EpisodeDisplay';
 import {
-  fetchEpisodesByIds,
-  fetchEpisodes,
-  fetchEpisodesByCollection,
-  fetchEpisodesByDate,
-  MplEpisodeAsset,
-} from '@/utils/episodeFetcher';
+  fetchOrderById,
+  fetchOrdersByWallet,
+  fetchOrdersByChannel,
+  fetchOrdersByDate,
+  Order,
+} from '@/utils/orderFetcher';
 import './EpisodeLoader.css';
 
 // Re-export types for convenience
-export type { MplEpisodeAsset, EpisodeData, Actor } from '@/utils/episodeFetcher';
+export type { Order, Actor } from '@/utils/orderFetcher';
 
 // Component props
 interface BaseProps {
@@ -30,31 +30,31 @@ interface ByIdsProps extends BaseProps {
 interface ByOwnerProps extends BaseProps {
   mode: 'owner';
   ownerAddress: string;
-  collectionId: string;
+  channelId: string;
 }
 
 interface ByCollectionProps extends BaseProps {
   mode: 'collection';
-  collectionId: string;
+  channelId: string;
 }
 
 interface ByDateProps extends BaseProps {
   mode: 'date';
   timestamp: number;
-  collectionId: string;
+  channelId: string;
 }
 
 interface ByAssetsProps extends BaseProps {
   mode: 'assets';
-  assets: MplEpisodeAsset[];
+  assets: Order[];
   loading?: boolean;
 }
 
 type EpisodeLoaderProps = ByIdsProps | ByOwnerProps | ByCollectionProps | ByDateProps | ByAssetsProps;
 
 export default function EpisodeLoader(props: EpisodeLoaderProps) {
-  const [assets, setAssets] = useState<MplEpisodeAsset[]>([]);
-  const [assetMap, setAssetMap] = useState<Map<string, MplEpisodeAsset>>(new Map());
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [orderMap, setOrderMap] = useState<Map<string, Order>>(new Map());
   const [loading, setLoading] = useState(false);
 
   // Track the current fetch key to prevent stale updates
@@ -63,17 +63,17 @@ export default function EpisodeLoader(props: EpisodeLoaderProps) {
   const currentKey = props.mode === 'ids'
     ? props.cacheKey
     : props.mode === 'collection'
-    ? `collection-${props.collectionId}`
+    ? `collection-${props.channelId}`
     : props.mode === 'date'
-    ? `date-${props.timestamp}-${props.collectionId}`
+    ? `date-${props.timestamp}-${props.channelId}`
     : props.mode === 'owner'
-    ? `${props.ownerAddress}-${props.collectionId}`
+    ? `${props.ownerAddress}-${props.channelId}`
     : '';
 
   // Separate effect for 'assets' mode to properly react to prop changes
   useEffect(() => {
     if (props.mode === 'assets') {
-      setAssets(props.assets);
+      setOrders(props.assets);
       setLoading(props.loading ?? false);
     }
   }, [props.mode === 'assets' ? props.assets : null, props.mode === 'assets' ? props.loading : null]);
@@ -91,57 +91,52 @@ export default function EpisodeLoader(props: EpisodeLoaderProps) {
 
       try {
         if (props.mode === 'ids') {
-          const { assetIds, cacheKey } = props;
+          const { assetIds } = props;
 
           if (assetIds.length === 0) {
             return;
           }
 
-          const result = await fetchEpisodesByIds({ assetIds, cacheKey });
+          const results = await Promise.all(assetIds.map(id => fetchOrderById(id)));
 
-          // Only update if this is still the current fetch
           if (fetchKeyRef.current !== currentKey) return;
 
-          setAssetMap(result.assetMap);
+          const map = new Map<string, Order>();
+          results.forEach((order, idx) => {
+            if (order) map.set(assetIds[idx], order);
+          });
+          setOrderMap(map);
         } else if (props.mode === 'collection') {
-          const { collectionId } = props;
+          const { channelId } = props;
 
-          const fetchedAssets = await fetchEpisodesByCollection(collectionId);
+          const fetched = await fetchOrdersByChannel(channelId);
 
           if (fetchKeyRef.current !== currentKey) return;
 
-          setAssets(fetchedAssets);
+          setOrders(fetched);
         } else if (props.mode === 'date') {
-          const { timestamp, collectionId } = props;
+          const { timestamp, channelId } = props;
 
-          console.log('MatchLoader: Fetching episodes for date mode - timestamp:', timestamp, 'date:', new Date(timestamp).toISOString(), 'collectionId:', collectionId);
+          console.log('EpisodeLoader: Fetching orders for date mode - timestamp:', timestamp, 'date:', new Date(timestamp).toISOString(), 'channelId:', channelId);
 
-          const fetchedAssets = await fetchEpisodesByDate({
-            timestamp,
-            collectionId,
-            includeEpisodeData: true,
-          });
+          const fetched = await fetchOrdersByDate({ timestamp, channelId });
 
-          console.log('MatchLoader: Fetched', fetchedAssets.length, 'episodes');
+          console.log('EpisodeLoader: Fetched', fetched.length, 'orders');
 
           if (fetchKeyRef.current !== currentKey) return;
 
-          setAssets(fetchedAssets);
+          setOrders(fetched);
         } else if (props.mode === 'owner') {
-          const { ownerAddress, collectionId } = props;
+          const { ownerAddress, channelId } = props;
 
-          const fetchedAssets = await fetchEpisodes({
-            ownerAddress,
-            collectionId,
-            includeEpisodeData: true,
-          });
-
+          const fetched = await fetchOrdersByWallet(ownerAddress, channelId);
           if (fetchKeyRef.current !== currentKey) return;
 
-          setAssets(fetchedAssets);
+          setOrders(fetched);
+  
         }
       } catch (err) {
-        console.error('Failed to fetch assets:', err);
+        console.error('Failed to fetch orders:', err);
         props.onError?.('Failed to load data');
       } finally {
         if (fetchKeyRef.current === currentKey) {
@@ -155,37 +150,37 @@ export default function EpisodeLoader(props: EpisodeLoaderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentKey]);
 
-  const loadingText = props.loadingText || 'Loading matches...';
-  const emptyText = props.emptyText || 'No matches found.';
-  const gridClass = `match-loader-grid ${props.className || ''}`.trim();
+  const loadingText = props.loadingText || 'Loading episodes...';
+  const emptyText = props.emptyText || 'No episodes found.';
+  const gridClass = `episode-loader-grid ${props.className || ''}`.trim();
 
   if (loading) {
-    return <div className="match-loader-loading">{loadingText}</div>;
+    return <div className="episode-loader-loading">{loadingText}</div>;
   }
 
   if (props.mode === 'ids') {
     if (props.assetIds.length === 0) {
-      return <div className="match-loader-empty">{emptyText}</div>;
+      return <div className="episode-loader-empty">{emptyText}</div>;
     }
 
     return (
       <div className={gridClass}>
-        {props.assetIds.map((id, index) => (
-          <EpisodeDisplay key={index} asset={assetMap.get(id)} />
+        {props.assetIds.map((id) => (
+          <EpisodeDisplay key={id} asset={orderMap.get(id)} />
         ))}
       </div>
     );
   }
 
   // mode === 'owner', 'collection', 'date', or 'assets'
-  if (assets.length === 0) {
-    return <div className="match-loader-empty">{emptyText}</div>;
+  if (orders.length === 0) {
+    return <div className="episode-loader-empty">{emptyText}</div>;
   }
 
   return (
     <div className={gridClass}>
-      {assets.map((asset) => (
-        <EpisodeDisplay key={asset.id} asset={asset} />
+      {orders.map((order) => (
+        <EpisodeDisplay key={order.id} asset={order} />
       ))}
     </div>
   );

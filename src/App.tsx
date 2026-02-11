@@ -10,10 +10,10 @@ const SOL_ADDRESS = 'So11111111111111111111111111111111111111112';
 const PUMPSWAP_URL = `https://swap.pump.fun/?output=${TOKEN_ADDRESS}&input=${SOL_ADDRESS}`;
 
 function App() {
-  const [activeChannelId, setActiveChannelId] = useState(CHANNELS[0]?.id || '');
+  const [activeChannelName, setActiveChannelName] = useState(CHANNELS[0]?.name || '');
   const [error, setError] = useState('');
 
-  const activeChannel = CHANNELS.find(s => s.id === activeChannelId);
+  const activeChannel = CHANNELS.find(s => s.name === activeChannelName);
   const ActiveChannelComponent = activeChannel?.component;
 
   const handleError = useCallback((message: string) => {
@@ -56,10 +56,10 @@ function App() {
       <div className="tab-group">
         {CHANNELS.map(channel => (
           <button
-            key={channel.id}
-            className={`tab-btn ${activeChannelId === channel.id ? 'active' : ''}`}
+            key={channel.name}
+            className={`tab-btn ${activeChannelName === channel.name ? 'active' : ''}`}
             disabled={channel.disabled}
-            onClick={() => !channel.disabled && setActiveChannelId(channel.id)}
+            onClick={() => !channel.disabled && setActiveChannelName(channel.name)}
           >
             {channel.name}
           </button>

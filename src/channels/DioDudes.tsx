@@ -3,21 +3,10 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { ChannelProps } from './channel';
 import { useIsInAppWalletBrowser } from '@/utils/walletUtils';
 import EpisodeSchedule from '@/components/EpisodeSchedule';
+import { getIdByNetwork } from '@/channels';
 import './DioDudes.css';
 
 const DEMO_VIDEO_URL = 'https://arweave.net/l6NCKjO5cvPkm7w_3BU9bAseJIPJ4sj9v1xOCj65wZg?ext=mp4';
-
-// Get network from environment
-const getNetwork = (): 'mainnet' | 'devnet' =>
-    (import.meta.env.VITE_SOL_NETWORK as 'mainnet' | 'devnet') || 'devnet';
-
-// DioDudes collection addresses
-const COLLECTION_ADDRESSES = {
-    devnet: '5Lu2U98R63iXJoboeLQePZKZprkt2qbn45XvpYGNSawP',
-    mainnet: 'AAomnYW22PbNPu2tuQ5TzeqGCkacUey64Khsv3t6grJa'
-};
-
-const getCollectionAddress = () => COLLECTION_ADDRESSES[getNetwork()];
 
 
 
@@ -98,7 +87,7 @@ export default function DioDudes({ onError }: ChannelProps) {
 
       {activeTab === 'schedule' && (
         <EpisodeSchedule
-          collectionId={getCollectionAddress()}
+          channelId={getIdByNetwork('Dio Dudes')}
           onError={onError}
         />
       )}

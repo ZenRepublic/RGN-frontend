@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletVerification } from '@/hooks/useWalletVerification';
 import { useAccount } from '@/context/AccountContext';
-import { Actor } from '@/utils/episodeFetcher';
+import { Actor } from '@/utils/orderFetcher';
 import { ActorVoteEntry } from '@/components/ActorVoteEntry';
 import './VotingSystem.css';
 
@@ -21,8 +21,6 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
   const [voting, setVoting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [votedIndex, setVotedIndex] = useState<number | null>(null);
-  const [voteCounts, setVoteCounts] = useState<number[] | null>(null);
-  const [loading, setLoading] = useState(true);
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
 
   const votingActive = new Date(startTime).getTime() > Date.now();
@@ -53,10 +51,9 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
     }
   }, [error]);
 
-  // Check if the user has already voted on this order and get current vote counts
+  // Check if the user has already voted on this order
   useEffect(() => {
     if (!hasAccount || !publicKey) {
-      setLoading(false);
       return;
     }
 
@@ -69,18 +66,11 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
         const response = await fetch(`${API_URL}/rgn/episodes/vote-status?${params}`);
         const data = await response.json();
 
-        if (response.ok) {
-          if (data.hasVoted) {
-            setVotedIndex(data.votedActorIndex);
-          }
-          if (data.voteCounts) {
-            setVoteCounts(data.voteCounts);
-          }
+        if (response.ok && data.hasVoted) {
+          setVotedIndex(data.votedActorIndex);
         }
       } catch {
         // If check fails, just let them try to vote — backend will reject duplicates
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -119,9 +109,6 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
       }
 
       setVotedIndex(actorIndex);
-      if (data.voteCounts) {
-        setVoteCounts(data.voteCounts);
-      }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to cast vote');
     } finally {
@@ -137,8 +124,6 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
 
     return `${hours}h ${minutes.toString().padStart(2, '0')}min ${seconds.toString().padStart(2, '0')}sec`;
   };
-
-  if (loading) return null;
 
   return (
     <div className="voting-system">
@@ -159,7 +144,7 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
           canVote={votingActive && votedIndex === null && !voting}
           votedFor={votedIndex === index}
           showVotes={votedIndex !== null || !votingActive}
-          voteCount={voteCounts?.[index]}
+          voteCount={actor.votes}
           onVote={() => handleVote(index)}
         />
       ))}

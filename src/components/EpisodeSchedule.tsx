@@ -1,23 +1,23 @@
 import { useState, useEffect } from 'react';
 import DaySelector from './DaySelector';
 import EpisodeLoader from './EpisodeLoader';
-import { fetchEpisodesByDateRange, MplEpisodeAsset } from '@/utils/episodeFetcher';
+import { fetchOrdersByRange, Order } from '@/utils/orderFetcher';
 import './EpisodeSchedule.css';
 
 interface EpisodeScheduleProps {
-  collectionId: string;
+  channelId: string;
   onError?: (message: string) => void;
 }
 
-export default function EpisodeSchedule({ collectionId, onError }: EpisodeScheduleProps) {
+export default function EpisodeSchedule({ channelId, onError }: EpisodeScheduleProps) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const [selectedTimestamp, setSelectedTimestamp] = useState<number>(today.getTime());
-  const [allEpisodes, setAllEpisodes] = useState<MplEpisodeAsset[]>([]);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch all episodes for the date range once on mount
+  // Fetch all orders for the date range once on mount
   useEffect(() => {
     const fetchRange = async () => {
       setLoading(true);
@@ -31,17 +31,15 @@ export default function EpisodeSchedule({ collectionId, onError }: EpisodeSchedu
         endDate.setDate(today.getDate() + 7);
         endDate.setHours(23, 59, 59, 999);
 
-
-        const episodes = await fetchEpisodesByDateRange({
-          startTimestamp: startDate.getTime(),
-          endTimestamp: endDate.getTime(),
-          collectionId,
-          includeEpisodeData: true,
+        const orders = await fetchOrdersByRange({
+          startDate,
+          endDate,
+          channelId,
         });
 
-        setAllEpisodes(episodes);
+        setAllOrders(orders);
       } catch (error) {
-        console.error('EpisodeSchedule: Failed to fetch episodes:', error);
+        console.error('EpisodeSchedule: Failed to fetch orders:', error);
         onError?.('Failed to load episodes');
       } finally {
         setLoading(false);
@@ -49,24 +47,24 @@ export default function EpisodeSchedule({ collectionId, onError }: EpisodeSchedu
     };
 
     fetchRange();
-  }, [collectionId]);
+  }, [channelId]);
 
   const handleDateSelect = (timestamp: number) => {
     setSelectedTimestamp(timestamp);
   };
 
-  // Filter episodes for the selected day
-  const selectedDayEpisodes = allEpisodes.filter(episode => {
-    if (!episode.episodeData?.startTime) return false;
+  // Filter orders for the selected day
+  const selectedDayOrders = allOrders.filter(order => {
+    if (!order.startTime) return false;
 
-    const episodeDate = new Date(episode.episodeData.startTime);
+    const orderDate = new Date(order.startTime);
     const selectedDate = new Date(selectedTimestamp);
 
     // Compare dates (year, month, day only)
     return (
-      episodeDate.getFullYear() === selectedDate.getFullYear() &&
-      episodeDate.getMonth() === selectedDate.getMonth() &&
-      episodeDate.getDate() === selectedDate.getDate()
+      orderDate.getFullYear() === selectedDate.getFullYear() &&
+      orderDate.getMonth() === selectedDate.getMonth() &&
+      orderDate.getDate() === selectedDate.getDate()
     );
   });
 
@@ -80,7 +78,7 @@ export default function EpisodeSchedule({ collectionId, onError }: EpisodeSchedu
           <div className="tv-screen">
             <EpisodeLoader
               mode="assets"
-              assets={selectedDayEpisodes}
+              assets={selectedDayOrders}
               loading={loading}
               loadingText="Loading episodes..."
               emptyText="No episodes scheduled for this day yet..."

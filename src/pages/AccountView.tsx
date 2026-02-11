@@ -6,19 +6,8 @@ import { ConnectWalletButton } from '@/components/ConnectWalletButton';
 import { ProfileDisplay } from '@/components/ProfileDisplay';
 import { useAccountStatus } from '@/hooks/useAccountStatus';
 import EpisodeLoader from '@/components/EpisodeLoader';
+import { getIdByNetwork } from '@/channels';
 import './AccountView.css';
-
-// Get network from environment
-const getNetwork = (): 'mainnet' | 'devnet' =>
-    (import.meta.env.VITE_SOL_NETWORK as 'mainnet' | 'devnet') || 'devnet';
-
-// DioDudes collection addresses
-const COLLECTION_ADDRESSES = {
-    devnet: '5Lu2U98R63iXJoboeLQePZKZprkt2qbn45XvpYGNSawP',
-    mainnet: 'AAomnYW22PbNPu2tuQ5TzeqGCkacUey64Khsv3t6grJa'
-};
-
-const getCollectionAddress = () => COLLECTION_ADDRESSES[getNetwork()];
 
 function getWhitelistIds(): string[] {
   const whitelistIdsRaw = import.meta.env.VITE_WHITELIST_IDS || '';
@@ -88,7 +77,7 @@ export default function AccountView() {
           <EpisodeLoader
             mode="owner"
             ownerAddress={walletAddress}
-            collectionId={getCollectionAddress()}
+            channelId={getIdByNetwork('Dio Dudes')}
             onError={(message: string) => console.error(message)}
             loadingText="Loading your Episodes..."
             emptyText="No Episodes found for this collection."

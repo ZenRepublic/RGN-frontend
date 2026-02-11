@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { MplEpisodeAsset } from '@/utils/episodeFetcher';
+import { Order } from '@/utils/orderFetcher';
 import { storeToCache } from '@/pages/EpisodeView';
 import './EpisodeDisplay.css';
 
 interface EpisodeDisplayProps {
-  asset: MplEpisodeAsset | undefined;
+  asset: Order | undefined;
 }
 
 function formatStartTime(startTime: string | undefined): string {
@@ -45,51 +45,50 @@ function getEpisodeStatus(startTime: string | undefined): { text: string; type: 
 export default function EpisodeDisplay({ asset }: EpisodeDisplayProps) {
   const navigate = useNavigate();
 
-  const episodeData = asset?.episodeData;
-  const actors = episodeData?.actors || [];
+  const actors = asset?.actors || [];
   const actor1 = actors[0];
   const actor2 = actors[1];
 
   const handleView = () => {
     if (asset) {
       storeToCache(asset);
-      navigate(`/episode/${asset.orderId}`);
+      navigate(`/episode/${asset.id}`);
     }
   };
 
-  const formattedTime = formatStartTime(episodeData?.startTime);
-  const status = getEpisodeStatus(episodeData?.startTime);
+  const formattedTime = formatStartTime(asset?.startTime);
+  const status = getEpisodeStatus(asset?.startTime);
 
   return (
-    <div className="match-display">
-      <div className="match-display-header">
-        <span className="match-display-time">{formattedTime}</span>
-        <span className={`match-display-status match-display-status--${status.type}`}>
-          <span className="match-display-status-dot"></span>
+    <div className="episode-display">
+      <div className="episode-display-header">
+        <span className="episode-display-time">{formattedTime}</span>
+        <span className={`episode-display-status episode-display-status--${status.type}`}>
+          <span className="episode-display-status-dot"></span>
           {status.text}
         </span>
       </div>
 
-      <div className="match-display-content">
-        <div className="match-display-actor match-display-actor--left">
+      <div className="episode-display-content">
+        <div className="episode-display-actor episode-display-actor--left">
           {actor1 ? (
             <>
-              <span className="match-display-actor-name">{actor1.name}</span>
+              <span className="episode-display-actor-name">{actor1.name}</span>
               <img
                 src={actor1.imageUrl}
                 alt={actor1.name}
-                className="match-display-actor-img"
+                className="episode-display-actor-img"
               />
             </>
           ) : (
-            <div className="match-display-actor-placeholder" />
+            <div className="episode-display-actor-placeholder" />
           )}
         </div>
 
-        <div className="match-display-center">
-          <span className="match-display-vs">VS</span>
+        <div className="episode-display-center">
+          <span className="episode-display-vs">VS</span>
           <button
-            className="match-display-view-btn"
+            className="episode-display-view-btn"
             onClick={handleView}
             disabled={!asset}
           >
@@ -97,18 +96,18 @@ export default function EpisodeDisplay({ asset }: EpisodeDisplayProps) {
           </button>
         </div>
 
-        <div className="match-display-actor match-display-actor--right">
+        <div className="episode-display-actor episode-display-actor--right">
           {actor2 ? (
             <>
-              <span className="match-display-actor-name">{actor2.name}</span>
+              <span className="episode-display-actor-name">{actor2.name}</span>
               <img
                 src={actor2.imageUrl}
                 alt={actor2.name}
-                className="match-display-actor-img"
+                className="episode-display-actor-img"
               />
             </>
           ) : (
-            <div className="match-display-actor-placeholder" />
+            <div className="episode-display-actor-placeholder" />
           )}
         </div>
       </div>

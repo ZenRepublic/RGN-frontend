@@ -70,17 +70,17 @@ export default function OrderSuccess() {
       </header> */}
 
       <div className="success-container">
-        {orderResult.nftImageUrl && (
+        {orderResult.coverImageUrl && (
           <div className="success-nft-preview">
-            <img src={orderResult.nftImageUrl} alt="Your Episode NFT" className="success-nft-image" />
+            <img src={orderResult.coverImageUrl} alt="Your Episode NFT" className="success-nft-image" />
           </div>
         )}
 
-        <h2>{orderResult.warning ? 'NFT MINTED' : 'BRAINROT AWAITS'}</h2>
+        <h2>{orderResult.error ? 'NFT MINTED' : 'BRAINROT AWAITS'}</h2>
 
-        {orderResult.warning ? (
+        {orderResult.error ? (
           <div className="success-warning">
-            <p>{orderResult.warning}</p>
+            <p>{orderResult.error}</p>
           </div>
         ) : (
           <p className="success-message">
@@ -97,11 +97,11 @@ export default function OrderSuccess() {
             <span>Estimated Time:</span>
             <strong>{orderResult.estimatedDelivery}</strong>
           </div>
-          {orderResult.nftAddress && (
+          {orderResult.episodeId && (
             <div className="success-info-row">
               <span>Asset Reference:</span>
               <a
-                href={`https://solscan.io/token/${orderResult.nftAddress}?cluster=${import.meta.env.VITE_SOL_NETWORK || 'devnet'}`}
+                href={`https://solscan.io/token/${orderResult.episodeId}?cluster=${import.meta.env.VITE_SOL_NETWORK || 'devnet'}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="success-view-link"

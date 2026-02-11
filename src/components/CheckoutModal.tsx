@@ -17,24 +17,18 @@ interface PaymentInfo {
 }
 
 export interface OrderResult {
-  nftImageUrl?: string;
-  nftAddress?: string;
+  channelId?: string,
+  episodeImageUrl?: string;
+  episodeId?: string;
   queuePosition: number;
   estimatedDelivery: string;
-  warning?: string;
+  error?: string;
 }
 
 interface PrepareResponse {
   transaction: string;
-  assetAddress: string;
-  error?: string;
-}
-
-interface ConfirmResponse {
-  nftImageUrl?: string;
-  nftAddress?: string;
-  queuePosition: number;
-  estimatedDelivery: string;
+  channelId: string,
+  episodeId: string;
   error?: string;
 }
 
@@ -44,6 +38,7 @@ interface CheckoutModalProps {
   isOpen: boolean;
   formData: EpisodeOrderFormData;
   paymentInfo: PaymentInfo | null;
+  channelId: string;
   onClose: () => void;
   onError: (message: string) => void;
 }
@@ -52,6 +47,7 @@ export default function CheckoutModal({
   isOpen,
   formData,
   paymentInfo,
+  channelId,
   onClose,
   onError,
 }: CheckoutModalProps) {
@@ -91,7 +87,7 @@ export default function CheckoutModal({
       const prepareResponse = await fetch(`${API_URL}/rgn/orders/prepare`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userWallet: publicKey.toBase58() })
+        body: JSON.stringify({ userWallet: publicKey.toBase58(), channelId })
       });
 
       const prepareData = await prepareResponse.json() as PrepareResponse;
@@ -100,7 +96,7 @@ export default function CheckoutModal({
         throw new Error(prepareData.error || 'Failed to prepare order');
       }
 
-      const { transaction: txBase64, assetAddress } = prepareData;
+      const { transaction: txBase64, channelId: responseChannelId, episodeId } = prepareData;
 
       const txBytes = Uint8Array.from(atob(txBase64), c => c.charCodeAt(0));
       const transaction = Transaction.from(txBytes);
@@ -119,21 +115,18 @@ export default function CheckoutModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           signedTransaction,
-          assetAddress,
+          channelId,
+          episodeId,
           actorData: formData.actors,
           startTime: formData.startTime
         })
       });
 
-      const data = await confirmResponse.json() as ConfirmResponse;
+      const data = await confirmResponse.json() as OrderResult;
 
-      if (!confirmResponse.ok && data.nftAddress) {
+      if (!confirmResponse.ok && data.episodeId) {
         // Partial success - NFT minted but metadata failed
-        const result = {
-          ...data,
-          warning: data.error || 'NFT minted but metadata update failed. Please contact @RGN_Forever on X for support.'
-        } as OrderResult;
-        storeOrderResult(result);
+        storeOrderResult(data);
         navigate('/order-success');
         return;
       }
