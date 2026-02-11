@@ -113,24 +113,50 @@ export default function EpisodeView() {
     <div className="episode-view-page">
       <Header />
       <div className="episode-view-container">
-        <button onClick={handleBack} className="back full-width">
-          ← Back
-        </button>
-
-        <h1 className="episode-view-section-header">Episode Overview</h1>
-
-        <div className="episode-view-section-row">
-          <p className="episode-view-order-id">#{asset.orderId}</p>
-          <AssetInspector assetAddress={asset.id} />
+        <div className="episode-view-header-row">
+          <button onClick={handleBack} className="back">
+            ← Back
+          </button>
+          <h1 className="episode-view-section-header">Episode Overview</h1>
         </div>
 
-        {asset.image && (
-          <img
-            className="episode-view-image"
-            src={asset.image}
-            alt={asset.name}
-          />
-        )}
+        <div className="episode-view-overview">
+          {asset.image && (
+            <img
+              className="episode-view-image"
+              src={asset.image}
+              alt={asset.name}
+            />
+          )}
+          <div className="episode-view-meta">
+            <div className="episode-view-meta-row">
+              <p className="episode-view-meta-label">ID:</p>
+              <p className="episode-view-meta-value">#{asset.orderId}</p>
+            </div>
+            {asset.episodeData?.startTime && (
+              <div className="episode-view-meta-row">
+                <p className="episode-view-meta-label">Date:</p>
+                <p className="episode-view-meta-value">
+                  {(() => {
+                    const d = new Date(asset.episodeData.startTime);
+                    const yy = String(d.getFullYear()).slice(2);
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    const h = d.getHours();
+                    const min = String(d.getMinutes()).padStart(2, '0');
+                    const ampm = h >= 12 ? 'PM' : 'AM';
+                    const h12 = h % 12 || 12;
+                    return `${yy}/${mm}/${dd} ${h12}:${min}${ampm}`;
+                  })()}
+                </p>
+              </div>
+            )}
+            <div className="episode-view-meta-row">
+              <p className="episode-view-meta-label">Asset:</p>
+              <AssetInspector assetAddress={asset.id} />
+            </div>
+          </div>
+        </div>
 
         {asset.episodeData?.actors && asset.episodeData.startTime && (
           <VotingSystem

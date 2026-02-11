@@ -146,7 +146,7 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
         <div className="voting-system-header">
           <h2 className="voting-system-title">Support your Favorite!</h2>
           <p className="voting-system-description">
-            Give your favorite actor an edge by voting for them. If they win, you have a chance of winning some $RGN
+            Give your favorite actor an edge by voting for them. If they win, you may win $RGN
           </p>
         </div>
       )}
