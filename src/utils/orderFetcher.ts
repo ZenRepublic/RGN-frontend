@@ -94,11 +94,11 @@ async function fetchOrdersFromEndpoint({
   return filteredOrders;
 }
 
-export async function fetchOrderById(orderId: string, useCache:boolean=true): Promise<Order | null> {
+export async function fetchOrderById(orderId: string, loadFromCache:boolean=true): Promise<Order | null> {
   const cacheKey = `order:${orderId}`;
 
   // Check query cache
-  if (useCache) {
+  if (loadFromCache) {
     const cachedIds = queryCache.get(cacheKey);
     if (cachedIds && cachedIds.length > 0) {
       const cached = orderCache.get(cachedIds[0]);

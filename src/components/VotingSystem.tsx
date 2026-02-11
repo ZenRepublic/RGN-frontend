@@ -22,6 +22,7 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
   const [error, setError] = useState<string | null>(null);
   const [votedIndex, setVotedIndex] = useState<number | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
+  const [voteCounts, setVoteCounts] = useState<number[]>(() => actors.map(a => a.votes));
 
   const votingActive = new Date(startTime).getTime() > Date.now();
 
@@ -109,6 +110,7 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
       }
 
       setVotedIndex(actorIndex);
+      setVoteCounts(prev => prev.map((v, i) => i === actorIndex ? v + 1 : v));
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to cast vote');
     } finally {
@@ -144,7 +146,7 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
           canVote={votingActive && votedIndex === null && !voting}
           votedFor={votedIndex === index}
           showVotes={votedIndex !== null || !votingActive}
-          voteCount={actor.votes}
+          voteCount={voteCounts[index]}
           onVote={() => handleVote(index)}
         />
       ))}

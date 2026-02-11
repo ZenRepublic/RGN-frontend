@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { AssetInspector } from '@/components/AssetInspector';
 import { VotingSystem } from '@/components/VotingSystem';
-import { Order } from '@/utils/orderFetcher';
+import { Order, fetchOrderById } from '@/utils/orderFetcher';
 import './EpisodeView.css';
 
 const EPISODE_VIEW_KEY = 'rgn-episode-view';
@@ -34,13 +34,22 @@ export default function EpisodeView() {
   const [showCopyToast, setShowCopyToast] = useState(false);
 
   useEffect(() => {
+    if (!orderId) return;
+
+    // Show cached version immediately while fetching fresh data
     const stored = getFromCache();
     if (stored && stored.id === orderId) {
       setAsset(stored);
-    } else {
-      // No matching asset found, redirect to home
-      navigate('/', { replace: true });
     }
+
+    // Always fetch fresh data so votes are up to date
+    fetchOrderById(orderId, false).then((fresh) => {
+      if (fresh) {
+        setAsset(fresh);
+      } else if (!stored || stored.id !== orderId) {
+        navigate('/', { replace: true });
+      }
+    });
   }, [orderId, navigate]);
 
   const handleBack = () => {

@@ -18,8 +18,8 @@ interface PaymentInfo {
 
 export interface OrderResult {
   channelId?: string,
-  episodeImageUrl?: string;
   episodeId?: string;
+  coverImageUrl?: string;
   queuePosition: number;
   estimatedDelivery: string;
   error?: string;
