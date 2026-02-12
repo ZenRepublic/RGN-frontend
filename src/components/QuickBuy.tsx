@@ -7,7 +7,7 @@ import BN from 'bn.js';
 import './QuickBuy.css';
 
 const TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS;
-const SOL_AMOUNTS = [0.1, 0.2, 0.5];
+const SOL_AMOUNTS = [0.1, 0.5, 1.0];
 const SLIPPAGE = 0.005; // 0.5%
 
 function truncateAddress(addr: string) {
