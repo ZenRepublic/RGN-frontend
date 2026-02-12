@@ -45,7 +45,6 @@ export function ProfileDisplay({ loading, account }: ProfileDisplayProps) {
       try {
         setVotePowerLoading(true);
         const response = await fetch(`${API_URL}/rgn/account/${account._id}/vote-power`);
-        console.log(response)
         if (!response.ok) throw new Error('Failed to fetch vote power');
         const data = await response.json();
         setVotePower(data);
