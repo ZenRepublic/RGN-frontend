@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
-import ImageUpload, { CroppedImageData, blobToBase64 } from '@/components/ImageUpload';
+import ActorInfoForm, { ActorData, createDefaultActor } from '@/components/ActorInfoForm';
 import { ConnectWalletButton } from '@/components/ConnectWalletButton';
 import CheckoutModal from '@/components/CheckoutModal';
 import TimeslotPicker from '@/components/TimeslotPicker';
@@ -17,16 +17,7 @@ interface PaymentInfo {
   wallet: string;
 }
 
-interface ActorData {
-  name: string;
-  imageBlob: Blob | null;
-  imagePreview: string;
-}
-
-const DEFAULT_ACTORS: ActorData[] = [
-  { name: '', imageBlob: null, imagePreview: '/mystery-actor.png' },
-  { name: '', imageBlob: null, imagePreview: '/mystery-actor.png' }
-];
+const DEFAULT_ACTORS: ActorData[] = [createDefaultActor(), createDefaultActor()];
 
 const INCLUDES = [
   'Custom AI Battle Video',
@@ -46,15 +37,6 @@ export default function DioDudesOrderForm() {
 
   const [actors, setActors] = useState<ActorData[]>(DEFAULT_ACTORS);
 
-  const objectUrlsRef = useRef<string[]>([]);
-
-  // Cleanup object URLs on unmount
-  useEffect(() => {
-    return () => {
-      objectUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
-    };
-  }, []);
-
   // Fetch payment info on mount
   useEffect(() => {
     const fetchPaymentInfo = async () => {
@@ -73,68 +55,24 @@ export default function DioDudesOrderForm() {
 
   // Update form data when actors or startTime change
   useEffect(() => {
-    const isValid = actors.every(a => a.name.trim() !== '' && a.imageBlob !== null) && startTime !== null;
+    const isValid = actors.every(a => a.name.trim() !== '' && a.imageBuffer !== null) && startTime !== null;
 
     if (isValid) {
-      console.log('Creating formData with actors:', actors.length);
-      Promise.all(actors.map(a => blobToBase64(a.imageBlob!)))
-        .then(base64Images => {
-          console.log('Base64 conversion successful, images:', base64Images.length);
-          const formDataToSet = {
-            actors: actors.map((a, i) => ({
-              name: a.name,
-              imageBuffer: base64Images[i]
-            })),
-            preview: actors.map(a => ({
-              name: a.name,
-              imagePreview: a.imagePreview
-            })),
-            includes: INCLUDES,
-            startTime
-          };
-          console.log('FormData actors array length:', formDataToSet.actors.length);
-          setFormData(formDataToSet);
-        })
-        .catch(err => {
-          console.error('Failed to convert images to base64:', err);
-          setError('Failed to process images. Please try again.');
-          setFormData(null);
-        });
+      setFormData({
+        actors: actors.map(a => ({ name: a.name, imageBuffer: a.imageBuffer! })),
+        preview: actors.map(a => ({ name: a.name, imagePreview: a.imageBuffer! })),
+        includes: INCLUDES,
+        startTime
+      });
     } else {
       setFormData(null);
     }
   }, [actors, startTime]);
 
-  const updateActorName = (index: number, value: string) => {
-    const filteredValue = value.replace(/[^a-zA-Z0-9_ ]/g, '');
-
-    if (filteredValue.length > 12) {
-      setError('Name must be 12 characters or less');
-      return;
-    }
-
+  const updateActor = (index: number, data: ActorData) => {
     setActors(prev => {
       const updated = [...prev];
-      updated[index] = { ...updated[index], name: filteredValue };
-      return updated;
-    });
-  };
-
-  const handleImageChange = (index: number, croppedImageData: CroppedImageData) => {
-    objectUrlsRef.current.push(croppedImageData.objectUrl);
-
-    setActors(prev => {
-      const updated = [...prev];
-      const oldPreview = updated[index].imagePreview;
-      if (oldPreview && oldPreview.startsWith('blob:')) {
-        URL.revokeObjectURL(oldPreview);
-      }
-
-      updated[index] = {
-        ...updated[index],
-        imageBlob: croppedImageData.blob,
-        imagePreview: croppedImageData.objectUrl
-      };
+      updated[index] = data;
       return updated;
     });
   };
@@ -164,34 +102,17 @@ export default function DioDudesOrderForm() {
             </div>
           )}
 
-          {actors.map((actor, index) => (
-            <section key={index} className="section actor-section">
-              <h2>Actor {index + 1}</h2>
-              <div className="actor-content">
-                <ImageUpload
-                  imagePreview={actor.imagePreview}
-                  hasImage={actor.imageBlob !== null}
-                  onImageChange={(croppedImageData) => handleImageChange(index, croppedImageData)}
-                  onError={setError}
-                  inputId={`diodudes-f${index}-image`}
-                />
-                <div className="actor-fields">
-                  <div className="field">
-                    <label htmlFor={`diodudes-f${index}-name`}>Enter Name:</label>
-                    <input
-                      id={`diodudes-f${index}-name`}
-                      type="text"
-                      required
-                      maxLength={12}
-                      value={actor.name}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => updateActorName(index, e.target.value)}
-                      placeholder="*Up to 12 Characters"
-                      disabled={showCheckoutModal}
-                    />
-                  </div>
-                </div>
-              </div>
-            </section>
+          {actors.map((_actor, index) => (
+            <div key={index}>
+              <h2 className="actor-heading">Actor {index + 1}</h2>
+              <ActorInfoForm
+                index={index}
+                onChange={(data) => updateActor(index, data)}
+                onError={setError}
+                disabled={showCheckoutModal}
+                inputIdPrefix="diodudes-f"
+              />
+            </div>
           ))}
 
           <section className="section">
@@ -204,7 +125,7 @@ export default function DioDudesOrderForm() {
           <button
             type="button"
             className="primary checkout-btn"
-            disabled={!actors.every(a => a.name.trim() !== '' && a.imageBlob !== null) || !startTime}
+            disabled={!actors.every(a => a.name.trim() !== '' && a.imageBuffer !== null) || !startTime}
             onClick={() => setShowCheckoutModal(true)}
           >
             Go To Checkout

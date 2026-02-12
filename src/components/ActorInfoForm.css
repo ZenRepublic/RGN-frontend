@@ -1,0 +1,44 @@
+.actor-info-form {
+  /* Inherits .section box styles from App.css */
+}
+
+.actor-info-body {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+}
+
+.actor-info-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.actor-info-fields label {
+  font-size: 0.9rem;
+  color: var(--gray, #888);
+}
+
+.actor-info-fields input {
+  width: 100%;
+  padding: 10px 14px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: var(--white, #fff);
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.actor-info-fields input:focus {
+  outline: none;
+  border-color: var(--blue-secondary, #4a9eff);
+}
+
+.actor-info-fields input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

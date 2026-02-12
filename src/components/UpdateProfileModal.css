@@ -1,0 +1,119 @@
+/* Modal overlay */
+.update-profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal box */
+.update-profile-modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Header row */
+.update-profile-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5rem;
+  overflow: hidden;
+}
+
+.update-profile-title {
+  margin: 0;
+  font-family: 'Xirod', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--white);
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Close button */
+.update-profile-close {
+  background: var(--red);
+  border: none;
+  color: var(--white);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  transition: all 0.15s;
+  white-space: nowrap;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.update-profile-close:hover {
+  background: #d32f2f;
+}
+
+/* ActorInfoForm wrapper — strip the section card border inside the modal */
+.update-profile-form-wrap .actor-info-form {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+/* Error message */
+.update-profile-error {
+  font-size: 0.85rem;
+  color: var(--red);
+  text-align: center;
+  margin: 0;
+}
+
+/* Status message */
+.update-profile-status {
+  font-size: 0.85rem;
+  color: var(--yellow);
+  text-align: center;
+  margin: 0;
+}
+
+/* Footer row */
+.update-profile-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Confirm button */
+.update-profile-confirm {
+  background: var(--yellow);
+  border: none;
+  color: #111;
+  font-family: 'Masicu', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.55rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.15s;
+  width: auto;
+}
+
+.update-profile-confirm:hover:not(:disabled) {
+  background: #ffe033;
+}
+
+.update-profile-confirm:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { Header } from '@/components/Header';
-import { QuickBuy } from '@/components/QuickBuy';
 import { CHANNELS } from './channels';
 import './App.css';
 
@@ -73,14 +72,6 @@ function App() {
           {error && <div className="error">{error}</div>}
         </>
       )}
-
-      <div className="divider">
-        <span className="divider-line" />
-        <span className="divider-text">Join The Movement</span>
-        <span className="divider-line" />
-      </div>
-
-      <QuickBuy />
 
       <footer className="powered-by">
         <span>Powered by</span>

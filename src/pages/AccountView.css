@@ -18,6 +18,13 @@
   gap: 1rem;
 }
 
+.account-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
 .back-button {
   background: var(--red);
   border: none;
@@ -38,6 +45,29 @@
 }
 
 .back-button:active {
+  transform: scale(0.98);
+}
+
+.edit-profile-button {
+  background: var(--white);
+  border: none;
+  color: var(--black);
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Masicu', sans-serif;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.edit-profile-button:hover {
+  opacity: 0.85;
+}
+
+.edit-profile-button:active {
   transform: scale(0.98);
 }
 

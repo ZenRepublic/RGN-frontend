@@ -110,7 +110,7 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
       }
 
       setVotedIndex(actorIndex);
-      setVoteCounts(prev => prev.map((v, i) => i === actorIndex ? v + 1 : v));
+      setVoteCounts(prev => prev.map((v, i) => i === actorIndex ? v + data.votePower : v));
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to cast vote');
     } finally {

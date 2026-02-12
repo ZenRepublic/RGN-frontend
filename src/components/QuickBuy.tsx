@@ -14,7 +14,12 @@ function truncateAddress(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
-export function QuickBuy() {
+interface QuickBuyProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function QuickBuy({ isOpen, onClose }: QuickBuyProps) {
   const { publicKey, sendTransaction, connected } = useWallet();
   const { connection } = useConnection();
   const [selectedAmount, setSelectedAmount] = useState<number>(SOL_AMOUNTS[0]);
@@ -22,6 +27,8 @@ export function QuickBuy() {
   const [error, setError] = useState<string | null>(null);
   const [txSig, setTxSig] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  if (!isOpen) return null;
 
   const handleCopyCA = () => {
     if (!TOKEN_ADDRESS) return;
@@ -82,56 +89,68 @@ export function QuickBuy() {
   };
 
   return (
-    <div className="quick-buy">
-      <div className="quick-buy-token">
-        <img src="/LogoTransparent.png" alt="RGN" className="quick-buy-logo" />
-        <div className="quick-buy-token-info">
-          <span className="quick-buy-symbol">$RGN</span>
-          {TOKEN_ADDRESS && (
-            <span
-              className="quick-buy-ca"
-              title="Click to copy"
-              onClick={handleCopyCA}
-            >
-              {copied ? 'Copied!' : truncateAddress(TOKEN_ADDRESS)}
-            </span>
-          )}
+    <div className="quick-buy-overlay" onClick={onClose}>
+      <div className="quick-buy-modal" onClick={e => e.stopPropagation()}>
+        <div className="quick-buy-header-row">
+          <h2 className="quick-buy-title">Quick Buy</h2>
+          <button className="quick-buy-close" onClick={onClose}>Close</button>
         </div>
-        <span className="quick-buy-hint">Select amount to buy</span>
-      </div>
 
-      <div className="quick-buy-amounts">
-        {SOL_AMOUNTS.map((amount) => (
-          <button
-            key={amount}
-            className={`quick-buy-amount-btn ${selectedAmount === amount ? 'selected' : ''}`}
-            onClick={() => setSelectedAmount(amount)}
-            disabled={buying}
-          >
-            {amount} SOL
-          </button>
-        ))}
-      </div>
+        <img src="/QuickBuy.png" alt="Quick Buy" className="quick-buy-header-img" />
 
-      <button
-        className="quick-buy-action primary"
-        onClick={handleBuy}
-        disabled={buying || !connected}
-      >
-        {!connected ? 'Not Connected...' : buying ? 'Signing...' : `Buy ${selectedAmount} SOL`}
-      </button>
+        <div className="quick-buy-token">
+          <img src="/RGNTokenLogo.png" alt="RGN" className="quick-buy-logo" />
+          <div className="quick-buy-token-info">
+            <span className="quick-buy-symbol">$RGN</span>
+            {TOKEN_ADDRESS && (
+              <span
+                className="quick-buy-ca"
+                title="Click to copy"
+                onClick={handleCopyCA}
+              >
+                {copied ? 'Copied!' : truncateAddress(TOKEN_ADDRESS)}
+              </span>
+            )}
+          </div>
+        </div>
 
-      {error && <p className="quick-buy-error">{error}</p>}
-      {txSig && (
-        <a
-          className="quick-buy-tx"
-          href={`https://solscan.io/tx/${txSig}`}
-          target="_blank"
-          rel="noopener noreferrer"
+        <div className="quick-buy-select-row">
+          <span className="quick-buy-select-label">Select amount</span>
+        </div>
+
+        <div className="quick-buy-amounts">
+          {SOL_AMOUNTS.map((amount) => (
+            <button
+              key={amount}
+              className={`quick-buy-amount-btn ${selectedAmount === amount ? 'selected' : ''}`}
+              onClick={() => setSelectedAmount(amount)}
+              disabled={buying}
+            >
+              {amount} SOL
+            </button>
+          ))}
+        </div>
+
+        <button
+          className="quick-buy-action primary"
+          onClick={handleBuy}
+          disabled={buying || !connected}
         >
-          View transaction
-        </a>
-      )}
+          {!connected ? 'Not Connected...' : buying ? 'Signing...' : `Buy ${selectedAmount} SOL`}
+        </button>
+
+        {error && <p className="quick-buy-error">{error}</p>}
+        {txSig && (
+          <a
+            className="quick-buy-tx"
+            href={`https://solscan.io/tx/${txSig}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View transaction
+          </a>
+        )}
+      </div>
     </div>
   );
 }
