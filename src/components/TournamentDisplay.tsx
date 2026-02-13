@@ -1,76 +1,82 @@
 import { useState, useEffect } from 'react';
-import Tournament, { TournamentData } from './Tournament';
+import EpisodeLoader from './EpisodeLoader';
 import './TournamentDisplay.css';
 
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
-
-interface TournamentDisplayProps {
-  onLoadComplete?: () => void;
+interface TournamentStages {
+  [stageName: string]: {
+    episodes: string[];
+  };
 }
 
-export default function TournamentDisplay({ onLoadComplete }: TournamentDisplayProps) {
-  const [tournaments, setTournaments] = useState<TournamentData[]>([]);
-  const [selectedTournamentId, setSelectedTournamentId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export interface TournamentData {
+  _id: string;
+  name: string;
+  description?: string;
+  channelId: string;
+  maxPlayers: number;
+  participants: string[];
+  stages: TournamentStages;
+  startTime: string;
+  createdAt: string;
+}
 
+export default function TournamentDisplay({ tournament }: { tournament: TournamentData }) {
+  const [currentStageIndex, setCurrentStageIndex] = useState(0);
+
+  // Get stages that have episodes
+  const stagesWithEpisodes = Object.entries(tournament.stages).filter(
+    ([, stage]) => stage.episodes.length > 0
+  );
+
+  const currentStage = stagesWithEpisodes[currentStageIndex];
+
+  const handlePrevStage = () => {
+    setCurrentStageIndex(prev => Math.max(0, prev - 1));
+  };
+
+  const handleNextStage = () => {
+    setCurrentStageIndex(prev => Math.min(stagesWithEpisodes.length - 1, prev + 1));
+  };
+
+  // Reset stage index when tournament changes
   useEffect(() => {
-    const fetchTournaments = async () => {
-      try {
-        const response = await fetch(`${API_URL}/rgn/get-tournaments`);
-        if (!response.ok) throw new Error('Failed to fetch tournaments');
-        const data = await response.json();
-        // Handle both array response and wrapped response (e.g., { tournaments: [...] })
-        const tournamentsArray = Array.isArray(data) ? data : (data.tournaments || data.data || []);
-        setTournaments(tournamentsArray);
-        if (tournamentsArray.length > 0) {
-          setSelectedTournamentId(tournamentsArray[0]._id);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load tournaments');
-      } finally {
-        setLoading(false);
-        onLoadComplete?.();
-      }
-    };
-
-    fetchTournaments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const selectedTournament = tournaments.find(t => t._id === selectedTournamentId);
+    setCurrentStageIndex(0);
+  }, [tournament._id]);
 
   return (
-    <section className="tournament-section">
-      <p className="tournament-description">
-        Top Actors face one another in brutal, single elimination competitions. Every match could be their last, so help them claim victory by casting a vote for your favorite!
-      </p>
+    <>
+      {tournament.description && (
+        <p className="tournament-details">{tournament.description}</p>
+      )}
 
-      {loading ? (
-        <div className="tournament-loading">Loading tournaments...</div>
-      ) : error ? (
-        <div className="tournament-error">{error}</div>
-      ) : tournaments.length === 0 ? (
-        <div className="tournament-empty">No tournaments available</div>
-      ) : (
-        <div className="tournament-content">
-          <select
-            className="tournament-dropdown"
-            value={selectedTournamentId || ''}
-            onChange={(e) => setSelectedTournamentId(e.target.value)}
-          >
-            {tournaments.map(tournament => (
-              <option key={tournament._id} value={tournament._id}>
-                {tournament.name}
-              </option>
-            ))}
-          </select>
+      {stagesWithEpisodes.length > 0 && currentStage && (
+        <div className="tournament-stage">
+          <div className="tournament-stage-nav">
+            <button
+              className="tournament-arrow"
+              onClick={handlePrevStage}
+              disabled={currentStageIndex === 0}
+            >
+              ←
+            </button>
+            <h2 className="tournament-stage-name">{currentStage[0]}</h2>
+            <button
+              className="tournament-arrow"
+              onClick={handleNextStage}
+              disabled={currentStageIndex === stagesWithEpisodes.length - 1}
+            >
+              →
+            </button>
+          </div>
 
-          {selectedTournament && (
-            <Tournament tournament={selectedTournament} />
-          )}
+          <EpisodeLoader
+            mode="ids"
+            assetIds={currentStage[1].episodes}
+            cacheKey={tournament._id}
+            className="tournament-matches"
+          />
         </div>
       )}
-    </section>
+    </>
   );
 }

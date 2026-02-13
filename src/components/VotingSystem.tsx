@@ -4,6 +4,7 @@ import { useWalletVerification } from '@/hooks/useWalletVerification';
 import { useAccount } from '@/context/AccountContext';
 import { Actor } from '@/utils/orderFetcher';
 import { ActorVoteEntry } from '@/components/ActorVoteEntry';
+import { CountdownTimer } from '@/components/CountdownTimer';
 import './VotingSystem.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
@@ -21,25 +22,9 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
   const [voting, setVoting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [votedIndex, setVotedIndex] = useState<number | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [voteCounts, setVoteCounts] = useState<number[]>(() => actors.map(a => a.votes));
 
   const votingActive = new Date(startTime).getTime() > Date.now();
-
-  // Update countdown timer every second
-  useEffect(() => {
-    const updateTimer = () => {
-      const now = Date.now();
-      const target = new Date(startTime).getTime();
-      const remaining = Math.max(0, target - now);
-      setTimeRemaining(remaining);
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-
-    return () => clearInterval(interval);
-  }, [startTime]);
 
   // Auto-clear error after 4 seconds
   useEffect(() => {
@@ -118,14 +103,6 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
     }
   };
 
-  const formatCountdown = (milliseconds: number): string => {
-    const totalSeconds = Math.floor(milliseconds / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    return `${hours}h ${minutes.toString().padStart(2, '0')}min ${seconds.toString().padStart(2, '0')}sec`;
-  };
 
   return (
     <div className="voting-system">
@@ -153,12 +130,7 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
 
       {error && <p className="voting-system-error">{error}</p>}
 
-      {votingActive && timeRemaining > 0 && (
-        <div className="voting-countdown">
-          <div className="voting-countdown-label">Voting Ends In</div>
-          <div className="voting-countdown-timer">{formatCountdown(timeRemaining)}</div>
-        </div>
-      )}
+      {votingActive && <CountdownTimer startTime={startTime} />}
 
     </div>
   );

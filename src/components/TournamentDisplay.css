@@ -37,3 +37,51 @@
   color: var(--color-text, #fff);
   cursor: pointer;
 }
+
+.tournament-stage {
+  margin-top: 1.5rem;
+}
+
+.tournament-stage-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tournament-stage-name {
+  flex: 1;
+  text-align: center;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.tournament-arrow {
+  padding: 0.5rem 1rem;
+  font-size: 1.25rem;
+  background: var(--color-bg-secondary, #1a1a1a);
+  color: var(--color-text, #fff);
+  border: 1px solid var(--color-border, #333);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.tournament-arrow:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.tournament-arrow:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tournament-details {
+  margin-bottom: 1rem;
+  color: var(--color-text-secondary, #888);
+}
+
+.tournament-matches {
+  margin-top: 1rem;
+}

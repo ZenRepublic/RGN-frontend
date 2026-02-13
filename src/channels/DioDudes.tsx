@@ -3,6 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { ChannelProps } from './channel';
 import { useIsInAppWalletBrowser } from '@/utils/walletUtils';
 import EpisodeSchedule from '@/components/EpisodeSchedule';
+import TournamentManager from '@/components/TournamentManager';
 import { getIdByNetwork } from '@/channels';
 import './DioDudes.css';
 
@@ -79,7 +80,6 @@ export default function DioDudes({ onError }: ChannelProps) {
         <button
           className={`tab-button ${activeTab === 'tournaments' ? 'active' : ''}`}
           onClick={() => handleTabChange('tournaments')}
-          disabled={!isWhitelisted}
         >
           Tournaments
         </button>
@@ -93,9 +93,7 @@ export default function DioDudes({ onError }: ChannelProps) {
       )}
 
       {activeTab === 'tournaments' && (
-        <div className="tournaments-section">
-          <p>Tournaments coming soon...</p>
-        </div>
+        <TournamentManager />
       )}
     </>
   );
