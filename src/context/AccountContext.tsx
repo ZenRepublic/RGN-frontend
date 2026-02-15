@@ -1,11 +1,7 @@
 import { createContext, useContext, useState, useCallback } from 'react';
+import type { Account } from '@/services/account';
 
-export interface Account {
-  _id: string;
-  displayName: string;
-  avatar: string | null;
-  createdAt: string;
-}
+export type { Account };
 
 interface AccountContextType {
   account: Account | null;

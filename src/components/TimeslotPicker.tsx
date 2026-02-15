@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import {getShortWeekDayDate} from "../utils/dateTimeFormatter"
 import './TimeslotPicker.css';
 
 interface TimeslotPickerProps {
@@ -24,15 +25,6 @@ export default function TimeslotPicker({ onSelect }: TimeslotPickerProps) {
     date.setDate(date.getDate() + dayOffset);
     return date;
   }, [dayOffset]);
-
-  const formatDate = (date: Date) => {
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    };
-    return date.toLocaleDateString(undefined, options);
-  };
 
   const handlePrevDay = () => {
     if (dayOffset > 0) {
@@ -123,7 +115,7 @@ export default function TimeslotPicker({ onSelect }: TimeslotPickerProps) {
         >
           ‹
         </button>
-        <span className="timeslot-date">{formatDate(selectedDate)}</span>
+        <span className="timeslot-date">{getShortWeekDayDate(selectedDate)}</span>
         <button
           type="button"
           className="timeslot-nav-btn"

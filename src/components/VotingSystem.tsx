@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useWalletVerification } from '@/hooks/useWalletVerification';
 import { useAccount } from '@/context/AccountContext';
 import { Actor } from '@/utils/orderFetcher';
 import { ActorVoteEntry } from '@/components/ActorVoteEntry';
 import { CountdownTimer } from '@/components/CountdownTimer';
+import { useCheckVoteStatus, useHandleVote } from '@/hooks/useVotingSystem';
 import './VotingSystem.css';
-
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
 interface VotingSystemProps {
   orderId: string;
@@ -17,8 +15,10 @@ interface VotingSystemProps {
 
 export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) {
   const { publicKey } = useWallet();
-  const { verify } = useWalletVerification();
   const { hasAccount } = useAccount();
+  const checkVoteStatusFn = useCheckVoteStatus();
+  const handleVoteFn = useHandleVote();
+
   const [voting, setVoting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [votedIndex, setVotedIndex] = useState<number | null>(null);
@@ -43,25 +43,15 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
       return;
     }
 
-    const checkVoteStatus = async () => {
-      try {
-        const params = new URLSearchParams({
-          orderId,
-          walletAddress: publicKey.toBase58(),
-        });
-        const response = await fetch(`${API_URL}/rgn/episodes/vote-status?${params}`);
-        const data = await response.json();
-
-        if (response.ok && data.hasVoted) {
-          setVotedIndex(data.votedActorIndex);
-        }
-      } catch {
-        // If check fails, just let them try to vote — backend will reject duplicates
+    const checkUserVote = async () => {
+      const result = await checkVoteStatusFn(orderId, publicKey);
+      if (result?.hasVoted) {
+        setVotedIndex(result.votedActorIndex ?? null);
       }
     };
 
-    checkVoteStatus();
-  }, [orderId, publicKey, hasAccount]);
+    checkUserVote();
+  }, [orderId, publicKey, hasAccount, checkVoteStatusFn]);
 
   const handleVote = async (actorIndex: number) => {
     if (!hasAccount || !publicKey) {
@@ -73,29 +63,15 @@ export function VotingSystem({ orderId, actors, startTime }: VotingSystemProps) 
     setError(null);
 
     try {
-      // Get verification data (challenge, sign message, return signature)
-      const verificationData = await verify();
+      const result = await handleVoteFn(orderId, actorIndex);
 
-      // Cast vote with all verification data
-      const response = await fetch(`${API_URL}/rgn/episodes/vote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId,
-          actorIndex,
-          ...verificationData,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || 'Failed to cast vote');
+      if (!result.success) {
+        setError(result.error || 'Failed to cast vote');
         return;
       }
 
       setVotedIndex(actorIndex);
-      setVoteCounts(prev => prev.map((v, i) => i === actorIndex ? v + data.votePower : v));
+      setVoteCounts(prev => prev.map((v, i) => i === actorIndex ? v + (result.votePower ?? 0) : v));
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to cast vote');
     } finally {

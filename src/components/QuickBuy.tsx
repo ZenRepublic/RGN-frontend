@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useConnection } from '@solana/wallet-adapter-react';
-import { PublicKey, Transaction } from '@solana/web3.js';
-import { PumpAmmSdk, OnlinePumpAmmSdk, canonicalPumpPoolPda } from '@pump-fun/pump-swap-sdk';
-import BN from 'bn.js';
+import { executeQuickBuy } from '../services/pumpSwap';
 import './QuickBuy.css';
 
 const TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS;
 const SOL_AMOUNTS = [0.1, 0.25, 0.5];
-const SLIPPAGE = 0.005; // 0.5%
 
 function truncateAddress(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
@@ -52,40 +49,21 @@ export function QuickBuy({ isOpen, onClose }: QuickBuyProps) {
     setError(null);
     setTxSig(null);
 
-    try {
-      const tokenMint = new PublicKey(TOKEN_ADDRESS);
+    const { signature, error } = await executeQuickBuy(
+      connection,
+      TOKEN_ADDRESS,
+      selectedAmount,
+      publicKey,
+      sendTransaction
+    );
 
-      // Derive the canonical pool PDA for this token
-      const poolKey = canonicalPumpPoolPda(tokenMint);
-
-      // OnlinePumpAmmSdk fetches on-chain state, PumpAmmSdk builds instructions
-      const onlineSdk = new OnlinePumpAmmSdk(connection);
-      const sdk = new PumpAmmSdk();
-
-      // Fetch pool + global config state needed for the swap
-      const swapState = await onlineSdk.swapSolanaState(poolKey, publicKey);
-
-      // buyQuoteInput: buy tokens by specifying SOL (quote) amount
-      const lamports = new BN(Math.round(selectedAmount * 1e9));
-      const instructions = await sdk.buyQuoteInput(
-        swapState,
-        lamports,
-        SLIPPAGE,
-      );
-
-      const tx = new Transaction().add(...instructions);
-      tx.feePayer = publicKey;
-      tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-
-      const signature = await sendTransaction(tx, connection);
-      await connection.confirmTransaction(signature, 'confirmed');
+    if (error) {
+      setError(error);
+    } else if (signature) {
       setTxSig(signature);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Transaction failed';
-      setError(msg);
-    } finally {
-      setBuying(false);
     }
+
+    setBuying(false);
   };
 
   return (

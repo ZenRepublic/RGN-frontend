@@ -1,8 +1,7 @@
 import { useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import bs58 from 'bs58';
-
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+import { getVerificationChallenge } from '@/services/walletAuth';
 
 export interface VerificationData {
   walletAddress: string;
@@ -22,18 +21,7 @@ export function useWalletVerification() {
     const walletAddress = publicKey.toBase58();
 
     // Step 1: Get challenge from server
-    const challengeRes = await fetch(`${API_URL}/rgn/verification/challenge`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ walletAddress }),
-    });
-
-    if (!challengeRes.ok) {
-      const error = await challengeRes.json();
-      throw new Error(error.error || 'Failed to get challenge');
-    }
-
-    const { message, challengeId } = await challengeRes.json();
+    const { message, challengeId } = await getVerificationChallenge(walletAddress);
 
     // Step 2: Sign the message with wallet
     const messageBuffer = Buffer.from(message, 'utf-8');

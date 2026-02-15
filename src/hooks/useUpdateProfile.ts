@@ -1,10 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useWalletVerification } from './useWalletVerification';
+import { useWalletVerification } from './useWalletAuth';
 import type { Account } from '@/context/AccountContext';
 import type { ActorData } from '@/components/ActorInfoForm';
-
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+import { updateAccount } from '@/services/account';
 
 export interface UpdateProfileStep {
   status: 'idle' | 'getting-challenge' | 'signing' | 'updating' | 'success' | 'error';
@@ -30,25 +29,13 @@ export function useUpdateProfile() {
       setStep({ status: 'signing' });
 
       setStep({ status: 'updating' });
-      const res = await fetch(`${API_URL}/rgn/account/${verificationData.walletAddress}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          displayName: actorData.name,
-          imageBuffer: actorData.imageBuffer,
-          challengeId: verificationData.challengeId,
-          message: verificationData.message,
-          signature: verificationData.signature,
-        }),
+      const account = await updateAccount(verificationData.walletAddress, {
+        displayName: actorData.name,
+        imageBuffer: actorData.imageBuffer || '',
+        challengeId: verificationData.challengeId,
+        message: verificationData.message,
+        signature: verificationData.signature,
       });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Failed to update profile');
-      }
-
-      const data = await res.json();
-      const account = data.account || data;
       setStep({ status: 'success', account });
     } catch (error) {
       console.error('Update profile error:', error);

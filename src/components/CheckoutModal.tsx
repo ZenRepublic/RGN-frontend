@@ -1,35 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Transaction } from '@solana/web3.js';
-import { Buffer } from 'buffer';
 import { EpisodeOrderFormData } from '@/channels/channel';
 import { storeOrderResult } from '@/pages/OrderSuccess';
+import { usePrepareOrder, useConfirmOrder } from '@/hooks/useEpisodePurchase';
+import { OrderResult } from '@/services/episodePurchase';
 
 import './CheckoutModal.css';
-
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
 interface PaymentInfo {
   success: boolean;
   price: string;
   wallet: string;
-}
-
-export interface OrderResult {
-  channelId?: string,
-  episodeId?: string;
-  coverImageUrl?: string;
-  queuePosition: number;
-  estimatedDelivery: string;
-  error?: string;
-}
-
-interface PrepareResponse {
-  transaction: string;
-  channelId: string,
-  episodeId: string;
-  error?: string;
 }
 
 type ModalStep = 'details' | 'processing' | 'confirming';
@@ -53,6 +35,8 @@ export default function CheckoutModal({
 }: CheckoutModalProps) {
   const navigate = useNavigate();
   const { publicKey, signTransaction, connected } = useWallet();
+  const prepareOrder = usePrepareOrder();
+  const confirmOrder = useConfirmOrder();
 
   const [step, setStep] = useState<ModalStep>('details');
   const [loading, setLoading] = useState(false);
@@ -84,55 +68,30 @@ export default function CheckoutModal({
     console.log('Preparing order...');
 
     try {
-      const prepareResponse = await fetch(`${API_URL}/rgn/orders/prepare`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userWallet: publicKey.toBase58(), channelId })
-      });
-
-      const prepareData = await prepareResponse.json() as PrepareResponse;
-
-      if (!prepareResponse.ok) {
-        throw new Error(prepareData.error || 'Failed to prepare order');
-      }
-
-      const { transaction: txBase64, channelId: responseChannelId, episodeId } = prepareData;
-
-      const txBytes = Uint8Array.from(atob(txBase64), c => c.charCodeAt(0));
-      const transaction = Transaction.from(txBytes);
+      const { transaction, episodeId } = await prepareOrder(
+        publicKey.toBase58(),
+        channelId
+      );
 
       console.log('Signing transaction...');
       const signed = await signTransaction(transaction);
-      const signedTransaction = Buffer.from(
-        signed.serialize({ requireAllSignatures: false, verifySignatures: false })
-      ).toString('base64');
 
       console.log('Sending signed transaction to server...');
       setStep('confirming');
 
-      const confirmResponse = await fetch(`${API_URL}/rgn/orders/confirm`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          signedTransaction,
-          channelId,
-          episodeId,
-          actorData: formData.actors,
-          startTime: formData.startTime
-        })
-      });
+      const data = await confirmOrder(
+        signed,
+        channelId,
+        episodeId,
+        formData.actors,
+        formData.startTime || ''
+      );
 
-      const data = await confirmResponse.json() as OrderResult;
-
-      if (!confirmResponse.ok && data.episodeId) {
+      if (data.episodeId) {
         // Partial success - NFT minted but metadata failed
         storeOrderResult(data);
         navigate('/order-success');
         return;
-      }
-
-      if (!confirmResponse.ok) {
-        throw new Error(data.error || 'Failed to confirm order');
       }
 
       storeOrderResult(data as OrderResult);

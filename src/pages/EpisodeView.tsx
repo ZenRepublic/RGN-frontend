@@ -4,6 +4,7 @@ import { Header } from '@/components/Header';
 import { AssetInspector } from '@/components/AssetInspector';
 import { VotingSystem } from '@/components/VotingSystem';
 import { Order, fetchOrderById } from '@/utils/orderFetcher';
+import { getFullAMPMDate } from '../utils/dateTimeFormatter';
 import './EpisodeView.css';
 
 const EPISODE_VIEW_KEY = 'rgn-episode-view';
@@ -147,17 +148,7 @@ export default function EpisodeView() {
               <div className="episode-view-meta-row">
                 <p className="episode-view-meta-label">Date:</p>
                 <p className="episode-view-meta-value">
-                  {(() => {
-                    const d = new Date(asset.startTime);
-                    const yy = String(d.getFullYear()).slice(2);
-                    const mm = String(d.getMonth() + 1).padStart(2, '0');
-                    const dd = String(d.getDate()).padStart(2, '0');
-                    const h = d.getHours();
-                    const min = String(d.getMinutes()).padStart(2, '0');
-                    const ampm = h >= 12 ? 'PM' : 'AM';
-                    const h12 = h % 12 || 12;
-                    return `${yy}/${mm}/${dd} ${h12}:${min}${ampm}`;
-                  })()}
+                  {getFullAMPMDate(new Date(asset.startTime))}
                 </p>
               </div>
             )}

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useAccount } from '@/context/AccountContext';
-
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+import { getAccountStatus } from '@/services/account';
 
 export interface Account {
   _id: string;
@@ -37,28 +36,22 @@ export function useAccountStatus() {
       setError(null);
 
       try {
-        const response = await fetch(`${API_URL}/rgn/account/${walletAddress}`);
+        const account = await getAccountStatus(walletAddress);
 
-        // 404 means no account found - this is expected
-        if (response.status === 404) {
+        if (account === null) {
           setContextAccount(null);
           setError(null);
           setLoading(false);
           return;
         }
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-        setContextAccount(data.account || data);
+        setContextAccount(account);
         setError(null);
         setLoading(false);
       } catch (err) {
         console.error('Failed to check account status:', err);
         setContextAccount(null);
-        setError(null); // Silently handle errors - 404 is expected for new accounts
+        setError(null);
         setLoading(false);
       }
     };

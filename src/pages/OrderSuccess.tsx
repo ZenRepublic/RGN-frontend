@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { OrderResult } from '../components/CheckoutModal';
+import { OrderResult } from '../services/episodePurchase';
 import './OrderSuccess.css';
 
 const ORDER_RESULT_KEY = 'rgn-order-result';

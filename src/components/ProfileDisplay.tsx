@@ -1,18 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './ProfileDisplay.css';
 import { QuickBuy } from './QuickBuy';
-
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
-
-interface VotePowerData {
-  tokenBalance: number;
-  votePower: number;
-  tiers: Array<{
-    title: string;
-    minTokens: number;
-    votePower: number;
-  }>;
-}
+import { useAccountVotePower } from '@/hooks/useAccountVotePower';
+import { formatTokenBalance } from '@/utils/tokenFormatter';
+import { getShortYearMonthDayDate } from '@/utils/dateTimeFormatter';
 
 interface ProfileDisplayProps {
   loading: boolean;
@@ -24,49 +15,10 @@ interface ProfileDisplayProps {
   } | null;
 }
 
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-}
-
 export function ProfileDisplay({ loading, account }: ProfileDisplayProps) {
-  const [votePower, setVotePower] = useState<VotePowerData | null>(null);
-  const [votePowerLoading, setVotePowerLoading] = useState(false);
+  const { votePower, loading: votePowerLoading } = useAccountVotePower(account?._id);
   const [showQuickBuy, setShowQuickBuy] = useState(false);
 
-  useEffect(() => {
-    if (!account?._id) return;
-
-    const fetchVotePower = async () => {
-      try {
-        setVotePowerLoading(true);
-        const response = await fetch(`${API_URL}/rgn/account/${account._id}/vote-power`);
-        if (!response.ok) throw new Error('Failed to fetch vote power');
-        const data = await response.json();
-        setVotePower(data);
-      } catch (error) {
-        console.error('Error fetching vote power:', error);
-      } finally {
-        setVotePowerLoading(false);
-      }
-    };
-
-    fetchVotePower();
-  }, [account?._id]);
-
-  const formatTokenBalance = (balance: number): string => {
-    if (balance >= 1000000) {
-      return (balance / 1000000).toFixed(2) + 'M';
-    }
-    if (balance >= 1000) {
-      return (balance / 1000).toFixed(2) + 'K';
-    }
-    return balance.toString();
-  };
 
   return (
     <>
@@ -93,7 +45,7 @@ export function ProfileDisplay({ loading, account }: ProfileDisplayProps) {
 
             <div className="profile-info-section">
               <h2 className="profile-username">{account.displayName}</h2>
-              <p className="profile-joined">Joined {formatDate(account.createdAt)}</p>
+              <p className="profile-joined">Joined {getShortYearMonthDayDate(account.createdAt)}</p>
             </div>
           </div>
 

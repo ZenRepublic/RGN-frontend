@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getShortMonthDayDate } from '../utils/dateTimeFormatter';
 import './DaySelector.css';
 
 interface DaySelectorProps {
@@ -28,12 +29,6 @@ const DaySelector: React.FC<DaySelectorProps> = ({ onDateSelect }) => {
       dates.push(date);
     }
     return dates;
-  };
-
-  const formatDate = (date: Date) => {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    return `${month}.${day}`;
   };
 
   const dates = generateDates();
@@ -211,7 +206,7 @@ const DaySelector: React.FC<DaySelectorProps> = ({ onDateSelect }) => {
               className={`day-button ${isSelected ? 'selected' : ''}`}
               onClick={() => handleDateClick(date)}
             >
-              {isToday(date) ? 'TODAY' : formatDate(date)}
+              {isToday(date) ? 'TODAY' : getShortMonthDayDate(date)}
             </button>
           );
         })}

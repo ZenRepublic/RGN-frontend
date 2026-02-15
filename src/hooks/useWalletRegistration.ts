@@ -1,9 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useWalletVerification } from './useWalletVerification';
+import { useWalletVerification } from './useWalletAuth';
 import { Account } from '@/context/AccountContext';
-
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+import { registerAccount } from '@/services/account';
 
 export interface RegistrationStep {
   status: 'idle' | 'getting-challenge' | 'signing' | 'registering' | 'success' | 'error';
@@ -33,19 +32,7 @@ export function useWalletRegistration() {
 
       // Step 3: Register account with verification data
       setStep({ status: 'registering' });
-      const registerRes = await fetch(`${API_URL}/rgn/account/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(verificationData),
-      });
-
-      if (!registerRes.ok) {
-        const error = await registerRes.json();
-        throw new Error(error.error || 'Failed to register account');
-      }
-
-      const data = await registerRes.json();
-      const account = data.account || data;
+      const account = await registerAccount(verificationData);
       setStep({ status: 'success', account });
     } catch (error) {
       console.error('Registration error:', error);
