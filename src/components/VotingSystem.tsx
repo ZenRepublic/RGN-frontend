@@ -4,7 +4,7 @@ import { useAccount } from '@/context/AccountContext';
 import { Actor } from '@/utils/orderFetcher';
 import { ActorVoteEntry } from '@/components/ActorVoteEntry';
 import { CountdownTimer } from '@/components/CountdownTimer';
-import { useCheckVoteStatus, useHandleVote } from '@/hooks/useVotingSystem';
+import { useCheckVoteStatus, useHandleVote } from '@/hooks/useEpisodeVoting';
 import './VotingSystem.css';
 
 interface VotingSystemProps {
