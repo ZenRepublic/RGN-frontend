@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { ChannelProps } from './channel';
-import { useIsInAppWalletBrowser } from '@/utils/walletUtils';
+import { useIsInAppWalletBrowser } from '@/utils/deviceChecker';
 import EpisodeSchedule from '@/components/EpisodeSchedule';
 import TournamentManager from '@/components/TournamentManager';
 import { getIdByNetwork } from '@/channels';
