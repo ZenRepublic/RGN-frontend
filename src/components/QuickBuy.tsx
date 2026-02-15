@@ -96,10 +96,10 @@ export function QuickBuy({ isOpen, onClose }: QuickBuyProps) {
           <button className="quick-buy-close" onClick={onClose}>Close</button>
         </div>
 
-        <img src="/QuickBuy.png" alt="Quick Buy" className="quick-buy-header-img" />
+        <img src="/Images/QuickBuy.png" alt="Quick Buy" className="quick-buy-header-img" />
 
         <div className="quick-buy-token">
-          <img src="/RGNTokenLogo.png" alt="RGN" className="quick-buy-logo" />
+          <img src="/Branding/logo.png" alt="RGN" className="quick-buy-logo" />
           <div className="quick-buy-token-info">
             <span className="quick-buy-symbol">$RGN</span>
             {TOKEN_ADDRESS && (

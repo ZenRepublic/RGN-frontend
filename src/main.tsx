@@ -47,7 +47,7 @@ registerMwa({
   appIdentity: {
     name: 'Ruby Global Network',
     uri: window.location.origin,
-    icon: '/logo.png', // must exist in /public
+    icon: '/Branding/logo.png', // must exist in /public
   },
   authorizationCache: createDefaultAuthorizationCache(),
   chains: [SOLANA_CHAIN],

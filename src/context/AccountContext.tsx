@@ -5,11 +5,6 @@ export interface Account {
   displayName: string;
   avatar: string | null;
   createdAt: string;
-  stats?: {
-    totalVotes: number;
-    correctVotes: number;
-    winRate: number;
-  };
 }
 
 interface AccountContextType {

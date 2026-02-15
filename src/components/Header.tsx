@@ -34,7 +34,7 @@ export function Header() {
       <div className="header-row">
         <div className="header-left">
           <Link to="/" className="header-logo-link" aria-label="Go to home">
-            <img src="/LogoTransparent.png" alt="RGN Logo" className="header-logo" />
+            <img src="/Branding/LogoTransparent.png" alt="RGN Logo" className="header-logo" />
           </Link>
           <div className="social-links">
             <a

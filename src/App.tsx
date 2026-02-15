@@ -24,8 +24,8 @@ function App() {
       <Header />
 
       <header>
-        <img src="/BannerWithLogo.png" alt="RGN Banner" className="banner" />
-        <div className="header-links">
+        <img src="/Branding/BannerWithLogo.png" alt="RGN Banner" className="banner" />
+        <div className="menu-items">
           <a
             href="https://hackmd.io/@8M-xMt20QZyakYyaxdBBTA/SJrR9h2IZe"
             target="_blank"

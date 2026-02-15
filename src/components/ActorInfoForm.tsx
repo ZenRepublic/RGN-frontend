@@ -8,7 +8,7 @@ export interface ActorData {
   imageBuffer: string | null;
 }
 
-export const DEFAULT_ACTOR_IMAGE = '/mystery-actor.png';
+export const DEFAULT_ACTOR_IMAGE = '/Images/mystery-actor.png';
 
 export const createDefaultActor = (): ActorData => ({
   name: '',

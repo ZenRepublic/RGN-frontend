@@ -65,10 +65,6 @@ export default function OrderSuccess() {
         ))}
       </div>
 
-      {/* <header>
-        <img src="/BannerWithLogo.png" alt="RGN Banner" className="banner" />
-      </header> */}
-
       <div className="success-container">
         {orderResult.coverImageUrl && (
           <div className="success-nft-preview">

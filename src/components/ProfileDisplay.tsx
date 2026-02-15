@@ -82,11 +82,11 @@ export function ProfileDisplay({ loading, account }: ProfileDisplayProps) {
           <div className="profile-top">
             <div className="profile-image-section">
               <img
-                src={account.avatar || '/mystery-actor.png'}
+                src={account.avatar || '/Images/mystery-actor.png'}
                 alt={account.displayName}
                 className="profile-image"
                 onError={(e) => {
-                  e.currentTarget.src = '/mystery-actor.png';
+                  e.currentTarget.src = '/Images/mystery-actor.png';
                 }}
               />
             </div>
@@ -105,7 +105,7 @@ export function ProfileDisplay({ loading, account }: ProfileDisplayProps) {
               <div className="vote-tier-container">
                 <div className="vote-tier-left">
                   <div className="token-balance">
-                    <img src="/RGNTokenLogo.png" alt="RGN Token" className="token-logo" />
+                    <img src="/Branding/logo.png" alt="RGN Token" className="token-logo" />
                     <span className="token-amount">{formatTokenBalance(votePower.tokenBalance)}</span>
                   </div>
                   <button className="get-more-btn" onClick={() => setShowQuickBuy(true)}>Get More</button>

@@ -76,7 +76,7 @@ export default function RegistrationView() {
 
         <div className="registration-image-section">
           <img
-            src="/JoinNow.jpg"
+            src="/Images/JoinNow.jpg"
             alt="Join Now"
             className="registration-image"
           />
