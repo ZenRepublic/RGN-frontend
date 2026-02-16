@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Order } from '@/utils/orderFetcher';
+import { Order } from '../utils';
 import { storeToCache } from '@/pages/EpisodeView';
 import './EpisodeDisplay.css';
 

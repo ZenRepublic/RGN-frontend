@@ -39,40 +39,11 @@
   color: var(--gray);
 }
 
-/* Form wallet overlay (covers the form section including checkout button) */
-.form-wallet-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--blue-main);
-  opacity: 0.8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  border-radius: 12px;
-}
-
-.form-wallet-prompt {
-  text-align: center;
-  padding: 24px;
-}
-
-.form-wallet-prompt h3 {
-  color: var(--blue-main);
-  margin-bottom: 16px;
-  font-size: 1.1rem;
-}
-
-
 .tab-buttons {
   display: flex;
   gap: clamp(0.5rem, 2vw, 1rem);
   margin-bottom: 2rem;
   flex-wrap: wrap;
-  /* border-bottom: 5px solid #ccc; */
 }
 
 .tab-button {
@@ -101,4 +72,3 @@
   opacity: 0.3;
   cursor: not-allowed;
 }
-

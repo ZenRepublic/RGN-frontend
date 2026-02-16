@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import DaySelector from './DaySelector';
 import EpisodeLoader from './EpisodeLoader';
-import { fetchOrdersByRange, Order } from '@/utils/orderFetcher';
+import { fetchOrdersByRange, Order } from '../utils';
 import './EpisodeSchedule.css';
 
 interface EpisodeScheduleProps {

@@ -1,0 +1,37 @@
+.toggle-button-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.toggle-btn {
+  padding: 12px 20px;
+  font-family: 'Xirod', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #1A1A1A;
+  color: var(--gray);
+  cursor: pointer;
+  transition: all 0.2s;
+  width: auto;
+}
+
+.toggle-btn:hover:not(:disabled):not(.active) {
+  border-color: var(--blue-main);
+  color: var(--white);
+}
+
+.toggle-btn.active {
+  background: var(--blue-main);
+  border-color: var(--white);
+  color: var(--white);
+  cursor: default;
+}
+
+.toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -2,8 +2,8 @@ import { useState } from 'react';
 import './ProfileDisplay.css';
 import { QuickBuy } from './QuickBuy';
 import { useAccountVotePower } from '@/hooks/useAccountVotePower';
-import { formatTokenBalance } from '@/utils/tokenFormatter';
-import { getShortYearMonthDayDate } from '@/utils/dateTimeFormatter';
+import { formatTokenBalance } from '../utils'
+import { getShortYearMonthDayDate } from '../utils'
 
 interface ProfileDisplayProps {
   loading: boolean;

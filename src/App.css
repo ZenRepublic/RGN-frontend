@@ -1,11 +1,4 @@
-.app {
-  width: 100%;
-  position: relative;
-  z-index: 1;
-  padding-top: 72px;
-}
-
-header {
+.hero-section {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -13,58 +6,11 @@ header {
   width: 100%;
 }
 
-header .banner {
+.hero-section .banner {
   width: 100%;
   height: auto;
   border-radius: 12px;
   margin-bottom: 16px;
-}
-
-/* Tab group */
-.tab-group {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.tab-btn {
-  padding: 12px 20px;
-  font-family: 'Xirod', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  border: 2px solid #333;
-  border-radius: 8px;
-  background: #1A1A1A;
-  color: var(--gray);
-  cursor: pointer;
-  transition: all 0.2s;
-  width: auto;
-}
-
-.tab-btn:hover:not(:disabled):not(.active) {
-  border-color: var(--blue-main);
-  color: var(--white);
-}
-
-.tab-btn.active {
-  background: var(--blue-main);
-  border-color: var(--white);
-  color: var(--white);
-  cursor: default;
-}
-
-.tab-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Form sections */
-.order-form {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
 }
 
 .section {
@@ -79,124 +25,9 @@ header .banner {
   margin-bottom: 16px;
 }
 
-/* Override wallet adapter button styles */
-.wallet-adapter-button {
-  background: var(--yellow) !important;
-  color: var(--black) !important;
-  border-radius: 8px !important;
-  font-family: inherit !important;
-  font-size: 14px !important;
-  height: auto !important;
-  padding: 10px 16px !important;
-}
-
-.wallet-adapter-button:hover {
-  background: #e6d62c !important;
-}
-
-.field {
-  margin-bottom: 16px;
-}
-
-.field:last-child {
-  margin-bottom: 0;
-}
-
-select {
-  font-family: inherit;
-  font-size: 16px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  border: 2px solid #333;
-  background: #1A1A1A;
-  color: var(--white);
-  width: 100%;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-
-select:focus {
-  outline: none;
-  border-color: var(--blue-main);
-}
-
-/* Error message */
-.error {
-  background: rgba(255, 47, 31, 0.1);
-  border: 1px solid var(--red);
-  color: var(--red);
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.header-row {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 16px;
-  gap: 16px;
-}
-
-.header-row > * {
-  flex: 0 0 auto;
-}
-
-.menu-items {
-  display: flex;
-  justify-content: flex-start;
-  gap: 16px;
-  margin-bottom: 16px;
-  padding-left: 16px;
-  width: 100%;
-}
-
-.menu-items a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s, opacity 0.2s;
-}
-
-.menu-items a:hover {
-  transform: scale(1.1);
-  opacity: 0.8;
-}
-
-.menu-items .litepaper-btn img {
-  height: 36px;
-  width: auto;
-}
-
-.menu-items .pumpswap-btn img {
-  height: 36px;
-  width: auto;
-}
-
-/* Powered by footer */
-.powered-by {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 32px;
-  padding: 16px;
-  color: var(--white);
-  font-size: 16px;
-}
-
-.powered-by img {
-  height: 40px;
-  width: auto;
-}
-
-
 /* Responsive - Tablet and up */
 @media (min-width: 768px) {
-  header {
+  .hero-section {
     margin-bottom: 48px;
   }
 

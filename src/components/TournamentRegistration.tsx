@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { TournamentData } from './TournamentDisplay';
-import { CountdownTimer } from './CountdownTimer';
+import { CountdownTimer } from '../primitives';
 import { useJoinTournament } from '@/hooks/useTournament';
 import { useAccountStatus } from '@/hooks/useAccountStatus';
+import { getLongMonthDayYearDate } from '../utils'
 import './TournamentRegistration.css';
 
 interface TournamentRegistrationProps {
@@ -20,12 +21,6 @@ export default function TournamentRegistration({ tournament, onRegistrationCompl
   const registeredCount = tournament.participants.length;
   const maxPlayers = tournament.maxPlayers;
   const isFull = registeredCount >= maxPlayers;
-
-  const startDate = new Date(tournament.startTime).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
 
   const handleRegister = async () => {
     if (!tournament._id) return;
@@ -49,7 +44,7 @@ export default function TournamentRegistration({ tournament, onRegistrationCompl
         {tournament.description && (
           <p className="tournament-registration-description">{tournament.description}</p>
         )}
-        <p className="tournament-registration-start-date">Starts on {startDate}</p>
+        <p className="tournament-registration-start-date">Starts on {getLongMonthDayYearDate(tournament.startTime)}</p>
 
         <div className="tournament-registration-info">
           <div className="registration-stat">

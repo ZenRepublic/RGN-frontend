@@ -1,0 +1,161 @@
+/* Button Styles */
+
+button {
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-lg) var(--space-2xl);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary — white */
+button.primary {
+  background: var(--white);
+  color: var(--black);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  padding: 10px 20px;
+  width: auto;
+  min-width: 140px;
+  box-shadow: var(--shadow-sm);
+}
+
+button.primary:hover:not(:disabled) {
+  background: #f3f3f3;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-light-md);
+}
+
+button.primary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Secondary — blue */
+button.secondary {
+  background: var(--blue-main);
+  color: var(--white);
+}
+
+button.secondary:hover:not(:disabled) {
+  background: var(--blue-secondary);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+button.secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Special — yellow with display font and shine */
+button.special {
+  position: relative;
+  overflow: hidden;
+  background: var(--yellow);
+  color: var(--black);
+  font-family: var(--font-display);
+}
+
+button.special::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  background: linear-gradient(
+    120deg,
+    transparent calc(50% - 16px),
+    white calc(50% - 16px),
+    white calc(50% - 6px),
+    transparent calc(50% - 6px),
+    transparent calc(50% - 2px),
+    white calc(50% - 2px),
+    white calc(50% + 2px),
+    transparent calc(50% + 2px)
+  );
+  transform: translateX(-150%);
+  animation: shine 3s infinite;
+}
+
+button.special:hover:not(:disabled) {
+  background: #e6d62c;
+  box-shadow: var(--shadow-lg);
+}
+
+button.special:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Back — red */
+button.back {
+  background: var(--red);
+  color: var(--white);
+  width: fit-content;
+  padding: 12px 20px;
+}
+
+button.back:hover:not(:disabled) {
+  opacity: 0.85;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+button.back:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+button.back.full-width {
+  width: 100%;
+}
+
+/* Image Button — icon/menu buttons */
+.image-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.image-button:hover:not(.disabled) {
+  transform: scale(1.1);
+}
+
+.image-button:active:not(.disabled) {
+  opacity: 0.6;
+}
+
+.image-button.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  button {
+    padding: 12px 20px;
+  }
+
+  button.primary {
+    font-size: 14px;
+    padding: 9px 18px;
+    min-width: 120px;
+  }
+}

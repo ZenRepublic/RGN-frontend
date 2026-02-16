@@ -2,14 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Header } from '@/components/Header';
-import { ConnectWalletButton } from '@/components/ConnectWalletButton';
+import { ConnectWalletButton } from '@/primitives/buttons/ConnectWalletButton';
 import { ProfileDisplay } from '@/components/ProfileDisplay';
 import { UpdateProfileModal } from '@/components/UpdateProfileModal';
 import { useAccountStatus } from '@/hooks/useAccountStatus';
 import { useUpdateProfile } from '@/hooks/useUpdateProfile';
 import { useAccount } from '@/context/AccountContext';
 import EpisodeLoader from '@/components/EpisodeLoader';
-import { getIdByNetwork } from '@/channels';
+import { getIdByNetwork } from '@/features/channels';
 import type { ActorData } from '@/components/ActorInfoForm';
 import './AccountView.css';
 

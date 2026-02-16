@@ -1,4 +1,4 @@
-.sticky-header {
+.header {
   position: fixed;
   top: 8px;
   left: 50%;
@@ -16,132 +16,52 @@
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
 }
 
-.sticky-header.visible {
+.header.visible {
   transform: translateX(-50%) translateY(0);
   opacity: 1;
 }
 
-.sticky-header.hidden {
+.header.hidden {
   transform: translateX(-50%) translateY(-120%);
   opacity: 0;
   pointer-events: none;
 }
 
-.sticky-header .header-row {
+.header .header-row {
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
   gap: 16px;
-  margin-bottom: 0;
 }
 
-.sticky-header .header-row > * {
-  flex: 0 0 auto;
-}
-
-.sticky-header .header-left {
+.header .header-left {
   display: flex;
   align-items: center;
   gap: 20px;
 }
 
-.sticky-header .social-links {
+.header .social-links {
   display: flex;
-  align-items: center;
   gap: 16px;
-  margin-bottom: 0;
 }
 
-.sticky-header .social-links a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  transition: transform 0.2s, opacity 0.2s;
-}
-
-.sticky-header .social-links a:hover {
-  transform: scale(1.1);
-  opacity: 0.8;
-}
-
-.sticky-header .social-links svg {
+.header .social-link svg {
   width: 28px;
   height: 28px;
   fill: var(--white);
 }
 
-.sticky-header .header-logo-link {
-  display: flex;
-  align-items: center;
+.header .header-logo-link {
   transition: transform 0.2s, opacity 0.2s;
 }
 
-.sticky-header .header-logo-link:hover {
+.header .header-logo-link:hover {
   transform: scale(1.05);
   opacity: 0.9;
 }
 
-.sticky-header .header-logo {
+.header .header-logo {
   height: 45px;
   width: auto;
-}
-
-.sticky-header .header-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sticky-header .litepaper-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.18s ease;
-}
-
-.sticky-header .litepaper-btn:hover {
-  transform: scale(1.1);
-  opacity: 0.85;
-}
-
-.sticky-header .litepaper-btn:active {
-  transform: scale(0.95);
-}
-
-.sticky-header .litepaper-icon {
-  height: 32px;
-  width: auto;
-}
-
-.sticky-header .pumpswap-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.18s ease;
-}
-
-.sticky-header .pumpswap-btn:hover {
-  transform: scale(1.1);
-  opacity: 0.85;
-}
-
-.sticky-header .pumpswap-btn:active {
-  transform: scale(0.95);
-}
-
-.sticky-header .pumpswap-btn.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.sticky-header .pumpswap-icon {
-  height: 32px;
-  width: auto;
+  display: block;
 }

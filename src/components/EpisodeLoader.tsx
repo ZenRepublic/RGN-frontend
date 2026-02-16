@@ -6,11 +6,11 @@ import {
   fetchOrdersByChannel,
   fetchOrdersByDate,
   Order,
-} from '@/utils/orderFetcher';
+} from '../utils';
 import './EpisodeLoader.css';
 
 // Re-export types for convenience
-export type { Order, Actor } from '@/utils/orderFetcher';
+export type { Order, Actor } from '../utils';
 
 // Component props
 interface BaseProps {

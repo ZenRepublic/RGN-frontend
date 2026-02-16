@@ -1,5 +1,6 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import ImageUpload, { CroppedImageData, blobToBase64 } from '@/components/ImageUpload';
+import { ChangeEvent, useState } from 'react';
+import ImageUpload from '@/components/ImageUpload';
+import { blobToBase64, type CroppedImageData } from '../utils'
 import './ActorInfoForm.css';
 
 export interface ActorData {
@@ -37,23 +38,6 @@ export default function ActorInfoForm({
   const [name, setName] = useState(init.name);
   const [imageBlob, setImageBlob] = useState<Blob | null>(init.imageBlob);
   const [imageBuffer, setImageBuffer] = useState<string | null>(init.imageBuffer);
-  const objectUrlsRef = useRef<string[]>([]);
-
-  const [imagePreview, setImagePreview] = useState(DEFAULT_ACTOR_IMAGE);
-
-  useEffect(() => {
-    if (init.imageBlob) {
-      const url = URL.createObjectURL(init.imageBlob);
-      objectUrlsRef.current.push(url);
-      setImagePreview(url);
-    }
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      objectUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
-    };
-  }, []);
 
   const inputId = `${inputIdPrefix}-${index}-name`;
   const imageInputId = `${inputIdPrefix}-${index}-image`;
@@ -69,11 +53,6 @@ export default function ActorInfoForm({
   };
 
   const handleImageChange = (data: CroppedImageData) => {
-    objectUrlsRef.current.push(data.objectUrl);
-    if (imagePreview.startsWith('blob:')) {
-      URL.revokeObjectURL(imagePreview);
-    }
-    setImagePreview(data.objectUrl);
     setImageBlob(data.blob);
     blobToBase64(data.blob).then(buffer => {
       setImageBuffer(buffer);
@@ -85,8 +64,8 @@ export default function ActorInfoForm({
     <section className="section actor-info-form">
       <div className="actor-info-body">
         <ImageUpload
-          imagePreview={imagePreview}
-          hasImage={imageBlob !== null}
+          defaultPreview={DEFAULT_ACTOR_IMAGE}
+          initialBlob={init.imageBlob ?? undefined}
           onImageChange={handleImageChange}
           onError={onError}
           inputId={imageInputId}

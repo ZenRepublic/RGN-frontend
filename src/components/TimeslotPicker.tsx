@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import {getShortWeekDayDate} from "../utils/dateTimeFormatter"
+import {getShortWeekDayDate} from '../utils'
 import './TimeslotPicker.css';
 
 interface TimeslotPickerProps {

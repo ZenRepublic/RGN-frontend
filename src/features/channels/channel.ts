@@ -1,5 +1,3 @@
-import { ComponentType } from 'react';
-
 // Data structure each episode must provide for checkout
 export interface EpisodeOrderFormData {
   // Actors for the order API
@@ -18,11 +16,6 @@ export interface EpisodeOrderFormData {
   startTime?: string;
 }
 
-// Props passed to each Channel component
-export interface ChannelProps {
-  onError: (message: string) => void;
-}
-
 // Configuration for registering a Channel
 export interface ChannelConfig {
   ids: {
@@ -30,6 +23,7 @@ export interface ChannelConfig {
     mainnet: string;
   };
   name: string;
+  description: string;
+  demo_video_url: string;
   disabled?: boolean;
-  component: ComponentType<ChannelProps>;
 }

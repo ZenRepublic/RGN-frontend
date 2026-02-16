@@ -1,5 +1,5 @@
 import { IS_MAINNET } from '@/config/network';
-import './AssetInspector.css';
+import { ImageButton } from '@/primitives';
 
 interface AssetInspectorProps {
   assetAddress: string;
@@ -14,8 +14,12 @@ export function AssetInspector({ assetAddress }: AssetInspectorProps) {
   };
 
   return (
-    <button className="asset-inspector-btn" onClick={handleClick} title="View on Solscan">
+    <ImageButton
+      onClick={handleClick}
+      ariaLabel="View on Solscan"
+      className="image-button"
+    >
       <img src="/Logos/solscanlogo.png" alt="Solscan" />
-    </button>
+    </ImageButton>
   );
 }

@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Header } from '@/components/Header';
-import { ConnectWalletButton } from '@/components/ConnectWalletButton';
+import { ConnectWalletButton } from '@/primitives/buttons/ConnectWalletButton';
+import { Toast } from '@/primitives';
 import { useWalletRegistration } from '@/hooks/useWalletRegistration';
 import { useAccount } from '@/context/AccountContext';
 import './RegistrationView.css';
@@ -12,7 +13,7 @@ export default function RegistrationView() {
   const { connected } = useWallet();
   const { register, step, reset } = useWalletRegistration();
   const { setAccount } = useAccount();
-  const [fadeOutError, setFadeOutError] = useState(false);
+  const [showError, setShowError] = useState(false);
 
   useEffect(() => {
     if (!connected) {
@@ -30,31 +31,16 @@ export default function RegistrationView() {
     }
   }, [step.status, step.account, navigate, setAccount]);
 
-  // Handle error timeout and fade out
+  // Show error toast when error occurs
   useEffect(() => {
     if (step.status === 'error') {
-      setFadeOutError(false);
-
-      const displayTimer = setTimeout(() => {
-        setFadeOutError(true);
-      }, 2000);
-
-      const fadeTimer = setTimeout(() => {
-        reset();
-      }, 2300); // 2000ms + 300ms fade animation
-
-      return () => {
-        clearTimeout(displayTimer);
-        clearTimeout(fadeTimer);
-      };
-    } else {
-      setFadeOutError(false);
+      setShowError(true);
     }
-  }, [step.status, reset]);
+  }, [step.status]);
 
   const handleRegister = () => {
     if (step.status === 'error') {
-      setFadeOutError(false);
+      setShowError(false);
       reset();
     }
     register();
@@ -89,49 +75,29 @@ export default function RegistrationView() {
             </p>
           )}
 
-          {step.status !== 'idle' && step.status !== 'error' && step.status !== 'success' && (
-            <div className={`status-section ${step.status}`}>
-              <p className="status-message">
-                {getStatusMessage(step.status, step.error)}
-              </p>
-            </div>
+          {showError && step.status === 'error' && (
+            <Toast
+              message={step.error || 'Registration failed'}
+              type="error"
+              duration={2000}
+              onClose={() => {
+                setShowError(false);
+                reset();
+              }}
+            />
           )}
 
-          {step.status === 'error' && (
-            <p className={`error-message ${fadeOutError ? 'fade-out' : ''}`}>
-              {step.error || 'Registration failed'}
-            </p>
-          )}
-
-          {(step.status === 'idle' || step.status === 'error') && (
+          {step.status !== 'success' && (
             <button
-              className="register-button"
+              className="special"
               onClick={handleRegister}
+              disabled={step.status !== 'idle' && step.status !== 'error'}
             >
-              Register Now!
+              {step.status !== 'idle' && step.status !== 'error' ? 'signing...' : 'Register Now!'}
             </button>
           )}
         </div>
       </div>
     </div>
   );
-}
-
-function getStatusMessage(status: string, error?: string): string {
-  switch (status) {
-    case 'idle':
-      return '';
-    case 'getting-challenge':
-      return 'Requesting challenge from server...';
-    case 'signing':
-      return 'Please sign the message with your wallet...';
-    case 'registering':
-      return 'Registering your account...';
-    case 'success':
-      return '✓ Account created successfully!';
-    case 'error':
-      return error || 'Registration failed';
-    default:
-      return '';
-  }
 }

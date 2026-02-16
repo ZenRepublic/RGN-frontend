@@ -30,11 +30,11 @@ import OrderSuccess from './pages/OrderSuccess';
 import EpisodeView from './pages/EpisodeView';
 import AccountView from './pages/AccountView';
 import RegistrationView from './pages/RegistrationView';
-import DioDudesOrderForm from './channels/DioDudesOrderForm';
+import DioDudesOrderForm from './features/channels/DioDudes/DioDudesOrderForm';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 import { AccountProvider } from './context/AccountContext';
 
-import './index.css';
+import './styles/index.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 /**

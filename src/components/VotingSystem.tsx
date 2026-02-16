@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useAccount } from '@/context/AccountContext';
-import { Actor } from '@/utils/orderFetcher';
+import { Actor } from '../utils';
 import { ActorVoteEntry } from '@/components/ActorVoteEntry';
-import { CountdownTimer } from '@/components/CountdownTimer';
+import { CountdownTimer } from '../primitives';
 import { useCheckVoteStatus, useHandleVote } from '@/hooks/useEpisodeVoting';
 import './VotingSystem.css';
 

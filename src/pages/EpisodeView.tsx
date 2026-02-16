@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
-import { AssetInspector } from '@/components/AssetInspector';
+import { AssetInspector } from '@/primitives/buttons/AssetInspectorButton';
 import { VotingSystem } from '@/components/VotingSystem';
-import { Order, fetchOrderById } from '@/utils/orderFetcher';
-import { getFullAMPMDate } from '../utils/dateTimeFormatter';
+import { Order, fetchOrderById } from '../utils';
+import { getFullAMPMDate } from '../utils'
+import { downloadVideo } from '../utils'
 import './EpisodeView.css';
 
 const EPISODE_VIEW_KEY = 'rgn-episode-view';
@@ -32,7 +33,6 @@ export default function EpisodeView() {
   const { orderId } = useParams<{ orderId: string }>();
   const [asset, setAsset] = useState<Order | null>(null);
   const [downloading, setDownloading] = useState(false);
-  const [showCopyToast, setShowCopyToast] = useState(false);
 
   useEffect(() => {
     if (!orderId) return;
@@ -60,59 +60,17 @@ export default function EpisodeView() {
   const handleDownload = async () => {
     if (!asset?.videoUrl) return;
 
-    const ua = navigator.userAgent.toLowerCase();
-    const isAndroid = /android/.test(ua);
-    const isIOS = /iphone|ipad|ipod/.test(ua);
-
-    // Android: copy link to clipboard (Phantom blocks downloads/external browser)
-    if (isAndroid) {
-      try {
-        await navigator.clipboard.writeText(asset.videoUrl);
-        setShowCopyToast(true);
-        setTimeout(() => setShowCopyToast(false), 3000);
-      } catch {
-        // Fallback for older browsers
-        prompt('Copy this link:', asset.videoUrl);
-      }
-      return;
-    }
-
     setDownloading(true);
-    const fileName = `${asset.id}.mp4`;
+    const result = await downloadVideo({
+      videoUrl: asset.videoUrl,
+      videoName: asset.id
+    });
 
-    try {
-      const response = await fetch(asset.videoUrl);
-      const blob = await response.blob();
-
-      // iOS: use Share API (works in Phantom's in-app browser)
-      if (isIOS && navigator.share && navigator.canShare) {
-        const file = new File([blob], fileName, { type: 'video/mp4' });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: asset.id,
-          });
-          setDownloading(false);
-          return;
-        }
-      }
-
-      // Desktop: classic blob download
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Download failed:', err);
-      // Fallback: open in new tab
-      window.open(asset.videoUrl, '_blank');
-    } finally {
-      setDownloading(false);
+    if (!result.success) {
+      console.error('Download failed:', result.message);
     }
+
+    setDownloading(false);
   };
 
   if (!asset) {
@@ -200,14 +158,6 @@ export default function EpisodeView() {
         <p className="episode-view-share-text">
           Feel free to share the match on your socials, and tag <span className="highlight">@RGN_Brainrot</span> if you want us to interact!
         </p>
-      )}
-
-      {/* Copy link toast for Android */}
-      {showCopyToast && (
-        <div className="episode-view-copy-toast">
-          <p>Link copied to clipboard. Paste it in your mobile browser to download.</p>
-          <div className="episode-view-copy-toast-bar" />
-        </div>
       )}
     </div>
   );

@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import ActorInfoForm, { ActorData, createDefaultActor } from '@/components/ActorInfoForm';
-import { ConnectWalletButton } from '@/components/ConnectWalletButton';
+import { ConnectWalletButton } from '@/primitives/buttons/ConnectWalletButton';
 import CheckoutModal from '@/components/CheckoutModal';
 import TimeslotPicker from '@/components/TimeslotPicker';
-import { EpisodeOrderFormData } from '@/channels/channel';
-import { getIdByNetwork } from '@/channels';
+import { EpisodeOrderFormData } from '@/features/channels/channel';
+import { getIdByNetwork } from '@/features/channels';
 import './DioDudesOrderForm.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');

@@ -3,8 +3,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { SolanaMobileWalletAdapterWalletName } from '@solana-mobile/wallet-standard-mobile';
 
-import './ConnectWalletButton.css';
-
 export function ConnectWalletButton() {
   const {
     wallet,
@@ -51,13 +49,8 @@ export function ConnectWalletButton() {
     setModalVisible(true);
   }, [connected, disconnect, connect, wallet, wallets, select, setModalVisible]);
 
-   const buttonClass = `
-    wallet-connect-button
-    ${connected 
-      ? 'wallet-connect-button--connected' 
-      : 'wallet-connect-button--disconnected'}
-    ${connecting ? 'opacity-55 cursor-not-allowed' : ''}
-  `;
+   const buttonVariant = connected && isHovered ? 'back' : connected ? 'primary' : 'special';
+   const buttonClass = `${buttonVariant} ${connecting ? 'opacity-55 cursor-not-allowed' : ''}`;
 
   return (
     <button

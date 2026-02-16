@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getShortMonthDayDate } from '../utils/dateTimeFormatter';
+import { getShortMonthDayDate } from '../utils'
 import './DaySelector.css';
 
 interface DaySelectorProps {

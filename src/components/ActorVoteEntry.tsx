@@ -1,4 +1,4 @@
-import { Actor } from '@/utils/orderFetcher';
+import { Actor } from '../utils';
 import './ActorVoteEntry.css';
 
 interface ActorVoteEntryProps {
