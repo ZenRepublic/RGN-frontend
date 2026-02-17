@@ -1,0 +1,303 @@
+.account-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 3px solid var(--blue-main);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.loading-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--white);
+}
+
+.loading-state p {
+  margin: 0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Card action buttons (top-right) */
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Profile Top (image + info) */
+.profile-top {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.profile-image-section {
+  flex-shrink: 0;
+  min-width: auto;
+  display: flex;
+  align-items: stretch;
+}
+
+.profile-image {
+  width: 160px;
+  height: 160px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 3px solid var(--white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.profile-info-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.profile-username {
+  font-size: 2rem;
+  color: var(--white);
+  margin: 0;
+  font-weight: 700;
+  text-shadow:
+    -1px -1px 0 var(--black),
+    1px -1px 0 var(--black),
+    -1px 1px 0 var(--black),
+    1px 1px 0 var(--black);
+}
+
+.profile-joined {
+  font-size: 1rem;
+  color: var(--yellow);
+  margin: 0;
+  text-shadow:
+    -1px -1px 0 var(--black),
+    1px -1px 0 var(--black),
+    -1px 1px 0 var(--black),
+    1px 1px 0 var(--black);
+}
+
+.profile-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 1.5rem 0;
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 1rem 2rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 8px rgba(0, 0, 0, 0.2);
+  min-height: 80px;
+}
+
+.vote-tier-loading {
+  color: var(--white);
+  opacity: 0.7;
+  font-size: 0.9rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.vote-tier-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 4rem;
+}
+
+.vote-tier-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.vote-tier-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.token-balance {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.token-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+
+.token-amount {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--yellow);
+  text-shadow:
+    -1px -1px 0 var(--black),
+    1px -1px 0 var(--black),
+    -1px 1px 0 var(--black),
+    1px 1px 0 var(--black);
+}
+
+.vote-tier-divider {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
+.tier-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.tier-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tier-stat-label {
+  font-size: 0.8rem;
+  color: var(--white);
+  opacity: 0.6;
+  min-width: 75px;
+  text-align: right;
+  text-shadow:
+    -1px -1px 0 var(--black),
+    1px -1px 0 var(--black),
+    -1px 1px 0 var(--black),
+    1px 1px 0 var(--black);
+}
+
+.tier-stat-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--white);
+  text-shadow:
+    -1px -1px 0 var(--black),
+    1px -1px 0 var(--black),
+    -1px 1px 0 var(--black),
+    1px 1px 0 var(--black);
+}
+
+.stat-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--white);
+  text-shadow:
+    -1px -1px 0 var(--black),
+    1px -1px 0 var(--black),
+    -1px 1px 0 var(--black),
+    1px 1px 0 var(--black);
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--white);
+  opacity: 0.8;
+  text-shadow:
+    -1px -1px 0 var(--black),
+    1px -1px 0 var(--black),
+    -1px 1px 0 var(--black),
+    1px 1px 0 var(--black);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .account-card {
+    padding: 1.5rem;
+  }
+
+  .profile-top {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .profile-image-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .profile-image {
+    width: 100px;
+    height: 100px;
+    min-height: auto;
+  }
+
+  .profile-info-section {
+    width: 100%;
+    text-align: center;
+  }
+
+  .profile-username {
+    font-size: 1.5rem;
+  }
+
+  .profile-joined {
+    font-size: 0.9rem;
+  }
+
+  .profile-stats {
+    gap: 2rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+  }
+
+  .vote-tier-container {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .token-amount {
+    font-size: 1.5rem;
+  }
+
+  .tier-title {
+    font-size: 1.25rem;
+  }
+
+  .vote-power-badge {
+    font-size: 0.9rem;
+  }
+}

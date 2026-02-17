@@ -1,4 +1,3 @@
-import './MenuStack.css';
 import { ImageButton } from '@/primitives';
 
 export function MenuStack() {
@@ -7,7 +6,7 @@ export function MenuStack() {
   const PUMPSWAP_URL = `https://swap.pump.fun/?output=${TOKEN_ADDRESS}&input=${SOL_ADDRESS}`;
 
   return (
-    <div className="menu-items">
+    <div className="flex gap-xl mt-lg mb-lg pl-lg w-full">
       <ImageButton
         href="https://hackmd.io/@8M-xMt20QZyakYyaxdBBTA/SJrR9h2IZe"
         target="_blank"
@@ -15,7 +14,7 @@ export function MenuStack() {
         ariaLabel="View Litepaper"
         className="litepaper-btn"
       >
-        <img src="/Icons/LitepaperIcon.png" alt="Litepaper" className="litepaper-icon" />
+        <img src="/Icons/LitepaperIcon.png" alt="Litepaper"/>
       </ImageButton>
       <ImageButton
         href={TOKEN_ADDRESS ? PUMPSWAP_URL : undefined}
@@ -26,7 +25,7 @@ export function MenuStack() {
         ariaDisabled={!TOKEN_ADDRESS}
         className="pumpswap-btn"
       >
-        <img src="/Logos/pumpfun_logo.png" alt="PumpSwap" className="pumpswap-icon" />
+        <img src="/Logos/pumpfun_logo.png" alt="PumpSwap"/>
       </ImageButton>
     </div>
   );

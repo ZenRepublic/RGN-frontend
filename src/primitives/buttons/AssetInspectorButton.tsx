@@ -17,7 +17,6 @@ export function AssetInspector({ assetAddress }: AssetInspectorProps) {
     <ImageButton
       onClick={handleClick}
       ariaLabel="View on Solscan"
-      className="image-button"
     >
       <img src="/Logos/solscanlogo.png" alt="Solscan" />
     </ImageButton>

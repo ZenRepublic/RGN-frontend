@@ -4,9 +4,8 @@ import { Header } from '@/components/Header';
 import { MenuStack } from '@/components/MenuStack';
 import { Footer } from '@/components/Footer';
 import { ToggleButtonGroup } from '@/primitives';
-import { CHANNELS } from './features/channels';
-import ChannelOverview from './features/channels/ChannelOverview';
-import './App.css';
+import { CHANNELS } from './features/Channel';
+import ChannelOverview from './features/Channel/ChannelOverview';
 
 function App() {
   const [activeChannelName, setActiveChannelName] = useState(CHANNELS[0]?.name || '');
@@ -20,11 +19,12 @@ function App() {
     <div>
       <Header />
 
-      <div className="hero-section">
-        <img src="/Branding/BannerWithLogo.png" alt="RGN Banner" className="banner" />
+      <div className="flex flex-col items-start w-full mb-3xl">
+        <img src="/Branding/BannerWithLogo.png" alt="RGN Banner" className="w-full rounded-lg border-3 border-white shadow-xl object-cover mx-auto mb-lg" />
         <MenuStack />
         <h1>Unleash The Brainrot!</h1>
-        <p>RGN is the world's first  <span className="highlight">onchain brainrot</span> broadcast network. <br /><br /> Select one of available channels, drop your favorite characters in and watch them compete for eternal glory on Solana!</p>
+        <p>RGN is the world's first  <span className="highlight">onchain brainrot</span> broadcast network.</p>
+        <p>Select one of available channels, drop your favorite characters in and watch them compete for eternal glory on Solana!</p>
       </div>
 
 

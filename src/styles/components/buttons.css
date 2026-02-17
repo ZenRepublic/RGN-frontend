@@ -9,7 +9,6 @@ button {
   border: none;
   cursor: pointer;
   transition: all var(--transition-base);
-  width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -24,10 +23,10 @@ button:disabled {
 /* Primary — white */
 button.primary {
   background: var(--white);
-  color: var(--black);
+  color: var(--text-dark);
   font-weight: var(--font-weight-medium);
   font-size: var(--font-size-sm);
-  padding: 10px 20px;
+  padding: var(--space-md) var(--space-xl);
   width: auto;
   min-width: 140px;
   box-shadow: var(--shadow-sm);
@@ -45,12 +44,12 @@ button.primary:active:not(:disabled) {
 
 /* Secondary — blue */
 button.secondary {
-  background: var(--blue-main);
-  color: var(--white);
+  background: var(--yellow);
+  color: var(--black);
 }
 
 button.secondary:hover:not(:disabled) {
-  background: var(--blue-secondary);
+  background: var(--yellow);
   box-shadow: var(--shadow-lg);
   transform: translateY(-1px);
 }
@@ -64,7 +63,7 @@ button.special {
   position: relative;
   overflow: hidden;
   background: var(--yellow);
-  color: var(--black);
+  color: var(--text-dark);
   font-family: var(--font-display);
 }
 
@@ -79,12 +78,12 @@ button.special::after {
   background: linear-gradient(
     120deg,
     transparent calc(50% - 16px),
-    white calc(50% - 16px),
-    white calc(50% - 6px),
+    var(--white) calc(50% - 16px),
+    var(--white) calc(50% - 6px),
     transparent calc(50% - 6px),
     transparent calc(50% - 2px),
-    white calc(50% - 2px),
-    white calc(50% + 2px),
+    var(--white) calc(50% - 2px),
+    var(--white) calc(50% + 2px),
     transparent calc(50% + 2px)
   );
   transform: translateX(-150%);
@@ -105,7 +104,7 @@ button.back {
   background: var(--red);
   color: var(--white);
   width: fit-content;
-  padding: 12px 20px;
+  padding: var(--space-md) var(--space-xl);
 }
 
 button.back:hover:not(:disabled) {
@@ -122,6 +121,60 @@ button.back.full-width {
   width: 100%;
 }
 
+
+/* Special Small — compact yellow button */
+.special-small {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--yellow);
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: background var(--transition-base);
+  text-align: center;
+  border: none;
+}
+
+.special-small:hover {
+  background: #e6d62c;
+}
+
+.special-small:active {
+  transform: scale(0.98);
+}
+
+/* Glass — frosted glass transparent button */
+button.glass {
+  font-size: 18px;
+  font-weight: var(--font-weight-medium);
+  padding: var(--space-md) 30px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  white-space: nowrap;
+  width: auto;
+}
+
+button.glass:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+button.glass.selected {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+  font-weight: var(--font-weight-semibold);
+  transform: scale(1.15);
+  padding: var(--space-md) var(--space-xl);
+  font-size: 15px;
+}
+
 /* Image Button — icon/menu buttons */
 .image-button {
   display: flex;
@@ -129,9 +182,16 @@ button.back.full-width {
   justify-content: center;
   background: none;
   border: none;
+  object-fit: contain;
   cursor: pointer;
   padding: 0;
-  transition: transform 0.2s, opacity 0.2s;
+  transition: transform var(--transition-base), opacity var(--transition-base);
+}
+
+.image-button img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
 }
 
 .image-button:hover:not(.disabled) {
@@ -150,12 +210,12 @@ button.back.full-width {
 /* Responsive */
 @media (max-width: 480px) {
   button {
-    padding: 12px 20px;
+    padding: var(--space-md) var(--space-xl);
   }
 
   button.primary {
-    font-size: 14px;
-    padding: 9px 18px;
+    font-size: var(--font-size-sm);
+    padding: var(--space-xs) var(--space-lg);
     min-width: 120px;
   }
 }

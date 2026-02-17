@@ -26,11 +26,11 @@ import {
 } from '@solana/wallet-adapter-wallets';
 
 import App from './App';
-import OrderSuccess from './pages/OrderSuccess';
-import EpisodeView from './pages/EpisodeView';
-import AccountView from './pages/AccountView';
-import RegistrationView from './pages/RegistrationView';
-import DioDudesOrderForm from './features/channels/DioDudes/DioDudesOrderForm';
+import OrderSuccess from './features/EpisodeForm/OrderSuccess';
+import EpisodeView from './features/Episodes/EpisodeView';
+import AccountView from './features/Profile/AccountView';
+import RegistrationView from './features/Profile/RegistrationView';
+import DioDudesOrderForm from './features/EpisodeForm/DioDudesOrderForm';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 import { AccountProvider } from './context/AccountContext';
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useConnection } from '@solana/wallet-adapter-react';
+import { Modal, Toast } from '../primitives';
 import { executeQuickBuy } from '../services/pumpSwap';
 import './QuickBuy.css';
 
@@ -21,11 +22,9 @@ export function QuickBuy({ isOpen, onClose }: QuickBuyProps) {
   const { connection } = useConnection();
   const [selectedAmount, setSelectedAmount] = useState<number>(SOL_AMOUNTS[0]);
   const [buying, setBuying] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [txSig, setTxSig] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-
-  if (!isOpen) return null;
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'error' | 'success'>('error');
 
   const handleCopyCA = () => {
     if (!TOKEN_ADDRESS) return;
@@ -36,18 +35,18 @@ export function QuickBuy({ isOpen, onClose }: QuickBuyProps) {
 
   const handleBuy = async () => {
     if (!connected || !publicKey) {
-      setError('Connect your wallet first');
+      setToastMessage('Connect your wallet first');
+      setToastType('error');
       return;
     }
 
     if (!TOKEN_ADDRESS) {
-      setError('Token address not configured');
+      setToastMessage('Token address not configured');
+      setToastType('error');
       return;
     }
 
     setBuying(true);
-    setError(null);
-    setTxSig(null);
 
     const { signature, error } = await executeQuickBuy(
       connection,
@@ -58,77 +57,75 @@ export function QuickBuy({ isOpen, onClose }: QuickBuyProps) {
     );
 
     if (error) {
-      setError(error);
+      setToastMessage(error);
+      setToastType('error');
     } else if (signature) {
-      setTxSig(signature);
+      setToastMessage('Transaction successful!');
+      setToastType('success');
+      onClose();
     }
 
     setBuying(false);
   };
 
   return (
-    <div className="quick-buy-overlay" onClick={onClose}>
-      <div className="quick-buy-modal" onClick={e => e.stopPropagation()}>
-        <div className="quick-buy-header-row">
-          <h2 className="quick-buy-title">Quick Buy</h2>
-          <button className="quick-buy-close" onClick={onClose}>Close</button>
-        </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Quick Buy"
+      disabled={buying}
+    >
+      <img src="/Images/QuickBuy.png" alt="Quick Buy" className="art-visual" />
 
-        <img src="/Images/QuickBuy.png" alt="Quick Buy" className="quick-buy-header-img" />
-
-        <div className="quick-buy-token">
-          <img src="/Branding/logo.png" alt="RGN" className="quick-buy-logo" />
-          <div className="quick-buy-token-info">
-            <span className="quick-buy-symbol">$RGN</span>
-            {TOKEN_ADDRESS && (
-              <span
-                className="quick-buy-ca"
-                title="Click to copy"
-                onClick={handleCopyCA}
-              >
-                {copied ? 'Copied!' : truncateAddress(TOKEN_ADDRESS)}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="quick-buy-select-row">
-          <span className="quick-buy-select-label">Select amount</span>
-        </div>
-
-        <div className="quick-buy-amounts">
-          {SOL_AMOUNTS.map((amount) => (
-            <button
-              key={amount}
-              className={`quick-buy-amount-btn ${selectedAmount === amount ? 'selected' : ''}`}
-              onClick={() => setSelectedAmount(amount)}
-              disabled={buying}
+      <div className="quick-buy-token">
+        <img src="/Branding/logo.png" alt="RGN" className="quick-buy-logo" />
+        <div className="quick-buy-token-info">
+          <span className="quick-buy-symbol">$RGN</span>
+          {TOKEN_ADDRESS && (
+            <span
+              className="quick-buy-ca"
+              title="Click to copy"
+              onClick={handleCopyCA}
             >
-              {amount} SOL
-            </button>
-          ))}
+              {copied ? 'Copied!' : truncateAddress(TOKEN_ADDRESS)}
+            </span>
+          )}
         </div>
-
-        <button
-          className="quick-buy-action primary"
-          onClick={handleBuy}
-          disabled={buying || !connected}
-        >
-          {!connected ? 'Not Connected...' : buying ? 'Signing...' : `Buy ${selectedAmount} SOL`}
-        </button>
-
-        {error && <p className="quick-buy-error">{error}</p>}
-        {txSig && (
-          <a
-            className="quick-buy-tx"
-            href={`https://solscan.io/tx/${txSig}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View transaction
-          </a>
-        )}
       </div>
-    </div>
+
+      <div className="quick-buy-select-row">
+        <span className="quick-buy-select-label">Select amount</span>
+      </div>
+
+      <div className="quick-buy-amounts">
+        {SOL_AMOUNTS.map((amount) => (
+          <button
+            key={amount}
+            className={`quick-buy-amount-btn ${selectedAmount === amount ? 'selected' : ''}`}
+            onClick={() => setSelectedAmount(amount)}
+            disabled={buying}
+          >
+            {amount} SOL
+          </button>
+        ))}
+      </div>
+
+      <button
+        className="special"
+        onClick={handleBuy}
+        disabled={buying || !connected}
+      >
+        {!connected ? 'Not Connected...' : buying ? 'Signing...' : `Buy ${selectedAmount} SOL`}
+      </button>
+
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          type={toastType}
+          onClose={() => setToastMessage(null)}
+          duration={toastType === 'success' ? 3000 : 4000}
+        />
+      )}
+    </Modal>
   );
 }

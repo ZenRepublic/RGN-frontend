@@ -1,11 +1,9 @@
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+import type { Account, UpdateProfileData, VotePowerData } from '@/types';
 
-export interface Account {
-  _id: string;
-  displayName: string;
-  avatar: string | null;
-  createdAt: string;
-}
+// Re-export types for backwards compatibility
+export type { Account, UpdateProfileData, VotePowerData };
+
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
 export async function getAccountStatus(walletAddress: string): Promise<Account | null> {
   const response = await fetch(`${API_URL}/rgn/account/${walletAddress}`);
@@ -38,13 +36,6 @@ export async function registerAccount(verificationData: any): Promise<Account> {
   return data.account || data;
 }
 
-export interface UpdateProfileData {
-  displayName: string;
-  imageBuffer: string;
-  challengeId: string;
-  message: string;
-  signature: string;
-}
 
 export async function updateAccount(walletAddress: string, updateData: UpdateProfileData): Promise<Account> {
   const response = await fetch(`${API_URL}/rgn/account/${walletAddress}`, {
@@ -62,15 +53,6 @@ export async function updateAccount(walletAddress: string, updateData: UpdatePro
   return data.account || data;
 }
 
-export interface VotePowerData {
-  tokenBalance: number;
-  votePower: number;
-  tiers: Array<{
-    title: string;
-    minTokens: number;
-    votePower: number;
-  }>;
-}
 
 export async function getAccountVotePower(accountId: string): Promise<VotePowerData> {
   const response = await fetch(`${API_URL}/rgn/account/${accountId}/vote-power`);

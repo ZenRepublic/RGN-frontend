@@ -2,13 +2,7 @@ import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useAccount } from '@/context/AccountContext';
 import { getAccountStatus } from '@/services/account';
-
-export interface Account {
-  _id: string;
-  displayName: string;
-  avatar: string | null;
-  createdAt: string;
-}
+import type { Account } from '@/types';
 
 export function useAccountStatus() {
   const { connected, wallet } = useWallet();
