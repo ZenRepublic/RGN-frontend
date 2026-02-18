@@ -2,8 +2,8 @@ import { useState, useCallback, ChangeEvent } from 'react';
 import Cropper from 'react-easy-crop';
 import type { Area, Point } from 'react-easy-crop';
 import { createCroppedImage, type CroppedImageData } from '../utils/media';
-import { Modal, Toast } from '@/primitives';
-import './ImageCropModal.css';
+import { Modal } from '@/primitives';
+import { useToast } from '@/context/ToastContext';
 
 export interface ImageCropModalProps {
   isOpen: boolean;
@@ -23,8 +23,7 @@ export function ImageCropModal({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
-  // Toast state
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -46,7 +45,7 @@ export function ImageCropModal({
       setZoom(1);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to crop image. Please try again.';
-      setToastMessage(message);
+      showToast(message);
 
       // Revoke URL even on error
       if (imageSource) URL.revokeObjectURL(imageSource);
@@ -70,7 +69,7 @@ export function ImageCropModal({
       onClose={handleClose}
       title="Crop Image"
     >
-      <div className="crop-container">
+      <div className="relative w-full h-[300px] bg-black rounded-lg">
         <Cropper
           image={imageSource!}
           crop={crop}
@@ -84,8 +83,8 @@ export function ImageCropModal({
         />
       </div>
 
-      <div className="crop-controls">
-        <label>Zoom</label>
+      <div className="flex flex-col">
+        <label>ZOOM SLIDER</label>
         <input
           type="range"
           min={1}
@@ -93,21 +92,15 @@ export function ImageCropModal({
           step={0.1}
           value={zoom}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setZoom(Number(e.target.value))}
-          className="zoom-slider"
+          className="slider"
         />
       </div>
 
-      <button className="primary crop-confirm-btn" onClick={handleConfirm}>
+      <div className='flex justify-end'>
+        <button className="secondary" onClick={handleConfirm}>
         Confirm
-      </button>
-
-      {toastMessage && (
-        <Toast
-          message={toastMessage}
-          type="error"
-          onClose={() => setToastMessage(null)}
-        />
-      )}
+        </button>
+      </div>
     </Modal>
   );
 }

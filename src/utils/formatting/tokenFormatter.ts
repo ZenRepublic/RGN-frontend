@@ -7,3 +7,7 @@ export function formatTokenBalance(balance: number): string {
   }
   return balance.toString();
 }
+
+export function truncateAddress(addr: string): string {
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+}

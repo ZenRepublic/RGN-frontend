@@ -1,53 +1,33 @@
-import { useState, useEffect } from 'react';
-import DaySelector from '../Channel/DaySelector';
-import EpisodeLoader from './EpisodeLoader';
-import { fetchOrdersByRange, Order } from '../../utils';
+import { useState, useMemo } from 'react';
+import DaySelector from './DaySelector';
+import EpisodeGrid from './EpisodeGrid';
+import { useOrdersByRange } from '../../hooks/useOrdersByRange';
 import './EpisodeSchedule.css';
 
-interface EpisodeScheduleProps {
-  channelId: string;
-  onError?: (message: string) => void;
-}
 
-export default function EpisodeSchedule({ channelId, onError }: EpisodeScheduleProps) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+export default function EpisodeSchedule({ channelId }: {channelId : string}) {
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
 
   const [selectedTimestamp, setSelectedTimestamp] = useState<number>(today.getTime());
-  const [allOrders, setAllOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // Fetch all orders for the date range once on mount
-  useEffect(() => {
-    const fetchRange = async () => {
-      setLoading(true);
-      try {
-        // Calculate date range: -7 to +7 days from today
-        const startDate = new Date(today);
-        startDate.setDate(today.getDate() - 7);
-        startDate.setHours(0, 0, 0, 0);
+  const startDate = useMemo(() => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - 7);
+    return d;
+  }, [today]);
 
-        const endDate = new Date(today);
-        endDate.setDate(today.getDate() + 7);
-        endDate.setHours(23, 59, 59, 999);
+  const endDate = useMemo(() => {
+    const d = new Date(today);
+    d.setDate(today.getDate() + 7);
+    d.setHours(23, 59, 59, 999);
+    return d;
+  }, [today]);
 
-        const orders = await fetchOrdersByRange({
-          startDate,
-          endDate,
-          channelId,
-        });
-
-        setAllOrders(orders);
-      } catch (error) {
-        console.error('EpisodeSchedule: Failed to fetch orders:', error);
-        onError?.('Failed to load episodes');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRange();
-  }, [channelId]);
+  const { orders: allOrders, loading } = useOrdersByRange({ startDate, endDate, channelId });
 
   const handleDateSelect = (timestamp: number) => {
     setSelectedTimestamp(timestamp);
@@ -70,21 +50,17 @@ export default function EpisodeSchedule({ channelId, onError }: EpisodeScheduleP
 
 
   return (
-    <div className="episode-schedule">
-        <DaySelector onDateSelect={handleDateSelect} />
+    <div>
+      <DaySelector onDateSelect={handleDateSelect} />
 
-      <div className="episode-schedule-content">
-        <div className="tv-container">
-          <div className="tv-screen">
-            <EpisodeLoader
-              mode="assets"
-              assets={selectedDayOrders}
-              loading={loading}
-              loadingText="Loading episodes..."
-              emptyText="No episodes scheduled for this day yet..."
-              onError={onError}
-            />
-          </div>
+      <div className="tv-container">
+        <div className="tv-screen">
+          <EpisodeGrid
+            orders={selectedDayOrders}
+            loading={loading}
+            loadingText="Loading episodes..."
+            emptyText="No episodes scheduled for this day yet..."
+          />
         </div>
       </div>
     </div>

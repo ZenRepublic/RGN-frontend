@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
+import { useToast } from '@/context/ToastContext';
 import ActorInfoForm, { ActorData, createDefaultActor } from '@/features/EpisodeForm/ActorInfoForm';
 import CheckoutModal from '@/features/EpisodeForm/CheckoutModal';
 import TimeslotPicker from '@/features/EpisodeForm/TimeslotPicker';
 import { EpisodeOrderFormData } from '@/types/channel';
 import { getIdByNetwork } from '@/features/Channel';
-import './DioDudesOrderForm.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
@@ -19,13 +19,14 @@ interface PaymentInfo {
 const DEFAULT_ACTORS: ActorData[] = [createDefaultActor(), createDefaultActor()];
 
 const INCLUDES = [
-  'Custom AI Battle Video',
+  'Dio Dudes AI Battle Video',
   'NFT with your Actors',
   'Permanent on-chain storage'
 ];
 
 export default function DioDudesOrderForm() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null);
@@ -43,8 +44,8 @@ export default function DioDudesOrderForm() {
         if (data.success) {
           setPaymentInfo(data);
         }
-      } catch (err) {
-        console.error('Failed to fetch payment info:', err);
+      } catch {
+        showToast('Failed to fetch payment info');
       }
     };
     fetchPaymentInfo();
@@ -81,30 +82,33 @@ export default function DioDudesOrderForm() {
   return (
     <>
       <Header />
-      <div className="order-form-container">
-        <button onClick={handleBack} className="back">
-          ← Back
-        </button>
+      <div className="flex flex-col gap-xl">
+        <div className='flex justify-between'>
+          <button onClick={handleBack} className="back">
+            ← Back
+          </button>
 
-        <h1>Episode Creator</h1>
+          <h1>Episode Creator</h1>
+        </div>
 
         {actors.map((_actor, index) => (
-          <div key={index}>
+          <div key={index} className='flex flex-col gap-sm'>
             <h2>Actor {index + 1}</h2>
-            <ActorInfoForm
-              onChange={(data) => updateActor(index, data)}
-              onError={() => {}}
-              disabled={showCheckoutModal}
-            />
+            <div className='bg-bg-secondary p-xl rounded-lg border-md border-bg-secondary'>
+              <ActorInfoForm
+                onChange={(data) => updateActor(index, data)}
+                disabled={showCheckoutModal}
+              />
+            </div>
           </div>
         ))}
 
-        <div>
+        <div className='flex flex-col gap-sm'>
           <h2>Select Start Time</h2>
           <TimeslotPicker onSelect={setStartTime} />
         </div>
 
-        <div className="form-actions">
+        <div className="flex justify-end">
           <button
             type="button"
             className="secondary"
@@ -123,7 +127,6 @@ export default function DioDudesOrderForm() {
           paymentInfo={paymentInfo}
           channelId={getIdByNetwork('Dio Dudes')}
           onClose={() => setShowCheckoutModal(false)}
-          onError={() => {}}
         />
       )}
     </>

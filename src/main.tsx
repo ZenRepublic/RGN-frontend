@@ -33,6 +33,7 @@ import RegistrationView from './features/Profile/RegistrationView';
 import DioDudesOrderForm from './features/EpisodeForm/DioDudesOrderForm';
 import { SOLANA_CHAIN, HELIUS_RPC_URL } from './config/network';
 import { AccountProvider } from './context/AccountContext';
+import { ToastProvider } from './context/ToastContext';
 
 import './styles/index.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -102,14 +103,16 @@ createRoot(container).render(
     <BrowserRouter>
       <WalletContextProvider>
         <AccountProvider>
-          <Routes>
-            <Route path="/" element={<App />} />
-            <Route path="/order-success" element={<OrderSuccess />} />
-            <Route path="/episode/:orderId" element={<EpisodeView />} />
-            <Route path="/account" element={<AccountView />} />
-            <Route path="/registration" element={<RegistrationView />} />
-            <Route path="/diodudes/order" element={<DioDudesOrderForm />} />
-          </Routes>
+          <ToastProvider>
+            <Routes>
+              <Route path="/" element={<App />} />
+              <Route path="/order-success" element={<OrderSuccess />} />
+              <Route path="/episode/:orderId" element={<EpisodeView />} />
+              <Route path="/account" element={<AccountView />} />
+              <Route path="/registration" element={<RegistrationView />} />
+              <Route path="/diodudes/order" element={<DioDudesOrderForm />} />
+            </Routes>
+          </ToastProvider>
         </AccountProvider>
       </WalletContextProvider>
     </BrowserRouter>

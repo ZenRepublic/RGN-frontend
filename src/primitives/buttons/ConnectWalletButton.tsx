@@ -49,7 +49,7 @@ export function ConnectWalletButton() {
     setModalVisible(true);
   }, [connected, disconnect, connect, wallet, wallets, select, setModalVisible]);
 
-   const buttonVariant = connected && isHovered ? 'back' : connected ? 'primary' : 'special';
+   const buttonVariant = connected && isHovered ? 'back' : connected ? 'primary' : 'secondary';
    const buttonClass = `${buttonVariant} ${connecting ? 'opacity-55 cursor-not-allowed' : ''}`;
 
   return (

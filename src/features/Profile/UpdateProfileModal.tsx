@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ActorInfoForm, { ActorData, createDefaultActor } from '@/features/EpisodeForm/ActorInfoForm';
-import { Modal, Toast } from '@/primitives';
+import { Modal } from '@/primitives';
+import { useToast } from '@/context/ToastContext';
 
 interface UpdateProfileModalProps {
   isOpen: boolean;
@@ -13,9 +14,8 @@ interface UpdateProfileModalProps {
 
 export function UpdateProfileModal({ isOpen, onClose, onConfirm, initialData, isLoading, error: stepError }: UpdateProfileModalProps) {
   const [actorData, setActorData] = useState<ActorData>(() => initialData ?? createDefaultActor());
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [toastType, setToastType] = useState<'error' | 'success'>('error');
   const [wasLoading, setWasLoading] = useState(false);
+  const { showToast } = useToast();
 
   const isBusy = isLoading ?? false;
   const isValid = actorData.name.trim().length > 0 && actorData.imageBlob !== null;
@@ -23,7 +23,6 @@ export function UpdateProfileModal({ isOpen, onClose, onConfirm, initialData, is
   const handleClose = () => {
     if (isBusy) return;
     setActorData(initialData ?? createDefaultActor());
-    setToastMessage(null);
     onClose();
   };
 
@@ -37,13 +36,9 @@ export function UpdateProfileModal({ isOpen, onClose, onConfirm, initialData, is
     // Detect when loading finishes
     if (wasLoading && !isBusy) {
       if (stepError) {
-        // Show error toast
-        setToastType('error');
-        setToastMessage(stepError);
+        showToast(stepError);
       } else {
-        // Show success toast and close modal
-        setToastType('success');
-        setToastMessage('Profile updated!');
+        showToast('Profile updated!', 'success');
         setTimeout(() => {
           onClose();
         }, 100);
@@ -54,34 +49,21 @@ export function UpdateProfileModal({ isOpen, onClose, onConfirm, initialData, is
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Edit Profile" disabled={isBusy}>
-      <div className="update-profile-form-wrap">
         <ActorInfoForm
           initialData={initialData}
           onChange={setActorData}
-          onError={() => {}}
           disabled={isBusy}
         />
-      </div>
 
-      <div style={{ display: "flex" }}>
+      <div className='flex justify-end'>
         <button
           className="secondary"
           onClick={handleConfirm}
           disabled={!isValid || isBusy}
-          style={{ marginLeft: "auto" }}
         >
           {isBusy ? 'signing...' : 'Confirm'}
         </button>
       </div>
-
-      {toastMessage && (
-        <Toast
-          message={toastMessage}
-          type={toastType}
-          duration={toastType === 'success' ? 3000 : 4000}
-          onClose={() => setToastMessage(null)}
-        />
-      )}
     </Modal>
   );
 }

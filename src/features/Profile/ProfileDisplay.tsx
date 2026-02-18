@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import './ProfileDisplay.css';
 import { QuickBuy } from '@/components/QuickBuy';
 import { ConnectWalletButton } from '@/primitives/buttons/ConnectWalletButton';
 import { useAccountVotePower } from '@/hooks/useAccountVotePower';
@@ -63,57 +62,60 @@ export function ProfileDisplay({ loading, account }: ProfileDisplayProps) {
 
   return (
     <>
-    <div className="account-card">
+    <div className="frosted-card">
       {loading && (
-        <div className="loading-state">
+        <div className="text-center">
           <p>Loading account information...</p>
         </div>
       )}
 
       {!loading && account && (
         <>
-          <div className="card-actions">
-            <button className="primary" onClick={() => setUpdateProfileOpen(true)}>Edit</button>
-            <ConnectWalletButton />
-          </div>
-
-          <div className="profile-top">
-            <div className="profile-image-section">
+          <div className="flex gap-2xl">
               <img
                 src={account.avatar || '/Images/mystery-actor.png'}
                 alt={account.displayName}
-                className="profile-image"
+                className="w-[160px] h-[160px] rounded-lg border-lg border-white shadow-lg"
                 onError={(e) => {
                   e.currentTarget.src = '/Images/mystery-actor.png';
                 }}
               />
+
+              <div className='flex flex-col w-full justify-between'>
+                <div className="flex flex-col">
+                  <h2>{account.displayName}</h2>
+                  <p className="highlight">Joined {getShortYearMonthDayDate(new Date(account.createdAt))}</p>
+                </div>
+                <div className="flex justify-end gap-lg">
+                  <button className="primary" onClick={() => setUpdateProfileOpen(true)}>Edit</button>
+                  <ConnectWalletButton />
+                </div>
+              </div>
             </div>
 
-            <div className="profile-info-section">
-              <h2 className="profile-username">{account.displayName}</h2>
-              <p className="profile-joined">Joined {getShortYearMonthDayDate(account.createdAt)}</p>
-            </div>
-          </div>
-
-          <div className="profile-divider" />
-          <div className="profile-stats">
+          <div className="frosted-card-divider-h" />
+          <div className="frosted-card-inner">
             {votePowerLoading ? (
-              <div className="vote-tier-loading">Loading vote tier...</div>
+              <p className="text-center">Loading stats...</p>
             ) : votePower ? (
-              <div className="vote-tier-container">
-                <div className="vote-tier-left">
-                  <div className="token-balance">
-                    <img src="/Branding/logo.png" alt="RGN Token" className="token-logo" />
-                    <span className="token-amount">{formatTokenBalance(votePower.tokenBalance)}</span>
+              <div className="w-full flex">
+                <div className="flex flex-1 flex-col items-center gap-md">
+                  <div className="flex gap-md">
+                    <img src="/Branding/logo.png" alt="RGN Token" className="w-[40px] h-[40px] rounded-full" />
+                    <span className="number">{formatTokenBalance(votePower.tokenBalance)}</span>
                   </div>
                   <button className="special-small" onClick={() => setShowQuickBuy(true)}>+ Get More</button>
                 </div>
-                <div className="vote-tier-divider" />
-                <div className="vote-tier-right">
-                  <div className="tier-info">
-                    <span className="tier-stat"><span className="tier-stat-label">Tier: </span><span className="tier-stat-value">{votePower.tiers.find(t => t.votePower === votePower.votePower)?.title || 'Unknown'}</span></span>
-                    <span className="tier-stat"><span className="tier-stat-label">Vote Power: </span><span className="tier-stat-value">⭐ {votePower.votePower}</span></span>
-                  </div>
+                <div className="frosted-card-divider-v" />
+                <div className="flex flex-1 flex-col justify-center items-center">
+                    <div className="flex items-center gap-md">
+                      <span className="text-white text-sm opacity-80 text-right">TIER:</span>
+                      <span className="text-white font-bold">{votePower.tiers.find(t => t.votePower === votePower.votePower)?.title || 'Unknown'}</span>
+                    </div>
+                    <div className="flex items-center gap-md">
+                      <span className="text-white text-sm opacity-80 text-right">POWER:</span>
+                      <span className="text-white font-bold">{votePower.votePower}</span>
+                    </div>
                 </div>
               </div>
             ) : null}

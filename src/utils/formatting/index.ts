@@ -4,7 +4,8 @@ export {
   getShortYearMonthDayDate,
   getShortWeekDayDate,
   getFullAMPMDate,
+  getMonthDayAMPAMDdate,
   getTimeRemaining,
 } from './dateTimeFormatter';
 
-export { formatTokenBalance } from './tokenFormatter';
+export { formatTokenBalance, truncateAddress } from './tokenFormatter';

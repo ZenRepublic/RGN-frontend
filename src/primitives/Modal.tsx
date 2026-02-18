@@ -20,7 +20,7 @@ export function Modal({ isOpen, onClose, title, children, disabled = false }: Mo
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-box" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <span className="modal-title">{title}</span>
+          <h2>{title}</h2>
           <ImageButton onClick={onClose} disabled={disabled} ariaLabel="Close modal">
             <img src="/Icons/CloseIcon.PNG" alt="Close" />
           </ImageButton>

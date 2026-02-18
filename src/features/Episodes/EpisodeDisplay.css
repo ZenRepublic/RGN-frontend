@@ -1,4 +1,4 @@
-.episode-display {
+.episode-card {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -8,19 +8,13 @@
   overflow: hidden;
 }
 
-.episode-display-header {
+.episode-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 1rem;
   border-bottom: 1px solid var(--color-border, #333);
   background: var(--color-bg-tertiary, #2a2a2a);
-}
-
-.episode-display-time {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--color-text-secondary, #aaa);
 }
 
 .episode-display-status {
@@ -55,166 +49,4 @@
 .episode-display-status--completed .episode-display-status-dot {
   background: #4ade80;
   box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
-}
-
-.episode-display-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-}
-
-.episode-display-actor {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-}
-
-.episode-display-actor--left {
-  align-items: flex-start;
-}
-
-.episode-display-actor--right {
-  align-items: flex-end;
-}
-
-.episode-display-actor-img {
-  width: 100px;
-  height: 100px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 2px solid var(--color-border, #333);
-}
-
-.episode-display-actor-name {
-  font-family: 'Xirod', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--color-text, #fff);
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.episode-display-actor--left .episode-display-actor-name {
-  text-align: left;
-}
-
-.episode-display-actor--right .episode-display-actor-name {
-  text-align: right;
-}
-
-.episode-display-actor-placeholder {
-  width: 100px;
-  height: 100px;
-  border-radius: 8px;
-  background: var(--color-bg-tertiary, #2a2a2a);
-  border: 2px dashed var(--color-border, #333);
-}
-
-.episode-display-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0 0.5rem;
-}
-
-.episode-display-vs {
-  font-family: 'Xirod', sans-serif;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--color-accent, #ff6b6b);
-  text-transform: uppercase;
-}
-
-.episode-display-view-btn {
-  font-family: 'Masicu', sans-serif;
-  padding: 0.4rem 1.25rem;
-  background: var(--color-bg-tertiary, #2a2a2a);
-  border: 1px solid var(--color-border, #333);
-  border-radius: 4px;
-  color: var(--color-text, #fff);
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.episode-display-view-btn:hover:not(:disabled) {
-  background: var(--color-bg-hover, #3a3a3a);
-}
-
-.episode-display-view-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Mobile responsive styles */
-@media (max-width: 768px) {
-  .episode-display {
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-
-  .episode-display-content {
-    padding: 0.75rem 0.75rem;
-    gap: 0.25rem;
-  }
-
-  .episode-display-actor {
-    gap: 0.35rem;
-  }
-
-  .episode-display-actor-img {
-    width: 70px;
-    height: 70px;
-    border-width: 1px;
-  }
-
-  .episode-display-actor-placeholder {
-    width: 70px;
-    height: 70px;
-    border-width: 1px;
-  }
-
-  .episode-display-actor-name {
-    font-size: 0.8rem;
-    max-width: 80px;
-  }
-
-  .episode-display-vs {
-    font-size: 1.3rem;
-  }
-
-  .episode-display-center {
-    gap: 0.5rem;
-    padding: 0 0.25rem;
-  }
-
-  .episode-display-view-btn {
-    padding: 0.35rem 0.9rem;
-    font-size: 0.75rem;
-  }
-
-  .episode-display-header {
-    padding: 0.4rem 0.75rem;
-  }
-
-  .episode-display-time {
-    font-size: 0.75rem;
-  }
-
-  .episode-display-status {
-    font-size: 0.65rem;
-    gap: 0.3rem;
-  }
-
-  .episode-display-status-dot {
-    width: 6px;
-    height: 6px;
-  }
 }

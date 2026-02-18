@@ -6,10 +6,7 @@ button {
   font-weight: var(--font-weight-semibold);
   padding: var(--space-lg) var(--space-2xl);
   border-radius: var(--radius-md);
-  border: none;
-  cursor: pointer;
   transition: all var(--transition-base);
-  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
@@ -28,7 +25,7 @@ button.primary {
   font-size: var(--font-size-sm);
   padding: var(--space-md) var(--space-xl);
   width: auto;
-  min-width: 140px;
+  min-width: 120px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -46,6 +43,9 @@ button.primary:active:not(:disabled) {
 button.secondary {
   background: var(--yellow);
   color: var(--black);
+  padding: var(--space-md) var(--space-xl);
+  min-width: 120px;
+  box-shadow: var(--shadow-sm);
 }
 
 button.secondary:hover:not(:disabled) {
@@ -62,6 +62,7 @@ button.secondary:active:not(:disabled) {
 button.special {
   position: relative;
   overflow: hidden;
+  min-height: 48px;
   background: var(--yellow);
   color: var(--text-dark);
   font-family: var(--font-display);
@@ -175,22 +176,77 @@ button.glass.selected {
   font-size: 15px;
 }
 
+.toggle-btn {
+  padding: 12px 20px;
+  font-family: 'Xirod', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #1A1A1A;
+  color: var(--gray);
+  cursor: pointer;
+  transition: all 0.2s;
+  width: auto;
+}
+
+.toggle-btn:hover:not(:disabled):not(.active) {
+  border-color: var(--blue-main);
+  color: var(--white);
+}
+
+.toggle-btn.active {
+  background: var(--blue-main);
+  border-color: var(--white);
+  color: var(--white);
+  cursor: default;
+}
+
+.toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggle-btn-alt {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-family: 'Masicu', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--white);
+  background: transparent;
+  border: 2px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.toggle-btn-alt:hover:not(:disabled) {
+  border-color: var(--yellow);
+}
+
+.toggle-btn-alt.selected {
+  border-color: var(--yellow);
+  background: rgba(254, 238, 49, 0.1);
+  color: var(--yellow);
+}
+
+
 /* Image Button — icon/menu buttons */
 .image-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  object-fit: contain;
-  cursor: pointer;
-  padding: 0;
   transition: transform var(--transition-base), opacity var(--transition-base);
 }
 
 .image-button img {
   width: 36px;
   height: 36px;
+  object-fit: contain;
+}
+
+.image-button.lg img {
+  width: 48px;
+  height: 48px;
   object-fit: contain;
 }
 
@@ -206,6 +262,35 @@ button.glass.selected {
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+.tab-button {
+  padding: clamp(0.4rem, 2vw, 0.5rem) clamp(0.75rem, 3vw, 1rem);
+  font-family: 'Xirod', sans-serif;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: clamp(12px, 5vw, 20px);
+  font-weight: 400;
+  opacity: 1.0;
+  color: var(--white);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+  white-space: nowrap;
+}
+
+.tab-button.active {
+  opacity: 1.0;
+  border-bottom: 5px solid var(--yellow);
+  color: var(--yellow);
+}
+
+.tab-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 
 /* Responsive */
 @media (max-width: 480px) {

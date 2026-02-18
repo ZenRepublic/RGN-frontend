@@ -4,8 +4,7 @@ export const getShortMonthDayDate = (date: Date): string => {
   return `${month}.${day}`;
 };
 
-export function getLongMonthDayYearDate(dateString: string): string {
-  const date = new Date(dateString);
+export function getLongMonthDayYearDate(date: Date): string {
   return date.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
@@ -14,8 +13,7 @@ export function getLongMonthDayYearDate(dateString: string): string {
 };
 
 
-export function getShortYearMonthDayDate(dateString: string): string {
-  const date = new Date(dateString);
+export function getShortYearMonthDayDate(date: Date): string {
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -59,3 +57,18 @@ export function getTimeRemaining(endDate: Date | string): string | null {
 
     return `${hours}h ${minutes.toString().padStart(2, '0')}min ${seconds.toString().padStart(2, '0')}sec`;
 };
+
+export function getMonthDayAMPAMDdate(date: Date): string {
+  const datePart = date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric'
+  }).toUpperCase();
+
+  const timePart = date.toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  }).replace(' ', '');
+
+  return `${datePart}, ${timePart}`;
+}

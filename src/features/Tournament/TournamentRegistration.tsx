@@ -44,7 +44,7 @@ export default function TournamentRegistration({ tournament, onRegistrationCompl
         {tournament.description && (
           <p className="tournament-registration-description">{tournament.description}</p>
         )}
-        <p className="tournament-registration-start-date">Starts on {getLongMonthDayYearDate(tournament.startTime)}</p>
+        <p className="tournament-registration-start-date">Starts on {getLongMonthDayYearDate(new Date(tournament.startTime))}</p>
 
         <div className="tournament-registration-info">
           <div className="registration-stat">

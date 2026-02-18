@@ -1,28 +1,18 @@
 /* Import Design System */
-@import './variables.css';
 @import './theme.css';
 @import './components/buttons.css';
 @import './components/modals.css';
 @import './components/forms.css';
 @import './components/cards.css';
-@import './components/images.css';
+@import './components/slider.css';
 @import './components/spinners.css';
-@import './utilities.css';
+@import './components/text.css';
+/* @import './utilities.css'; */
 
-/* Font Faces */
-@font-face {
-  font-family: 'Masicu';
-  src: url('/Fonts/Masicu-Medium.ttf') format('truetype');
-  font-weight: 500;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Xirod';
-  src: url('/Fonts/Xirod - new rubian font.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-}
+/* Tailwind CSS - adds modern utilities on top of your design system */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Global Reset */
 * {
@@ -33,14 +23,8 @@
 
 /* Body & Root */
 body {
-  font-family: var(--font-body);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  min-height: 100vh;
+  color: var(--white);
   padding: var(--space-lg);
-  position: relative;
 }
 
 /* Animated diagonal stripes background - global */
@@ -63,83 +47,14 @@ body::before {
 }
 
 #root {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   max-width: 600px;
   margin: 0 auto;
   width: 100%;
   position: relative;
   z-index: 1;
-  padding-top: 72px;
-}
-
-/* Typography - Headings */
-h1 {
-  font-size: var(--heading-h1-size);
-  font-weight: var(--heading-h1-weight);
-  margin-bottom: var(--space-xl);
-  color: var(--text-primary);
-  text-shadow:
-    -1px -1px 0 var(--black),
-    1px -1px 0 var(--black),
-    -1px 1px 0 var(--black),
-    1px 1px 0 var(--black),
-    0 0 10px rgba(0, 0, 0, 0.8);
-  line-height: var(--heading-h1-line-height);
-}
-
-h2 {
-  font-size: var(--heading-h2-size);
-  font-weight: var(--heading-h2-weight);
-  margin-bottom: var(--space-lg);
-  color: var(--text-primary);
-  text-shadow:
-    -1px -1px 0 var(--black),
-    1px -1px 0 var(--black),
-    -1px 1px 0 var(--black),
-    1px 1px 0 var(--black),
-    0 0 8px rgba(0, 0, 0, 0.8);
-  line-height: var(--heading-h2-line-height);
-}
-
-h3 {
-  font-size: var(--heading-h3-size);
-  font-weight: var(--heading-h3-weight);
-  margin-bottom: var(--space-md);
-  color: var(--text-primary);
-  line-height: var(--heading-h3-line-height);
-}
-
-p {
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-normal);
-  margin-bottom: var(--space-lg);
-  color: var(--text-primary);
-  text-shadow:
-    -1px -1px 0 var(--black),
-    1px -1px 0 var(--black),
-    -1px 1px 0 var(--black),
-    1px 1px 0 var(--black),
-    0 0 8px rgba(0, 0, 0, 0.8);
-}
-
-.highlight {
-  color: var(--yellow);
-}
-
-/* Responsive - Tablet and up */
-@media (min-width: 768px) {
-  body {
-    padding: var(--space-3xl);
-  }
-
-  h1 {
-    font-size: var(--heading-h1-size);
-  }
-
-  h2 {
-    font-size: var(--heading-h2-size);
-  }
-
-  p {
-    font-size: var(--font-size-base);
-  }
+  padding: var(--space-3xl);
+  padding-top: 80px;
 }

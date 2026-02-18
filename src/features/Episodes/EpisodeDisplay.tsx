@@ -1,31 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { Order } from '../../utils';
 import { storeToCache } from '@/features/Episodes/EpisodeView';
+import {getMonthDayAMPAMDdate} from "@/utils"
 import './EpisodeDisplay.css';
-
-interface EpisodeDisplayProps {
-  asset: Order | undefined;
-}
-
-function formatStartTime(startTime: string | undefined): string {
-  if (!startTime) return '';
-
-  const date = new Date(startTime);
-  if (isNaN(date.getTime())) return '';
-
-  const datePart = date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric'
-  }).toUpperCase();
-
-  const timePart = date.toLocaleTimeString(undefined, {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  }).replace(' ', '');
-
-  return `${datePart}, ${timePart}`;
-}
 
 function getEpisodeStatus(startTime: string | undefined): { text: string; type: 'voting' | 'completed' } {
   if (!startTime) return { text: 'Voting Open', type: 'voting' };
@@ -42,12 +19,10 @@ function getEpisodeStatus(startTime: string | undefined): { text: string; type: 
   }
 }
 
-export default function EpisodeDisplay({ asset }: EpisodeDisplayProps) {
+export default function EpisodeDisplay({ asset }: { asset: Order }) {
   const navigate = useNavigate();
 
-  const actors = asset?.actors || [];
-  const actor1 = actors[0];
-  const actor2 = actors[1];
+  const [actor1, actor2] = asset.actors!;
 
   const handleView = () => {
     if (asset) {
@@ -56,59 +31,35 @@ export default function EpisodeDisplay({ asset }: EpisodeDisplayProps) {
     }
   };
 
-  const formattedTime = formatStartTime(asset?.startTime);
-  const status = getEpisodeStatus(asset?.startTime);
+  const formattedTime = getMonthDayAMPAMDdate(new Date(asset.startTime));
+  const status = getEpisodeStatus(asset.startTime);
 
   return (
-    <div className="episode-display">
-      <div className="episode-display-header">
-        <span className="episode-display-time">{formattedTime}</span>
+    <div className="episode-card">
+      <div className="episode-card-header">
+        <span className='text-white font-bold opacity-80'>{formattedTime}</span>
         <span className={`episode-display-status episode-display-status--${status.type}`}>
           <span className="episode-display-status-dot"></span>
           {status.text}
         </span>
       </div>
 
-      <div className="episode-display-content">
-        <div className="episode-display-actor episode-display-actor--left">
-          {actor1 ? (
-            <>
-              <span className="episode-display-actor-name">{actor1.name}</span>
-              <img
-                src={actor1.imageUrl}
-                alt={actor1.name}
-                className="episode-display-actor-img"
-              />
-            </>
-          ) : (
-            <div className="episode-display-actor-placeholder" />
-          )}
+      <div className="flex justify-between items-center p-lg">
+        <div className="flex flex-1 min-w-0 flex-col gap-md items-start">
+          <span className="title block truncate">{actor1.name}</span>
+          <img src={actor1.imageUrl} alt={actor1.name} className="w-[100px] h-[100px] rounded-md" />
         </div>
 
-        <div className="episode-display-center">
-          <span className="episode-display-vs">VS</span>
-          <button
-            className="episode-display-view-btn"
-            onClick={handleView}
-            disabled={!asset}
-          >
+        <div className="flex flex-col items-center gap-md">
+          <span className="intense-red">VS</span>
+          <button className="special-small min-w-[80px]" onClick={handleView}>
             View
           </button>
         </div>
 
-        <div className="episode-display-actor episode-display-actor--right">
-          {actor2 ? (
-            <>
-              <span className="episode-display-actor-name">{actor2.name}</span>
-              <img
-                src={actor2.imageUrl}
-                alt={actor2.name}
-                className="episode-display-actor-img"
-              />
-            </>
-          ) : (
-            <div className="episode-display-actor-placeholder" />
-          )}
+        <div className="flex flex-1 min-w-0 flex-col gap-md items-end">
+          <span className="title block truncate">{actor2.name}</span>
+          <img src={actor2.imageUrl} alt={actor2.name} className="w-[100px] h-[100px] rounded-md" />
         </div>
       </div>
     </div>

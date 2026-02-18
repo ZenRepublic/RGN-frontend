@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Modal } from '@/primitives/Modal';
-import { Toast } from '@/primitives/Toast';
+import { useToast } from '@/context/ToastContext';
 import { EpisodeOrderFormData } from '@/types/channel';
 import { storeOrderResult } from '@/features/EpisodeForm/OrderSuccess';
 import { usePrepareOrder, useConfirmOrder } from '@/hooks/useEpisodePurchase';
@@ -25,7 +25,6 @@ interface CheckoutModalProps {
   paymentInfo: PaymentInfo | null;
   channelId: string;
   onClose: () => void;
-  onError: (message: string) => void;
 }
 
 export default function CheckoutModal({
@@ -34,16 +33,15 @@ export default function CheckoutModal({
   paymentInfo,
   channelId,
   onClose,
-  onError,
 }: CheckoutModalProps) {
   const navigate = useNavigate();
   const { publicKey, signTransaction, connected } = useWallet();
   const prepareOrder = usePrepareOrder();
   const confirmOrder = useConfirmOrder();
+  const { showToast } = useToast();
 
   const [step, setStep] = useState<ModalStep>('details');
   const [loading, setLoading] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleClose = () => {
     if (!loading) {
@@ -54,12 +52,12 @@ export default function CheckoutModal({
 
   const handlePayAndOrder = async () => {
     if (!connected || !publicKey || !signTransaction) {
-      setToastMessage('Please connect your wallet first');
+      showToast('Please connect your wallet first');
       return;
     }
 
     if (!paymentInfo) {
-      setToastMessage('Payment info not loaded. Please refresh the page.');
+      showToast('Payment info not loaded. Please refresh the page.');
       return;
     }
 
@@ -99,10 +97,8 @@ export default function CheckoutModal({
       navigate('/order-success');
 
     } catch (err) {
-      console.error('Payment error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Payment failed. Please try again.';
-      setToastMessage(errorMessage);
-      onError(errorMessage);
+      showToast(errorMessage);
       setStep('details');
     } finally {
       setLoading(false);
@@ -126,22 +122,26 @@ export default function CheckoutModal({
         </div>
       ) : (
         <>
-          <div className="checkout-content">
-            <div className="checkout-summary">
+          <div className="flex flex-col gap-lg">
+            <div className="bg-bg-primary p-xl rounded-lg">
               {formData.startTime && (
-                <div className="checkout-start-time">
+                <div className="text-white text-bold text-center mb-lg">
                   {getFullAMPMDate(new Date(formData.startTime))}
                 </div>
               )}
-              <div className="checkout-preview">
+              <div className="flex justify-center items-center gap-2xl">
                 {formData.preview.map((item, index) => (
                   <React.Fragment key={index}>
-                    <div className="checkout-preview-item">
-                      <img src={item.imagePreview} alt={item.name} />
+                    <div className="flex flex-col justify-center items-center gap-sm">
+                      <img 
+                      className='rounded-full w-[100px] object-cover border-lg border-yellow bg-black'
+                      src={item.imagePreview} 
+                      alt={item.name} 
+                      />
                       <span>{item.name}</span>
                     </div>
                     {index < formData.preview.length - 1 && (
-                      <span className="checkout-vs">VS</span>
+                      <span className="intense-red">VS</span>
                     )}
                   </React.Fragment>
                 ))}
@@ -149,7 +149,7 @@ export default function CheckoutModal({
             </div>
 
             <div className="checkout-includes">
-              <span>Includes:</span>
+              <label>INCLUDES</label>
               <ul>
                 {formData.includes.map((item, index) => (
                   <li key={index}>{item}</li>
@@ -171,14 +171,6 @@ export default function CheckoutModal({
                 : `Purchase (${paymentInfo?.price || '...'} SOL)`}
           </button>
         </>
-      )}
-      {toastMessage && (
-        <Toast
-          message={toastMessage}
-          type="error"
-          duration={2000}
-          onClose={() => setToastMessage(null)}
-        />
       )}
     </Modal>
   );

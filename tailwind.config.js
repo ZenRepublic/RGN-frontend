@@ -50,7 +50,7 @@ export default {
         'text-dark': '#050511',
 
         // Border colors
-        'border-color': '#333333',
+        'border-light': '#FFFFFF',
         'border-dark': '#1A1A1A',
       },
 
@@ -80,24 +80,12 @@ export default {
         'extrabold': '800',
       },
 
-      // Custom border radius
-      borderRadius: {
-        'sm': '4px',
-        'md': '8px',
-        'lg': '12px',
-        'xl': '16px',
-        'full': '50%',
-      },
-
       // Custom shadows
       boxShadow: {
         'sm': '0 2px 4px rgba(0, 0, 0, 0.2)',
         'md': '0 4px 8px rgba(0, 0, 0, 0.3)',
         'lg': '0 8px 16px rgba(0, 0, 0, 0.4)',
         'xl': '0 12px 24px rgba(0, 0, 0, 0.5)',
-        'light-sm': '0 2px 6px rgba(255, 255, 255, 0.15)',
-        'light-md': '0 4px 12px rgba(255, 255, 255, 0.25)',
-        'light-lg': '0 8px 20px rgba(255, 255, 255, 0.35)',
       },
 
       // Custom z-index
@@ -109,13 +97,6 @@ export default {
         'modal': '1000',
         'tooltip': '1100',
         'notification': '1200',
-      },
-
-      // Custom line heights
-      lineHeight: {
-        'tight': '1.2',
-        'normal': '1.5',
-        'relaxed': '1.75',
       },
 
       // Custom transitions
@@ -134,6 +115,14 @@ export default {
         'xl': '20px',
         '2xl': '24px',
         '3xl': '32px',
+      },
+
+      // Custom border widths
+      borderWidth: {
+        'xs': '1px',
+        'sm': '2px',
+        'md': '4px',
+        'lg': '6px',
       },
     },
   },

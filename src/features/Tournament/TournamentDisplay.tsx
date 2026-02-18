@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import EpisodeLoader from '../Episodes/EpisodeLoader';
+import EpisodeGrid from '../Episodes/EpisodeGrid';
+import { useOrdersByIds } from '@/hooks/useOrdersByIds';
 import './TournamentDisplay.css';
 
 interface TournamentStages {
@@ -29,6 +30,8 @@ export default function TournamentDisplay({ tournament }: { tournament: Tourname
   );
 
   const currentStage = stagesWithEpisodes[currentStageIndex];
+  const episodeIds = currentStage?.[1].episodes ?? [];
+  const { orders, loading } = useOrdersByIds(episodeIds);
 
   const handlePrevStage = () => {
     setCurrentStageIndex(prev => Math.max(0, prev - 1));
@@ -69,10 +72,9 @@ export default function TournamentDisplay({ tournament }: { tournament: Tourname
             </button>
           </div>
 
-          <EpisodeLoader
-            mode="ids"
-            assetIds={currentStage[1].episodes}
-            cacheKey={tournament._id}
+          <EpisodeGrid
+            orders={orders}
+            loading={loading}
             className="tournament-matches"
           />
         </div>

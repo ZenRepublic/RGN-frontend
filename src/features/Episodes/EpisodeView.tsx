@@ -3,10 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { AssetInspector } from '@/primitives/buttons/AssetInspectorButton';
 import { VotingSystem } from '@/features/Voting/VotingSystem';
+import { useToast } from '@/context/ToastContext';
 import { Order, fetchOrderById } from '../../utils';
 import { getFullAMPMDate } from '../../utils'
 import { downloadVideo } from '../../utils'
-import './EpisodeView.css';
 
 const EPISODE_VIEW_KEY = 'rgn-episode-view';
 
@@ -31,6 +31,7 @@ function getFromCache(): Order | null {
 export default function EpisodeView() {
   const navigate = useNavigate();
   const { orderId } = useParams<{ orderId: string }>();
+  const { showToast } = useToast();
   const [asset, setAsset] = useState<Order | null>(null);
   const [downloading, setDownloading] = useState(false);
 
@@ -67,7 +68,7 @@ export default function EpisodeView() {
     });
 
     if (!result.success) {
-      console.error('Download failed:', result.message);
+      showToast(result.message || 'Download failed');
     }
 
     setDownloading(false);
@@ -78,41 +79,39 @@ export default function EpisodeView() {
   }
 
   return (
-    <div className="episode-view-page">
+    <>
       <Header />
-      <div className="episode-view-container">
-        <div className="episode-view-header-row">
+      <div className="flex flex-col gap-xl">
+        <div className="flex justify-between">
           <button onClick={handleBack} className="back">
             ← Back
           </button>
-          <h1 className="episode-view-section-header">Episode Overview</h1>
+          <h1>Episode Overview</h1>
         </div>
 
         {asset.coverImageUrl && (
           <img
-            className="episode-view-image"
+            className="rounded-lg shadow-xl"
             src={asset.coverImageUrl}
             alt="Episode cover"
           />
         )}
 
-        <div className="episode-view-overview">
-          <div className="episode-view-meta">
-            <div className="episode-view-meta-row">
-              <p className="episode-view-meta-label">ID:</p>
-              <p className="episode-view-meta-value">#{asset.id}</p>
+        <div className="frosted-card-inner">
+          <div className='w-full flex flex-col gap-lg'>
+            <div className="flex justify-between items-end border-b-sm border-white/20">
+              <span className="text-white text-sm opacity-80">ID</span>
+              <span className="text-white font-bold">#{asset.id}</span>
             </div>
-            {asset.startTime && (
-              <div className="episode-view-meta-row">
-                <p className="episode-view-meta-label">Date:</p>
-                <p className="episode-view-meta-value">
-                  {getFullAMPMDate(new Date(asset.startTime))}
-                </p>
-              </div>
-            )}
+
+            <div className="flex justify-between items-end border-b-sm border-white/20">
+              <span className="text-white text-sm opacity-80">DATE</span>
+              <span className="text-white font-bold">{getFullAMPMDate(new Date(asset.startTime))}</span>
+            </div>
+
             {asset.episodeId && (
-              <div className="episode-view-meta-row">
-                <p className="episode-view-meta-label">Asset:</p>
+              <div className="flex justify-between items-end border-b-sm border-white/20">
+                <span className="text-white text-sm opacity-80">ASSET</span>
                 <AssetInspector assetAddress={asset.episodeId} />
               </div>
             )}
@@ -130,14 +129,14 @@ export default function EpisodeView() {
         {asset.videoUrl ? (
           <>
             <video
-              className="episode-view-video"
+              className="w-full rounded-md bg-black"
               src={asset.videoUrl}
               controls
               // autoPlay
               loop
             />
             <button
-              className="episode-view-download-btn"
+              className="secondary"
               onClick={handleDownload}
               disabled={downloading}
             >
@@ -147,18 +146,20 @@ export default function EpisodeView() {
         ) : (
           // Only show "processing" message if voting has ended (startTime is in the past)
           asset.startTime && new Date(asset.startTime).getTime() < Date.now() && (
-            <div className="episode-view-pending">
-              <p>Video is still processing...</p>
+            <div className="empty-card">
+              <div className="flex items-center justify-center h-full w-full opacity-60">
+                <p className="text-center">Video is still processing...</p>
+              </div>
             </div>
           )
         )}
       </div>
 
       {asset.videoUrl && (
-        <p className="episode-view-share-text">
+        <p className='text-center'>
           Feel free to share the match on your socials, and tag <span className="highlight">@RGN_Brainrot</span> if you want us to interact!
         </p>
       )}
-    </div>
+    </>
   );
 }

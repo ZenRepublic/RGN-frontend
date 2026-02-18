@@ -1,8 +1,7 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { ImageCropModal } from './ImageCropModal';
-import { Toast } from '../primitives/Toast';
+import { useToast } from '../context/ToastContext';
 import { resizeImageForCropper, type CroppedImageData } from '../utils/media';
-import './ImageUpload.css';
 
 interface ImageUploadProps {
   defaultPreview: string;
@@ -20,6 +19,7 @@ export default function ImageUpload({
   // File input ref - needed to reset value after modal closes
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { showToast } = useToast();
   const initialPreview = initialBlob ? URL.createObjectURL(initialBlob) : defaultPreview;
   const [imagePreview, setImagePreview] = useState(initialPreview);
   const [hasImage, setHasImage] = useState(!!initialBlob);
@@ -27,9 +27,6 @@ export default function ImageUpload({
   // Cropping state
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropImage, setCropImage] = useState<string | null>(null);
-
-  // Toast state
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const resetFileInput = () => {
     if (fileInputRef.current) {
@@ -41,12 +38,12 @@ export default function ImageUpload({
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setToastMessage('Please upload an image file');
+      showToast('Please upload an image file');
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setToastMessage('Image must be smaller than 5MB');
+      showToast('Image must be smaller than 5MB');
       return;
     }
 
@@ -55,9 +52,8 @@ export default function ImageUpload({
       setCropImage(resizedDataUrl);
       setCropModalOpen(true);
     } catch (err) {
-      console.error('Failed to process image:', err);
       const message = err instanceof Error ? err.message : 'Failed to process image. Please try again.';
-      setToastMessage(message);
+      showToast(message);
     }
   };
 
@@ -81,19 +77,19 @@ export default function ImageUpload({
 
   return (
     <>
-      <div className="image-uploader-container">
+      <div className="flex flex-col items-center gap-sm">
         <img
           src={imagePreview}
           alt="Image"
-          className="circle-mask"
+          className="rounded-full w-[100px] object-cover border-lg border-yellow bg-black"
         />
-        <label
+        <button
           {...(inputId && { htmlFor: inputId })}
           className="special-small"
           onClick={() => fileInputRef.current?.click()}
         >
           {hasImage ? 'Change' : 'Upload'}
-        </label>
+        </button>
         <input
           ref={fileInputRef}
           {...(inputId && { id: inputId })}
@@ -112,14 +108,6 @@ export default function ImageUpload({
         onConfirm={handleCropConfirm}
         onCancel={handleCropCancel}
       />
-
-      {toastMessage && (
-        <Toast
-          message={toastMessage}
-          type="error"
-          onClose={() => setToastMessage(null)}
-        />
-      )}
     </>
   );
 }

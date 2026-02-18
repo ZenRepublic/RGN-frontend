@@ -8,10 +8,9 @@ import './ChannelOverview.css';
 
 interface ChannelOverviewProps {
   channel: ChannelConfig;
-  onError?: (message: string) => void;
 }
 
-export default function ChannelOverview({ channel, onError }: ChannelOverviewProps) {
+export default function ChannelOverview({ channel }: ChannelOverviewProps) {
   const inWalletBrowser = useIsInAppWalletBrowser();
   const [videoError, setVideoError] = useState(false);
   const [activeTab, setActiveTab] = useState<'schedule' | 'tournaments'>('schedule');
@@ -19,9 +18,9 @@ export default function ChannelOverview({ channel, onError }: ChannelOverviewPro
   const channelId = getIdByNetwork(channel.name);
 
   return (
-    <>
-      <section className="about-section">
-        <p>{channel.description}</p>
+    <div className='flex flex-col gap-2xl'>
+      <section className="bg-yellow rounded-xl p-xl">
+        <p className='inverted'>{channel.description}</p>
         {!inWalletBrowser && (
           <div className="video-container">
             {!videoError ? (
@@ -43,7 +42,7 @@ export default function ChannelOverview({ channel, onError }: ChannelOverviewPro
         )}
       </section>
 
-      <div className="tab-buttons">
+      <div className="flex flex-wrap justify-center gap-xl">
         <button
           className={`tab-button ${activeTab === 'schedule' ? 'active' : ''}`}
           onClick={() => setActiveTab('schedule')}
@@ -59,12 +58,13 @@ export default function ChannelOverview({ channel, onError }: ChannelOverviewPro
       </div>
 
       {activeTab === 'schedule' && (
-        <EpisodeSchedule channelId={channelId} onError={onError} />
+        <EpisodeSchedule channelId={channelId} />
       )}
 
       {activeTab === 'tournaments' && (
         <TournamentManager />
       )}
-    </>
+      
+    </div>
   );
 }
