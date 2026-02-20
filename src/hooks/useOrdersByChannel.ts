@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { fetchOrdersByChannel, Order } from '../utils';
+import { fetchOrdersByChannel, Order } from '../services/episodeFetch';
 import { useToast } from '../context/ToastContext';
 
 export function useOrdersByChannel(channelId: string): { orders: Order[]; loading: boolean } {

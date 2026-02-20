@@ -3,11 +3,9 @@ import { Transaction } from '@solana/web3.js';
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
 export interface OrderResult {
+  orderId?: string;
   channelId?: string;
   episodeId?: string;
-  coverImageUrl?: string;
-  queuePosition: number;
-  estimatedDelivery: string;
   error?: string;
 }
 
@@ -66,8 +64,8 @@ export async function confirmOrder(
 
   const data = await response.json() as OrderResult;
 
-  if (!response.ok && data.episodeId) {
-    // Partial success - NFT minted but metadata failed
+  if (!response.ok && data.error) {
+    // Partial success - NFT minted but backend processing failed
     return data;
   }
 

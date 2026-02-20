@@ -26,7 +26,6 @@ import {
 } from '@solana/wallet-adapter-wallets';
 
 import App from './App';
-import OrderSuccess from './features/EpisodeForm/OrderSuccess';
 import EpisodeView from './features/Episodes/EpisodeView';
 import AccountView from './features/Profile/AccountView';
 import RegistrationView from './features/Profile/RegistrationView';
@@ -106,8 +105,7 @@ createRoot(container).render(
           <ToastProvider>
             <Routes>
               <Route path="/" element={<App />} />
-              <Route path="/order-success" element={<OrderSuccess />} />
-              <Route path="/episode/:orderId" element={<EpisodeView />} />
+<Route path="/episode/:orderId" element={<EpisodeView />} />
               <Route path="/account" element={<AccountView />} />
               <Route path="/registration" element={<RegistrationView />} />
               <Route path="/diodudes/order" element={<DioDudesOrderForm />} />

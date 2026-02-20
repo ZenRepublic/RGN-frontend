@@ -6,6 +6,7 @@ import { Footer } from '@/components/Footer';
 import { CHANNELS } from './features/Channel';
 import ChannelOverview from './features/Channel/ChannelOverview';
 
+
 function App() {
   const [activeChannelName, setActiveChannelName] = useState(CHANNELS[0]?.name || '');
   const activeChannel = CHANNELS.find(s => s.name === activeChannelName);

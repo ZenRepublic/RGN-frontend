@@ -4,7 +4,7 @@ import { Header } from '@/components/Header';
 import { AssetInspector } from '@/primitives/buttons/AssetInspectorButton';
 import { VotingSystem } from '@/features/Voting/VotingSystem';
 import { useToast } from '@/context/ToastContext';
-import { Order, fetchOrderById } from '../../utils';
+import { Order, fetchOrderById } from '@/services/episodeFetch';
 import { getFullAMPMDate } from '../../utils'
 import { downloadVideo } from '../../utils'
 

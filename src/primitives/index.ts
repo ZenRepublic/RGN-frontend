@@ -8,3 +8,4 @@ export { Modal } from './Modal';
 export { TokenDisplay } from './TokenDisplay';
 export { CopyableText } from './CopyableText';
 export { InputField } from './InputField';
+export { SparkleEffect } from './SparkleEffect';

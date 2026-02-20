@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import ImageUpload from '@/components/ImageUpload';
 import { useToast } from '@/context/ToastContext';
 import { blobToBase64, type CroppedImageData } from '../../utils'
@@ -7,6 +7,7 @@ export interface ActorData {
   name: string;
   imageBlob: Blob | null;
   imageBuffer: string | null;
+  imageUrl?: string | null;
 }
 
 export const DEFAULT_ACTOR_IMAGE = '/Images/mystery-actor.png';
@@ -33,6 +34,20 @@ export default function ActorInfoForm({
   const [name, setName] = useState(init.name);
   const [imageBlob, setImageBlob] = useState<Blob | null>(init.imageBlob);
   const [imageBuffer, setImageBuffer] = useState<string | null>(init.imageBuffer);
+  const [imageKey, setImageKey] = useState(0);
+
+  useEffect(() => {
+    if (!init.imageUrl || init.imageBlob) return;
+    fetch(init.imageUrl)
+      .then(res => res.blob())
+      .then(blob => blobToBase64(blob).then(buffer => {
+        setImageBlob(blob);
+        setImageBuffer(buffer);
+        setImageKey(k => k + 1);
+        onChange({ name, imageBlob: blob, imageBuffer: buffer });
+      }))
+      .catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleNameChange = (value: string) => {
     const filtered = value.replace(/[^a-zA-Z0-9_ ]/g, '');
@@ -55,8 +70,9 @@ export default function ActorInfoForm({
   return (
     <div className="flex gap-xl items-start">
       <ImageUpload
+        key={imageKey}
         defaultPreview={DEFAULT_ACTOR_IMAGE}
-        initialBlob={init.imageBlob ?? undefined}
+        initialBlob={imageBlob ?? undefined}
         onImageChange={handleImageChange}
       />
       <div className="flex flex-col flex-1">

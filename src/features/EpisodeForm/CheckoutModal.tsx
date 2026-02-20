@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Modal } from '@/primitives/Modal';
 import { useToast } from '@/context/ToastContext';
 import { EpisodeOrderFormData } from '@/types/channel';
-import { storeOrderResult } from '@/features/EpisodeForm/OrderSuccess';
 import { usePrepareOrder, useConfirmOrder } from '@/hooks/useEpisodePurchase';
-import { OrderResult } from '@/services/episodePurchase';
+import { fetchOrderById } from '@/services/episodeFetch';
 import {getFullAMPMDate} from "@/utils"
 
 import './CheckoutModal.css';
@@ -17,7 +16,7 @@ interface PaymentInfo {
   wallet: string;
 }
 
-type ModalStep = 'details' | 'processing' | 'confirming';
+type ModalStep = 'details' | 'processing' | 'confirming' | 'success' | 'partial-error';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -42,12 +41,38 @@ export default function CheckoutModal({
 
   const [step, setStep] = useState<ModalStep>('details');
   const [loading, setLoading] = useState(false);
+  const [partialErrorId, setPartialErrorId] = useState<string | null>(null);
+  const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const stopPolling = () => {
+    if (pollRef.current) {
+      clearTimeout(pollRef.current);
+      pollRef.current = null;
+    }
+  };
+
+  useEffect(() => () => stopPolling(), []);
 
   const handleClose = () => {
     if (!loading) {
+      stopPolling();
       setStep('details');
+      setPartialErrorId(null);
       onClose();
     }
+  };
+
+  const startPolling = (orderId: string) => {
+    const poll = async () => {
+      const order = await fetchOrderById(orderId, false);
+      console.log(order);
+      if (order) {
+        navigate(`/episode/${orderId}`);
+      } else {
+        pollRef.current = setTimeout(poll, 3000);
+      }
+    };
+    pollRef.current = setTimeout(poll, 2000);
   };
 
   const handlePayAndOrder = async () => {
@@ -86,15 +111,15 @@ export default function CheckoutModal({
         formData.startTime || ''
       );
 
-      if (data.episodeId) {
-        // Partial success - NFT minted but metadata failed
-        storeOrderResult(data);
-        navigate('/order-success');
+      if (data.error) {
+        // Partial success - NFT minted but backend processing failed
+        setPartialErrorId(data.orderId || episodeId);
+        setStep('partial-error');
         return;
       }
 
-      storeOrderResult(data as OrderResult);
-      navigate('/order-success');
+      setStep('success');
+      startPolling(data.orderId!);
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Payment failed. Please try again.';
@@ -112,7 +137,27 @@ export default function CheckoutModal({
       title="Order Details"
       disabled={loading}
     >
-      {(step === 'processing' || step === 'confirming') ? (
+      {step === 'partial-error' ? (
+        <div className="flex flex-col items=center text-center gap-lg">
+          <h2>Order Minted</h2>
+          <p>
+            Your order was minted, but an unexpected error occurred on the server.
+            Please reach out to <strong>@rgn_brainrot</strong> on X providing your order ID:
+          </p>
+          <p className="intense-red">{partialErrorId}</p>
+          <button className="primary" onClick={handleClose}>Close</button>
+        </div>
+      ) : step === 'success' ? (
+        <div className="flex flex-col items-center text-center gap-lg">
+          <img
+          src="/Images/Success.jpg"
+          alt="Success"
+          className="rounded-lg border-md border-white shadow-xl"
+          />
+          <h2>Order Confirmed!</h2>
+          <p>Please wait to be redirected...</p>
+        </div>
+      ) : (step === 'processing' || step === 'confirming') ? (
         <div className="checkout-processing">
           <div className={`spinner large ${step}`}></div>
           <h2>{step === 'processing' ? 'Waiting for Signature' : 'Transaction Confirmed'}</h2>

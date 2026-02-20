@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { QuickBuy } from '@/components/QuickBuy';
 import { ConnectWalletButton } from '@/primitives/buttons/ConnectWalletButton';
 import { useAccountVotePower } from '@/hooks/useAccountVotePower';
@@ -24,39 +24,14 @@ export function ProfileDisplay({ loading, account }: ProfileDisplayProps) {
   const { setAccount } = useAccount();
   const update = useUpdateProfile();
   const [showQuickBuy, setShowQuickBuy] = useState(false);
-  const [avatarBlob, setAvatarBlob] = useState<Blob | null>(null);
   const [updateProfileOpen, setUpdateProfileOpen] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [updateError, setUpdateError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!account?.avatar) {
-      setAvatarBlob(null);
-      return;
-    }
-    fetch(account.avatar)
-      .then(res => res.blob())
-      .then(setAvatarBlob)
-      .catch(() => setAvatarBlob(null));
-  }, [account?.avatar]);
 
   const handleUpdateProfileConfirm = async (actorData: ActorData) => {
-    setIsUpdating(true);
-    setUpdateError(null);
-    try {
-      const updatedAccount = await update(actorData);
-      if (updatedAccount) setAccount(updatedAccount);
-      setUpdateProfileOpen(false);
-    } catch (error) {
-      setUpdateError(error instanceof Error ? error.message : 'Update failed');
-    } finally {
-      setIsUpdating(false);
-    }
+    const updatedAccount = await update(actorData);
+    if (updatedAccount) setAccount(updatedAccount);
   };
 
   const handleUpdateProfileClose = () => {
-    if (isUpdating) return;
-    setUpdateError(null);
     setUpdateProfileOpen(false);
   };
 
@@ -128,9 +103,7 @@ export function ProfileDisplay({ loading, account }: ProfileDisplayProps) {
       isOpen={updateProfileOpen}
       onClose={handleUpdateProfileClose}
       onConfirm={handleUpdateProfileConfirm}
-      initialData={account ? { name: account.displayName, imageBlob: avatarBlob, imageBuffer: null } : undefined}
-      isLoading={isUpdating}
-      error={updateError ?? undefined}
+      initialData={account ? { name: account.displayName, imageUrl: account.avatar, imageBlob: null, imageBuffer: null } : undefined}
     />
     </>
   );

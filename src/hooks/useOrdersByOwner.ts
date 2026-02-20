@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { fetchOrdersByWallet, Order } from '../utils';
+import { fetchOrdersByWallet, Order } from '../services/episodeFetch';
 import { useToast } from '../context/ToastContext';
 
 export function useOrdersByOwner(ownerAddress: string, channelId: string): { orders: Order[]; loading: boolean } {
