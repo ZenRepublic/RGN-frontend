@@ -55,6 +55,5 @@ body::before {
   width: 100%;
   position: relative;
   z-index: 1;
-  padding: var(--space-3xl);
   padding-top: 80px;
 }

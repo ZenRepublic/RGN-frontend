@@ -53,7 +53,7 @@ export function Header() {
 
   return (
     <div className={`header ${visible ? 'visible' : 'hidden'}`}>
-      <div className="flex justify-between gap-lg">
+      <div className="flex justify-between items-center gap-lg">
         <div className="flex items-center gap-xl">
           <ImageButton
             href="/"
@@ -88,7 +88,7 @@ export function Header() {
           </div>
         </div>
 
-        <div>
+        <div className='items-center'>
           {connected ? (
             <Button
               className="primary"
